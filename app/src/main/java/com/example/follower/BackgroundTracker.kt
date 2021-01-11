@@ -10,13 +10,22 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
+import java.io.File
 
+private const val CHANNEL_ID = "GPS_CHANNEL"
 private const val LOCATION_INTERVAL = 500
 private const val LOCATION_DISTANCE = 10
 private const val TAG = "BackgroundService"
+private const val DEBUG_LOGS_DIR = "FlightRecordings"
+private const val DEBUG_LOGS_STORAGE_FILE_NAME = "tape.log"
 
 class BackgroundTracker : Service() {
+    private val logFile = File(File(filesDir, DEBUG_LOGS_DIR).apply {
+        if (exists().not()) {
+            mkdir()
+        }
+    }, DEBUG_LOGS_STORAGE_FILE_NAME)
+    private val logger = FlightRecorder(logFile)
     private val binder = LocationServiceBinder()
     private lateinit var locationListener: LocationListener
     private lateinit var locationManager: LocationManager
@@ -28,12 +37,12 @@ class BackgroundTracker : Service() {
 
         override fun onLocationChanged(location: Location) {
             lastLocation = location
-            Log.i(javaClass.simpleName, "LocationChanged: $location")
+            logger.i { "Location Changed: $location" }
         }
 
-        override fun onProviderDisabled(provider: String) { Log.e(javaClass.simpleName, "onProviderDisabled: $provider") }
-        override fun onProviderEnabled(provider: String) { Log.e(javaClass.simpleName, "onProviderEnabled: $provider") }
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) { Log.e(javaClass.simpleName, "onStatusChanged: $status") }
+        override fun onProviderDisabled(provider: String) { logger.w { "onProviderDisabled: $provider" } }
+        override fun onProviderEnabled(provider: String) { logger.w {"onProviderEnabled: $provider" } }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) { logger.w { "onStatusChanged: $status" } }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -42,7 +51,9 @@ class BackgroundTracker : Service() {
     }
 
     override fun onCreate() {
-        Log.i(TAG, "onCreate")
+        logger.i { "${javaClass.simpleName} onCreate()" }
+        getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
+        val notification = Notification.Builder(applicationContext, CHANNEL_ID).setAutoCancel(false).build()
         startForeground(12345678, notification)
     }
 
@@ -52,7 +63,8 @@ class BackgroundTracker : Service() {
             try {
                 locationManager.removeUpdates(locationListener)
             } catch (ex: Exception) {
-                Log.i(TAG, "fail to remove location listners, ignore", ex)
+                logger.i { "Failed to remove location listeners" }
+                logger.e(stackTrace = ex.stackTrace)
             }
         }
     }
@@ -63,26 +75,15 @@ class BackgroundTracker : Service() {
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL.toLong(), LOCATION_DISTANCE.toFloat(), locationListener)
         } catch (ex: SecurityException) {
-            Log.i(TAG, "fail to request location update, ignore", ex);
+            logger.i { "Failed to request location update" }
+            logger.e(stackTrace = ex.stackTrace)
         } catch (ex: IllegalArgumentException) {
-            Log.d(TAG, "gps provider does not exist " + ex.localizedMessage);
+            logger.i { "GPS provider does not exist (${ex.localizedMessage})" }
+            logger.e(stackTrace = ex.stackTrace)
         }
     }
 
     fun stopTracking() = onDestroy()
-
-    private val notification: Notification
-        get() {
-            val channel = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                NotificationChannel("channel_01", "My Channel", NotificationManager.IMPORTANCE_DEFAULT)
-            } else {
-                TODO("VERSION.SDK_INT < O")
-            }
-            val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(channel)
-            val builder = Notification.Builder(applicationContext, "channel_01").setAutoCancel(true)
-            return builder.build()
-        }
 
     inner class LocationServiceBinder : Binder() {
         val service: BackgroundTracker

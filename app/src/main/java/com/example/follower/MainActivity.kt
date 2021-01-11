@@ -156,9 +156,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
-import android.webkit.PermissionRequest
-import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
@@ -168,15 +165,17 @@ import com.karumi.dexter.listener.single.PermissionListener
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    var gpsService: BackgroundTracker? = null
-    var mTracking = false
+    private var gpsService: BackgroundTracker? = null
+    private var tracking = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val intent = Intent(application, BackgroundTracker::class.java)
-        application.startService(intent)
-        //        this.getApplication().startForegroundService(intent);
-        application.bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+        with(Intent(application, BackgroundTracker::class.java)) {
+            application.startService(this)
+            //        this.getApplication().startForegroundService(this);
+            application.bindService(this, serviceConnection, BIND_AUTO_CREATE)
+        }
         btn_start_tracking.setOnClickListener {
             Dexter.withActivity(this)
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -184,12 +183,12 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onPermissionGranted(response: PermissionGrantedResponse) {
                         gpsService?.startTracking()
-                        mTracking = true
+                        tracking = true
                         toggleButtons()
                     }
 
                     override fun onPermissionDenied(response: PermissionDeniedResponse) {
-                        if (response.isPermanentlyDenied()) {
+                        if (response.isPermanentlyDenied) {
                             openSettings()
                         }
                     }
@@ -203,39 +202,37 @@ class MainActivity : AppCompatActivity() {
                 }).check()
         }
         btn_stop_tracking.setOnClickListener {
-            mTracking = false
+            tracking = false
             gpsService?.stopTracking()
             toggleButtons()
         }
     }
 
     private fun toggleButtons() {
-        btn_start_tracking.isEnabled = !mTracking
-        btn_stop_tracking.isEnabled = mTracking
-        txt_status.text = if (mTracking) "TRACKING" else "GPS Ready"
+        btn_start_tracking.isEnabled = tracking.not()
+        btn_stop_tracking.isEnabled = tracking
+        txt_status.text = getString(if (tracking) R.string.title_tracking else R.string.title_gps_ready)
     }
 
     private fun openSettings() {
-        val intent = Intent()
-        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-        val uri = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-        intent.data = uri
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
+        startActivity(Intent().apply {
+            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        })
     }
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            val name = className.className
-            if (name.endsWith("BackgroundService")) {
+            if (className.className.endsWith(BackgroundTracker::class.java.simpleName)) {
                 gpsService = (service as BackgroundTracker.LocationServiceBinder).service
                 btn_start_tracking.isEnabled = true
-                txt_status.text = "GPS Ready"
+                txt_status.text = getString(R.string.title_gps_ready)
             }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
-            if (className.className == "BackgroundService") {
+            if (className.className == BackgroundTracker::class.java.simpleName) {
                 gpsService = null
             }
         }
