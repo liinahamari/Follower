@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Follower</string>
+    <string name="location_permission_dialog_explanation">App needs geolocation to track your activity</string>
+</resources>
