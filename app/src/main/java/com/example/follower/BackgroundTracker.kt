@@ -5,16 +5,17 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
+import java.util.*
 
 private const val CHANNEL_ID = "GPS_CHANNEL"
-private const val LOCATION_INTERVAL = 500
-private const val LOCATION_DISTANCE = 10
-private const val TAG = "BackgroundService"
+private const val LOCATION_INTERVAL = 500L
+private const val LOCATION_DISTANCE = 10f
 
 class BackgroundTracker : Service() {
     private val binder = LocationServiceBinder()
@@ -29,8 +30,12 @@ class BackgroundTracker : Service() {
         init { lastLocation = Location(LocationManager.GPS_PROVIDER) }
 
         override fun onLocationChanged(location: Location) {
-            lastLocation = location
-            FlightRecorder.i { "Location Changed: $location" }
+            val currAddress = Geocoder(this@BackgroundTracker, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)
+            val prevAddress = Geocoder(this@BackgroundTracker, Locale.getDefault()).getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
+            if(currAddress[0].thoroughfare != prevAddress[0].thoroughfare && currAddress[0].featureName != prevAddress[0].featureName){
+                lastLocation = location
+                FlightRecorder.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
+            }
         }
 
         override fun onProviderDisabled(provider: String) { FlightRecorder.w { "onProviderDisabled: $provider" } }
@@ -66,7 +71,7 @@ class BackgroundTracker : Service() {
         locationManager = applicationContext.getSystemService(LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener()
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL.toLong(), LOCATION_DISTANCE.toFloat(), locationListener)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, locationListener)
         } catch (ex: SecurityException) {
             FlightRecorder.i { "Failed to request location update" }
             FlightRecorder.e(stackTrace = ex.stackTrace)
