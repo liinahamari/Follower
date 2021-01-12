@@ -32,7 +32,7 @@ class BackgroundTracker : Service() {
         override fun onLocationChanged(location: Location) {
             val currAddress = Geocoder(this@BackgroundTracker, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)
             val prevAddress = Geocoder(this@BackgroundTracker, Locale.getDefault()).getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
-            if(currAddress[0].thoroughfare != prevAddress[0].thoroughfare && currAddress[0].featureName != prevAddress[0].featureName){
+            if (currAddress[0].thoroughfare != prevAddress[0].thoroughfare && currAddress[0].featureName != prevAddress[0].featureName){
                 lastLocation = location
                 FlightRecorder.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
             }

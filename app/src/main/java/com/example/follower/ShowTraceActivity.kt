@@ -1,17 +1,17 @@
 package com.example.follower
 
-import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
-import kotlinx.android.synthetic.main.activity_show_trace.*
-import java.util.*
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_show_trace.*
+import java.util.*
 
 class ShowTraceActivity : AppCompatActivity() {
     private val disposable = CompositeDisposable()
@@ -23,11 +23,16 @@ class ShowTraceActivity : AppCompatActivity() {
         disposable += Single.fromCallable {
             FlightRecorder.getEntireRecord()
                 .split("\n\n")
+                .asSequence()
                 .filter { it.contains("Location Changed") }
-                .joinToString(separator = "\n") {
+                .map {
                     val (lat, long) = "Location Changed\\. lat:(\\d+\\.\\d+), long:(\\d+\\.\\d+)".toRegex().find(it)!!.groupValues.drop(1)
                     mapper.transform(lat.toDouble(), long.toDouble())
                 }
+                .map { it to "(\\w+\\s*\\d*[\\\\/\\w]*\\d*),".toRegex().find(it)!!.groupValues[1] }
+                .distinctBy { it.second }
+                .map { it.first }
+                .joinToString(separator = "\n")
         }
             .doOnError { FlightRecorder.e(stackTrace = it.stackTrace) }
             .subscribeOn(Schedulers.io())
