@@ -11,13 +11,21 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
+import androidx.preference.PreferenceManager
 import java.util.*
 
-private const val CHANNEL_ID = "GPS_CHANNEL"
+const val CHANNEL_ID = "GPS_CHANNEL"
+private const val FOREGROUND_SERVICE_ID = 123
 private const val LOCATION_INTERVAL = 500L
 private const val LOCATION_DISTANCE = 10f
+const val ACTION_TERMINATE = "BackgroundTracker.action_terminate"
+const val TRACKING_ID = "sharedPref.trackingId"
 
 class BackgroundTracker : Service() {
+    companion object {
+        var isTracking = false
+    }
+
     private val binder = LocationServiceBinder()
     private lateinit var locationListener: LocationListener
     private lateinit var locationManager: LocationManager
@@ -45,6 +53,11 @@ class BackgroundTracker : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        if(intent.action == ACTION_TERMINATE) {
+            stopSelf()
+        } else {
+            startTracking()
+        }
         return START_NOT_STICKY
     }
 
@@ -52,11 +65,13 @@ class BackgroundTracker : Service() {
         FlightRecorder.i { "${javaClass.simpleName} onCreate()" }
         getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
         val notification = Notification.Builder(applicationContext, CHANNEL_ID).setAutoCancel(false).build()
-        startForeground(123, notification)
+        startForeground(FOREGROUND_SERVICE_ID, notification)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean(TRACKING_ID, false).apply()
+        isTracking = false
         if (::locationManager.isInitialized) {
             try {
                 locationManager.removeUpdates(locationListener)
@@ -67,21 +82,22 @@ class BackgroundTracker : Service() {
         }
     }
 
-    fun startTracking() {
+    private fun startTracking() {
         locationManager = applicationContext.getSystemService(LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener()
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, locationListener)
+            PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean(TRACKING_ID, true).apply()
         } catch (ex: SecurityException) {
+            PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean(TRACKING_ID, false).apply()
             FlightRecorder.i { "Failed to request location update" }
             FlightRecorder.e(stackTrace = ex.stackTrace)
         } catch (ex: IllegalArgumentException) {
+            PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean(TRACKING_ID, false).apply()
             FlightRecorder.i { "GPS provider does not exist (${ex.localizedMessage})" }
             FlightRecorder.e(stackTrace = ex.stackTrace)
         }
     }
-
-    fun stopTracking() = onDestroy()
 
     inner class LocationServiceBinder : Binder() {
         val service: BackgroundTracker

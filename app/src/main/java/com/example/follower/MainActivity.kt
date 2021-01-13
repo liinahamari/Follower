@@ -1,17 +1,16 @@
 package com.example.follower
 
 import android.Manifest
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
-import android.os.IBinder
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -19,20 +18,7 @@ private const val GEO_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val GEO_PERMISSION_REQUEST_CODE = 12
 
 class MainActivity : AppCompatActivity() {
-    private var gpsService: BackgroundTracker? = null
-    private var isTracking = false
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean = true.also { menuInflater.inflate(R.menu.menu, menu) }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.showTrace -> startActivity(Intent(this, ShowTraceActivity::class.java))
-            else -> return super.onOptionsItemSelected(item)
-        }
-        return true
-    }
-
-    private val serviceConnection: ServiceConnection = object : ServiceConnection {
+    /*    private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             if (className.className.endsWith(BackgroundTracker::class.java.simpleName)) {
                 gpsService = (service as BackgroundTracker.LocationServiceBinder).service
@@ -47,38 +33,45 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    */
+
+    private val sharedPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
+        if (key == TRACKING_ID) {
+            toggleButtons(sharedPrefs.getBoolean(TRACKING_ID, false))
+        }
+    }
+
+    override fun onDestroy() = super.onDestroy().also { PreferenceManager.getDefaultSharedPreferences(applicationContext).unregisterOnSharedPreferenceChangeListener(sharedPrefListener) }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean = true.also { menuInflater.inflate(R.menu.menu, menu) }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.showTrace -> startActivity(Intent(this, ShowTraceActivity::class.java))
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        with(Intent(application, BackgroundTracker::class.java)) {
-            application.startService(this)
-            //        this.getApplication().startForegroundService(this);
-            application.bindService(this, serviceConnection, BIND_AUTO_CREATE)
-        }
+
+        toggleButtons(PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean(TRACKING_ID, false))
+        PreferenceManager.getDefaultSharedPreferences(applicationContext).registerOnSharedPreferenceChangeListener(sharedPrefListener)
 
         btn_start_tracking.setOnClickListener {
             if (hasAllPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))) {
-                gpsService!!.startTracking()
-                isTracking = true
-                toggleButtons()
+                startService(Intent(this, BackgroundTracker::class.java))
             } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(GEO_PERMISSION),
-                    GEO_PERMISSION_REQUEST_CODE
-                )
+                ActivityCompat.requestPermissions(this, arrayOf(GEO_PERMISSION), GEO_PERMISSION_REQUEST_CODE)
             }
         }
 
-        btn_stop_tracking.setOnClickListener {
-            isTracking = false
-            gpsService?.stopTracking()
-            toggleButtons()
-        }
+        btn_stop_tracking.setOnClickListener { startService(Intent(this, BackgroundTracker::class.java).apply { action = ACTION_TERMINATE }) }
     }
 
-    private fun toggleButtons() {
+    private fun toggleButtons(isTracking: Boolean) {
         btn_start_tracking.isEnabled = isTracking.not()
         btn_stop_tracking.isEnabled = isTracking
         txt_status.text = getString(if (isTracking) R.string.title_tracking else R.string.title_gps_ready)
@@ -107,11 +100,7 @@ class MainActivity : AppCompatActivity() {
         handleUsersReactionToPermission(
             permissionToHandle = Manifest.permission.ACCESS_FINE_LOCATION,
             allPermissions = permissions,
-            doIfAllowed = {
-                gpsService!!.startTracking()
-                isTracking = true
-                toggleButtons()
-            },
+            doIfAllowed = { startService(Intent(this, BackgroundTracker::class.java)) },
             doIfDenied = { explanationDialog.show() },
             doIfNeverAskAgain = { openSettings() }
         )
