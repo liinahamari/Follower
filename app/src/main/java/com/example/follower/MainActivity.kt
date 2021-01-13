@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.core.app.ActivityCompat
 import com.example.follower.base.BaseActivity
+import com.example.follower.screens.show_trace.ShowTraceActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
@@ -21,23 +22,6 @@ private const val GEO_PERMISSION_REQUEST_CODE = 12
 
 class MainActivity : BaseActivity(R.layout.activity_main) {
     @Inject lateinit var sharedPrefs: SharedPreferences
-
-    /*    private val serviceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            if (className.className.endsWith(BackgroundTracker::class.java.simpleName)) {
-                gpsService = (service as BackgroundTracker.LocationServiceBinder).service
-                btn_start_tracking.isEnabled = true
-                txt_status.text = getString(R.string.title_gps_ready)
-            }
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            if (className.className == BackgroundTracker::class.java.simpleName) {
-                gpsService = null
-            }
-        }
-    }
-    */
 
     private val sharedPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
         if (key == TRACKING_ID) {

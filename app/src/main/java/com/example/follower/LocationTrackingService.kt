@@ -25,11 +25,10 @@ const val TRACKING_ID = "sharedPref.trackingId"
 class LocationTrackingService : Service() {
     @Inject lateinit var sharedPrefs: SharedPreferences
     @Inject lateinit var logger: FlightRecorder
-    private val binder = LocationServiceBinder()
     private lateinit var locationListener: LocationListener
     private lateinit var locationManager: LocationManager
 
-    override fun onBind(intent: Intent): IBinder = binder
+    override fun onBind(intent: Intent): IBinder? = null
 
     private inner class LocationListener : android.location.LocationListener {
         private var lastLocation: Location
@@ -99,10 +98,5 @@ class LocationTrackingService : Service() {
             logger.i { "GPS provider does not exist (${ex.localizedMessage})" }
             logger.e(stackTrace = ex.stackTrace)
         }
-    }
-
-    inner class LocationServiceBinder : Binder() {
-        val service: LocationTrackingService
-            get() = this@LocationTrackingService
     }
 }

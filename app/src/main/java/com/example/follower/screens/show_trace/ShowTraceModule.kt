@@ -11,6 +11,7 @@ class ShowTraceModule {
     @Provides
     @ShowTraceScope
     fun provideGeocoder(context: Context): Geocoder = Geocoder(context, Locale.UK)
+
     @Provides
     @ShowTraceScope
     fun provideMapper(geocoder: Geocoder): AddressMapper = AddressMapper(geocoder)
