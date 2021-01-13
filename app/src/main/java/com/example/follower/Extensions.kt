@@ -6,6 +6,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import java.util.concurrent.TimeUnit
 
 @RequiresApi(Build.VERSION_CODES.M)
 fun Activity.handleUsersReactionToPermission(
@@ -31,3 +34,6 @@ fun Activity.handleUsersReactionToPermission(
 fun Activity.hasPermission(permission: String) = ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
 
 fun Context.hasAllPermissions(permissions: Array<String>): Boolean = permissions.all { ActivityCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
+
+/** Only for RxView elements!*/
+fun Observable<Unit>.throttleFirst(): Observable<Unit> = compose { it.throttleFirst(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()) }

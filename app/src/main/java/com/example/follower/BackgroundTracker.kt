@@ -22,10 +22,6 @@ const val ACTION_TERMINATE = "BackgroundTracker.action_terminate"
 const val TRACKING_ID = "sharedPref.trackingId"
 
 class BackgroundTracker : Service() {
-    companion object {
-        var isTracking = false
-    }
-
     private val binder = LocationServiceBinder()
     private lateinit var locationListener: LocationListener
     private lateinit var locationManager: LocationManager
@@ -71,7 +67,6 @@ class BackgroundTracker : Service() {
     override fun onDestroy() {
         super.onDestroy()
         PreferenceManager.getDefaultSharedPreferences(applicationContext).edit().putBoolean(TRACKING_ID, false).apply()
-        isTracking = false
         if (::locationManager.isInitialized) {
             try {
                 locationManager.removeUpdates(locationListener)
@@ -83,7 +78,7 @@ class BackgroundTracker : Service() {
     }
 
     private fun startTracking() {
-        locationManager = applicationContext.getSystemService(LOCATION_SERVICE) as LocationManager
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener()
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, locationListener)

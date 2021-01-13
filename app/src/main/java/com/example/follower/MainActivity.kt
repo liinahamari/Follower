@@ -12,7 +12,9 @@ import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
 import com.example.follower.base.BaseActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.jakewharton.rxbinding3.view.clicks
 import kotlinx.android.synthetic.main.activity_main.*
+import io.reactivex.rxkotlin.plusAssign
 
 private const val GEO_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val GEO_PERMISSION_REQUEST_CODE = 12
@@ -60,15 +62,19 @@ class MainActivity : BaseActivity() {
         toggleButtons(PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean(TRACKING_ID, false))
         PreferenceManager.getDefaultSharedPreferences(applicationContext).registerOnSharedPreferenceChangeListener(sharedPrefListener)
 
-        btn_start_tracking.setOnClickListener {
-            if (hasAllPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))) {
-                startTrackingService()
-            } else {
-                ActivityCompat.requestPermissions(this, arrayOf(GEO_PERMISSION), GEO_PERMISSION_REQUEST_CODE)
+        subscriptions += btn_start_tracking.clicks()
+            .throttleFirst()
+            .subscribe {
+                if (hasAllPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))) {
+                    startTrackingService()
+                } else {
+                    ActivityCompat.requestPermissions(this, arrayOf(GEO_PERMISSION), GEO_PERMISSION_REQUEST_CODE)
+                }
             }
-        }
 
-        btn_stop_tracking.setOnClickListener { startTrackingService(ACTION_TERMINATE) }
+        subscriptions += btn_stop_tracking.clicks()
+            .throttleFirst()
+            .subscribe { startTrackingService(ACTION_TERMINATE) }
     }
 
     private fun toggleButtons(isTracking: Boolean) {
