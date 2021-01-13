@@ -24,6 +24,7 @@ const val TRACKING_ID = "sharedPref.trackingId"
 
 class LocationTrackingService : Service() {
     @Inject lateinit var sharedPrefs: SharedPreferences
+    @Inject lateinit var logger: FlightRecorder
     private val binder = LocationServiceBinder()
     private lateinit var locationListener: LocationListener
     private lateinit var locationManager: LocationManager
@@ -36,17 +37,17 @@ class LocationTrackingService : Service() {
         init { lastLocation = Location(LocationManager.GPS_PROVIDER) }
 
         override fun onLocationChanged(location: Location) {
-            val currAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)
-            val prevAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
-            if (currAddress[0].thoroughfare != prevAddress[0].thoroughfare && currAddress[0].featureName != prevAddress[0].featureName){
+//            val currAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)
+//            val prevAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
+//            if (currAddress[0].thoroughfare != prevAddress[0].thoroughfare && currAddress[0].featureName != prevAddress[0].featureName){
                 lastLocation = location
-                FlightRecorder.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
-            }
+                logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
+//            }
         }
 
-        override fun onProviderDisabled(provider: String) { FlightRecorder.w { "onProviderDisabled: $provider" } }
-        override fun onProviderEnabled(provider: String) { FlightRecorder.w {"onProviderEnabled: $provider" } }
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) { FlightRecorder.w { "onStatusChanged: $status" } }
+        override fun onProviderDisabled(provider: String) { logger.w { "onProviderDisabled: $provider" } }
+        override fun onProviderEnabled(provider: String) { logger.w {"onProviderEnabled: $provider" } }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) { logger.w { "onStatusChanged: $status" } }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -62,7 +63,7 @@ class LocationTrackingService : Service() {
     override fun onCreate() {
         (application as FollowerApp).appComponent.inject(this)
 
-        FlightRecorder.i { "${javaClass.simpleName} onCreate()" }
+        logger.i { "${javaClass.simpleName} onCreate()" }
         getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
         startForeground(FOREGROUND_SERVICE_ID, Notification.Builder(applicationContext, CHANNEL_ID)
                                                     .setContentText("tracking...")
@@ -77,8 +78,8 @@ class LocationTrackingService : Service() {
             try {
                 locationManager.removeUpdates(locationListener)
             } catch (ex: Exception) {
-                FlightRecorder.i { "Failed to remove location listeners" }
-                FlightRecorder.e(stackTrace = ex.stackTrace)
+                logger.i { "Failed to remove location listeners" }
+                logger.e(stackTrace = ex.stackTrace)
             }
         }
     }
@@ -91,12 +92,12 @@ class LocationTrackingService : Service() {
             sharedPrefs.edit().putBoolean(TRACKING_ID, true).apply()
         } catch (ex: SecurityException) {
             sharedPrefs.edit().putBoolean(TRACKING_ID, false).apply()
-            FlightRecorder.i { "Failed to request location update" }
-            FlightRecorder.e(stackTrace = ex.stackTrace)
+            logger.i { "Failed to request location update" }
+            logger.e(stackTrace = ex.stackTrace)
         } catch (ex: IllegalArgumentException) {
             sharedPrefs.edit().putBoolean(TRACKING_ID, false).apply()
-            FlightRecorder.i { "GPS provider does not exist (${ex.localizedMessage})" }
-            FlightRecorder.e(stackTrace = ex.stackTrace)
+            logger.i { "GPS provider does not exist (${ex.localizedMessage})" }
+            logger.e(stackTrace = ex.stackTrace)
         }
     }
 
