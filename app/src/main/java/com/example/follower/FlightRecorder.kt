@@ -17,7 +17,7 @@ private const val DEBUG_LOGS_DIR = "FlightRecordings"
 private const val DEBUG_LOGS_STORAGE_FILE_NAME = "tape.log"
 
 object FlightRecorder {
-    private val logStorage: File = File(File(App.INSTANCE.filesDir, DEBUG_LOGS_DIR).apply {
+    private val logStorage: File = File(File(FollowerApp.INSTANCE.filesDir, DEBUG_LOGS_DIR).apply {
         if (exists().not()) {
             mkdir()
         }

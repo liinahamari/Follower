@@ -9,17 +9,19 @@ import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import androidx.core.app.ActivityCompat
-import androidx.preference.PreferenceManager
 import com.example.follower.base.BaseActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
-import kotlinx.android.synthetic.main.activity_main.*
 import io.reactivex.rxkotlin.plusAssign
+import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
 private const val GEO_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val GEO_PERMISSION_REQUEST_CODE = 12
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(R.layout.activity_main) {
+    @Inject lateinit var sharedPrefs: SharedPreferences
+
     /*    private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             if (className.className.endsWith(BackgroundTracker::class.java.simpleName)) {
@@ -43,7 +45,7 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    override fun onDestroy() = super.onDestroy().also { PreferenceManager.getDefaultSharedPreferences(applicationContext).unregisterOnSharedPreferenceChangeListener(sharedPrefListener) }
+    override fun onDestroy() = super.onDestroy().also { sharedPrefs.unregisterOnSharedPreferenceChangeListener(sharedPrefListener) }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean = true.also { menuInflater.inflate(R.menu.menu, menu) }
 
@@ -56,11 +58,11 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        (application as FollowerApp).appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        toggleButtons(PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean(TRACKING_ID, false))
-        PreferenceManager.getDefaultSharedPreferences(applicationContext).registerOnSharedPreferenceChangeListener(sharedPrefListener)
+        toggleButtons(sharedPrefs.getBoolean(TRACKING_ID, false))
+        sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefListener)
 
         subscriptions += btn_start_tracking.clicks()
             .throttleFirst()
@@ -91,7 +93,7 @@ class MainActivity : BaseActivity() {
         })
     }
 
-    private fun startTrackingService(action: String? = null) = startService(Intent(this, BackgroundTracker::class.java)
+    private fun startTrackingService(action: String? = null) = startService(Intent(this, LocationTrackingService::class.java)
         .apply { action?.let { this.action = action } })
 
     override fun onRequestPermissionsResult(

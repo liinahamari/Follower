@@ -2,7 +2,6 @@ package com.example.follower
 
 import android.location.Geocoder
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -57,6 +56,6 @@ class AddressMapper {
         val knownName: String = addresses[0].featureName
         return "Address: $address; City: $city; State: $state; Country: $country; Postal code: $postalCode; knownName: $knownName\n"
         */
-        return Geocoder(App.INSTANCE, Locale.UK).getFromLocation(lat, long, 1).first().getAddressLine(0)
+        return Geocoder(FollowerApp.INSTANCE, Locale.UK).getFromLocation(lat, long, 1).first().getAddressLine(0)
     }
 }

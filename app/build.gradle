@@ -18,6 +18,7 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -49,6 +50,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.karumi:dexter:4.2.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation 'com.android.support:multidex:1.0.3'
 
     /* RX-COMMON */
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
@@ -69,4 +71,11 @@ dependencies {
     implementation 'com.jakewharton.rxbinding3:rxbinding-viewpager2:3.1.0'
     implementation 'com.jakewharton.rxbinding3:rxbinding-material:3.1.0'
 
+    /* DAGGER */
+    implementation 'com.google.dagger:dagger:2.30.1'
+    kapt 'com.google.dagger:dagger-compiler:2.29.1'
+}
+
+kapt {
+    correctErrorTypes true
 }
