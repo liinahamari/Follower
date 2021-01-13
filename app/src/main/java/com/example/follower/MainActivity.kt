@@ -8,16 +8,16 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
+import com.example.follower.base.BaseActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 
 private const val GEO_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val GEO_PERMISSION_REQUEST_CODE = 12
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
     /*    private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             if (className.className.endsWith(BackgroundTracker::class.java.simpleName)) {
@@ -62,13 +62,13 @@ class MainActivity : AppCompatActivity() {
 
         btn_start_tracking.setOnClickListener {
             if (hasAllPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))) {
-                startService(Intent(this, BackgroundTracker::class.java))
+                startTrackingService()
             } else {
                 ActivityCompat.requestPermissions(this, arrayOf(GEO_PERMISSION), GEO_PERMISSION_REQUEST_CODE)
             }
         }
 
-        btn_stop_tracking.setOnClickListener { startService(Intent(this, BackgroundTracker::class.java).apply { action = ACTION_TERMINATE }) }
+        btn_stop_tracking.setOnClickListener { startTrackingService(ACTION_TERMINATE) }
     }
 
     private fun toggleButtons(isTracking: Boolean) {
@@ -85,6 +85,9 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun startTrackingService(action: String? = null) = startService(Intent(this, BackgroundTracker::class.java)
+        .apply { action?.let { this.action = action } })
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -100,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         handleUsersReactionToPermission(
             permissionToHandle = Manifest.permission.ACCESS_FINE_LOCATION,
             allPermissions = permissions,
-            doIfAllowed = { startService(Intent(this, BackgroundTracker::class.java)) },
+            doIfAllowed = { startTrackingService() },
             doIfDenied = { explanationDialog.show() },
             doIfNeverAskAgain = { openSettings() }
         )
