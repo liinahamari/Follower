@@ -4,4 +4,7 @@
     <string name="title_gps_ready">\"GPS Ready\"</string>
     <string name="title_tracking">Tracking</string>
     <string name="title_get_trace">Get trace</string>
+    <string name="desc_map_view">DESCRIPTION_map_fragment_map_view</string>
+    <string name="error_location_permission_denied">You have denied location permission!</string>
+    <string name="error_location_offline">Location is turned off, enable to make app work.</string>
 </resources>
