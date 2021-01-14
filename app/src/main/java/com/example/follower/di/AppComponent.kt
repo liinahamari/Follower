@@ -21,6 +21,5 @@ interface AppComponent {
 
     fun showTraceComponent(): ShowTraceComponent.Builder
 
-    fun inject(activity: MainActivity)
     fun inject(service: LocationTrackingService)
 }
