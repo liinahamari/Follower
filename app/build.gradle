@@ -74,6 +74,8 @@ dependencies {
     /* DAGGER */
     implementation 'com.google.dagger:dagger:2.30.1'
     kapt 'com.google.dagger:dagger-compiler:2.29.1'
+
+    implementation 'org.osmdroid:osmdroid-android:6.1.8'
 }
 
 kapt {
