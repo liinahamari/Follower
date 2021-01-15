@@ -23,7 +23,10 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        globalMenu.selectTabAt(savedInstanceState.getInt(PAGE_EXTRA), false)
+        with(savedInstanceState.getInt(PAGE_EXTRA)) {
+            globalMenu.selectTabAt(this, false)
+            pager.currentItem = this
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
