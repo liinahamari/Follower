@@ -1,0 +1,20 @@
+<resources>
+    <string name="location_permission_dialog_explanation">Приложению нужно разрешение определения геолокации чтобы отслеживать передвижения</string>
+    <string name="title_gps_ready">GPS готов к работе</string>
+    <string name="title_tracking">Местоположение определяется</string>
+    <string name="error_location_permission_denied">Вы отказали в разрешении определения местоположения!</string>
+    <string name="error_location_offline">Определение местоположения выключено, включите для корректной работы приложения</string>
+    <string name="title_time">Время</string>
+    <string name="title_map">Карта</string>
+    <string name="title_tracking_controls">Контроль записи местоположения</string>
+    <string name="title_min_distance">Минимальное расстояние между точками в перемещении (в метрах)</string>
+    <string name="title_min_location_update_interval">Минимальный временной интервал обновления местоположения (в миллисекундах)</string>
+    <string name="title_reset_to_defaults">Сброс к настройкам по умолчанию</string>
+    <string name="title_settings">Настройки</string>
+    <string name="title_report_bug">Сообщить о баге</string>
+    <string name="title_light_theme">Светлая тема</string>
+    <string name="title_default_theme">Тема по-умолчанию устройства</string>
+    <string name="title_dark_theme">Темная тема</string>
+    <string name="title_themes">Тема</string>
+    <string name="title_language">Язык</string>
+</resources>

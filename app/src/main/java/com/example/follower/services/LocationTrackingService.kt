@@ -1,4 +1,4 @@
-package com.example.follower
+package com.example.follower.services
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -12,6 +12,8 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
+import com.example.follower.FollowerApp
+import com.example.follower.helper.FlightRecorder
 import java.util.*
 import javax.inject.Inject
 

@@ -1,38 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:background="@android:color/transparent">
 
-    <TextView
-        android:id="@+id/txt_status"
+    <nl.joery.animatedbottombar.AnimatedBottomBar
+        android:id="@+id/globalMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_marginTop="20dp"
-        android:textSize="30dp"
-        android:text="Not Started"
-        />
-    <Button
-        android:id="@+id/btn_start_tracking"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start tracking"
-        android:layout_gravity="center"
-        android:layout_marginTop="30dp"
-        android:textSize="20dp"
-        android:enabled="false"
-        />
-    <Button
-        android:id="@+id/btn_stop_tracking"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Stop tracking"
-        android:enabled="false"
-        android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:textSize="15dp"
-        />
-</LinearLayout>
+        app:abb_indicatorAppearance="round"
+        app:abb_indicatorHeight="4dp"
+        app:abb_indicatorMargin="16dp"
+        app:abb_selectedIndex="0"
+        app:abb_selectedTabType="text"
+        app:abb_tabs="@menu/bottom_menu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/globalMenu" />
+</androidx.constraintlayout.widget.ConstraintLayout>
