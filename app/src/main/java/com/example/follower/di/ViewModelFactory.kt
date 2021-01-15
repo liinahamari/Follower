@@ -2,7 +2,7 @@ package com.example.follower.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.follower.base.BaseActivityViewModel
+import com.example.follower.base.BaseActivity
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
@@ -30,8 +30,8 @@ class ViewModelFactory @Inject constructor(private val creators: @JvmSuppressWil
 abstract class ViewModelBuilderModule {
     @Binds
     @IntoMap
-    @ViewModelKey(BaseActivityViewModel::class)
-    abstract fun bindBaseViewModel(viewModel: BaseActivityViewModel): ViewModel
+    @ViewModelKey(BaseActivity.BaseActivityViewModel::class)
+    abstract fun bindBaseViewModel(viewModel: BaseActivity.BaseActivityViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
