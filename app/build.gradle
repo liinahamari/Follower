@@ -74,6 +74,11 @@ dependencies {
     /* DAGGER */
     implementation 'com.google.dagger:dagger:2.30.1'
     kapt 'com.google.dagger:dagger-compiler:2.29.1'
+
+    implementation 'org.osmdroid:osmdroid-android:6.1.8'
+    implementation 'com.github.MKergall:osmbonuspack:6.6.0'
+    implementation 'com.github.GrenderG:Toasty:1.5.0'
+    implementation 'nl.joery.animatedbottombar:library:1.0.9'
 }
 
 kapt {

@@ -1,6 +1,7 @@
-package com.example.follower
+package com.example.follower.helper
 
 import android.util.Log
+import com.example.follower.BuildConfig
 import java.io.File
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat

@@ -13,16 +13,16 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
 import com.example.follower.base.BaseActivity
-import com.example.follower.screens.show_trace.ShowTraceActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.jakewharton.rxbinding3.view.clicks
-import io.reactivex.rxkotlin.plusAssign
+import com.example.follower.screens.SettingsFragment
+import com.example.follower.screens.map.MapFragment
+import com.example.follower.screens.tracking_control.TrackingControlFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import javax.inject.Inject
 
-private const val GEO_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
-private const val GEO_PERMISSION_REQUEST_CODE = 12
+private const val PAGE_EXTRA = "MainActivity.page_extra"
 
 class MainActivity : BaseActivity(R.layout.activity_main) {
     private var gpsService: LocationTrackingService? = null
@@ -36,6 +36,11 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     toggleButtons(it)
                 }
             }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        with(pager) {
+            adapter = MainScreenViewPagerAdapter(supportFragmentManager)
+            globalMenu.setupWithViewPager(this)
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
@@ -45,85 +50,31 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
             }
         }
     }
+    }/*todo bug with different states of menu and pager*/
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean = true.also { menuInflater.inflate(R.menu.menu, menu) }
     override fun onStart() = super.onStart().also { bindService(Intent(this, LocationTrackingService::class.java), serviceConnection, BIND_AUTO_CREATE) }
-
-    override fun onStop() = super.onStop().also {
         gpsService?.let {
+    override fun onStop() = super.onStop().also {
             unbindService(serviceConnection)
             gpsService = null
         }
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.showTrace -> startActivity(Intent(this, ShowTraceActivity::class.java))
-            else -> return super.onOptionsItemSelected(item)
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        with(savedInstanceState.getInt(PAGE_EXTRA)) {
+            globalMenu.selectTabAt(this, false)
+            pager.currentItem = this
         }
-        return true
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setupClicks()
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(PAGE_EXTRA, pager.currentItem)
     }
 
-    private fun setupClicks() {
-        subscriptions += btn_start_tracking.clicks()
-            .throttleFirst()
-            .subscribe {
-                if (hasAllPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))) {
-                    with(Intent(this, LocationTrackingService::class.java)) {
-                        startService(this)
-                        Thread.sleep(1000)
-                        bindService(this, serviceConnection, BIND_AUTO_CREATE)
-                    }
-                    gpsService?.startTracking()
-                } else {
-                    ActivityCompat.requestPermissions(this, arrayOf(GEO_PERMISSION), GEO_PERMISSION_REQUEST_CODE)
-                }
-            }
-
-        subscriptions += btn_stop_tracking.clicks()
-            .throttleFirst()
-            .subscribe { startService(Intent(this, LocationTrackingService::class.java)
-                .apply { action?.let { action = ACTION_TERMINATE } })
-            }
-    }
-
-    private fun toggleButtons(isTracking: Boolean) {
-        btn_start_tracking.isEnabled = isTracking.not()
-        btn_stop_tracking.isEnabled = isTracking
-        txt_status.text = getString(if (isTracking) R.string.title_tracking else R.string.title_gps_ready)
-    }
-
-    private fun openSettings() {
-        startActivity(Intent().apply {
-            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        })
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        val explanationDialog = MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.app_name))
-            .setMessage(R.string.location_permission_dialog_explanation)
-            .setPositiveButton(getString(android.R.string.ok), null)
-            .create()
-
-        handleUsersReactionToPermission(
-            permissionToHandle = Manifest.permission.ACCESS_FINE_LOCATION,
-            allPermissions = permissions,
-            doIfAllowed = { gpsService?.startTracking() },
-            doIfDenied = { explanationDialog.show() },
-            doIfNeverAskAgain = { openSettings() }
-        )
+    private inner class MainScreenViewPagerAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        private val fragments = arrayOf(TrackingControlFragment(), MapFragment(), SettingsFragment())
+        override fun getCount(): Int = fragments.size
+        override fun getItem(position: Int): Fragment = fragments[position]
     }
 }

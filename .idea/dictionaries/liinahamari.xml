@@ -2,6 +2,7 @@
   <dictionary name="liinahamari">
     <words>
       <w>geocoder</w>
+      <w>interactor</w>
     </words>
   </dictionary>
 </component>
