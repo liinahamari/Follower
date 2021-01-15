@@ -1,10 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/tab_settings"
-        android:icon="@drawable/ic_baseline_settings_applications_24"
+        android:id="@+id/tab_controls"
+        android:icon="@drawable/ic_baseline_edit_location_alt_24"
         android:title="@string/title_tracking_controls" />
     <item
-        android:id="@+id/tab_alarm"
+        android:id="@+id/tab_map"
         android:icon="@drawable/ic_baseline_map_24"
         android:title="@string/title_map" />
+    <item
+        android:id="@+id/tab_settings"
+        android:icon="@drawable/ic_baseline_settings_applications_24"
+        android:title="@string/title_settings" />
 </menu>

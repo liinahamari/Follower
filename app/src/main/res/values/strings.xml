@@ -10,4 +10,10 @@
     <string name="title_time">Time</string>
     <string name="title_map">Map</string>
     <string name="title_tracking_controls">Tracking controls</string>
+    <string name="pref_min_distance">pref_min_distance</string>
+    <string name="title_min_distance">Minimum distance between location updates (in meters)</string>
+    <string name="pref_min_location_update_interval">pref_min_location_update_interval</string>
+    <string name="title_min_location_update_interval">Minimum time interval between location updates in milliseconds</string>
+    <string name="title_reset_to_defaults">Reset to defaults</string>
+    <string name="title_settings">Settings</string>
 </resources>
