@@ -17,4 +17,10 @@
             android:action="android.intent.action.VIEW"
             android:data="https://github.com/liinahamari/Follower/issues" />
     </Preference>
+
+    <ListPreference
+        android:entries="@array/themes"
+        android:entryValues="@array/theme_values"
+        android:key="@string/pref_theme"
+        android:title="@string/title_themes"/>
 </PreferenceScreen>
