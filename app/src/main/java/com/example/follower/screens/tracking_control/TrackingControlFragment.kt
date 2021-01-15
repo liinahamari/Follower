@@ -1,6 +1,7 @@
 package com.example.follower.screens.tracking_control
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -21,6 +22,13 @@ private const val GEO_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val GEO_PERMISSION_REQUEST_CODE = 12
 
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
+    private val explanationDialog by lazy { MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.app_name))
+            .setMessage(R.string.location_permission_dialog_explanation)
+            .setPositiveButton(getString(android.R.string.ok), null)
+            .create()
+    }
+
     @Inject lateinit var sharedPrefs: SharedPreferences
 
     private val sharedPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
@@ -74,12 +82,6 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             .apply { action?.let { this.action = action } })
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        val explanationDialog = MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.app_name))
-            .setMessage(R.string.location_permission_dialog_explanation)
-            .setPositiveButton(getString(android.R.string.ok), null)
-            .create()
-
         handleUsersReactionToPermission(
             permissionToHandle = Manifest.permission.ACCESS_FINE_LOCATION,
             allPermissions = permissions,
