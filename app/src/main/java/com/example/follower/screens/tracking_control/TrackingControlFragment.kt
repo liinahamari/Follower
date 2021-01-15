@@ -12,6 +12,9 @@ import android.provider.Settings
 import android.view.View
 import com.example.follower.*
 import com.example.follower.base.BaseFragment
+import com.example.follower.services.ACTION_TERMINATE
+import com.example.follower.services.LocationTrackingService
+import com.example.follower.services.TRACKING_ID
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
@@ -22,14 +25,16 @@ private const val GEO_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val GEO_PERMISSION_REQUEST_CODE = 12
 
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
-    private val explanationDialog by lazy { MaterialAlertDialogBuilder(requireContext())
+    private val explanationDialog by lazy {
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.app_name))
             .setMessage(R.string.location_permission_dialog_explanation)
             .setPositiveButton(getString(android.R.string.ok), null)
             .create()
     }
 
-    @Inject lateinit var sharedPrefs: SharedPreferences
+    @Inject
+    lateinit var sharedPrefs: SharedPreferences
 
     private val sharedPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
         if (key == TRACKING_ID) {
@@ -79,15 +84,13 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     }
 
     private fun startTrackingService(action: String? = null) = requireActivity().startService(Intent(requireActivity(), LocationTrackingService::class.java)
-            .apply { action?.let { this.action = action } })
+        .apply { action?.let { this.action = action } })
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        handleUsersReactionToPermission(
-            permissionToHandle = Manifest.permission.ACCESS_FINE_LOCATION,
-            allPermissions = permissions,
-            doIfAllowed = { startTrackingService() },
-            doIfDenied = { explanationDialog.show() },
-            doIfNeverAskAgain = { openSettings() }
-        )
-    }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) = handleUsersReactionToPermission(
+        permissionToHandle = Manifest.permission.ACCESS_FINE_LOCATION,
+        allPermissions = permissions,
+        doIfAllowed = { startTrackingService() },
+        doIfDenied = { explanationDialog.show() },
+        doIfNeverAskAgain = { openSettings() }
+    )
 }

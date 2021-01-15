@@ -1,10 +1,10 @@
 package com.example.follower.screens.show_trace
 
 import android.os.Bundle
-import com.example.follower.FlightRecorder
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseActivity
+import com.example.follower.helper.FlightRecorder
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
