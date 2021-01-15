@@ -11,4 +11,10 @@
         android:title="@string/title_min_location_update_interval" />
 
     <Preference android:title="@string/title_reset_to_defaults" />
+
+    <Preference android:title="@string/title_report_bug">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://github.com/liinahamari/Follower/issues" />
+    </Preference>
 </PreferenceScreen>
