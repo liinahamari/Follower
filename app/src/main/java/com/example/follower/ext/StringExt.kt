@@ -9,4 +9,17 @@ import java.util.*
  *  */
 const val DATE_PATTERN_FOR_LOGGING = "dd EEE MMM yyyy HH:mm"
 
+/** Represents hours and minutes in hours:minutes way. Hours will be shown in 24-hour format. For example,
+ *  00:12
+ *  05:55
+ *  22:00
+ *  */
+const val TIME_PATTERN_HOURS_24_MINUTES = "HH:mm"
+
 fun Long.toReadableDate(): String = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING).format(Date(this))
+
+/** String representing current hours in 24 format and minutes, with `:` delimiter. For example:
+ * 00:52
+ * 08:11
+ * */
+fun now(): String = SimpleDateFormat(TIME_PATTERN_HOURS_24_MINUTES, Locale.getDefault()).format(Date())

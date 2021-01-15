@@ -5,9 +5,20 @@
         <item>@string/title_light_theme</item>
         <item>@string/title_dark_theme</item>
     </string-array>
+
     <string-array name="theme_values">
         <item>"-1"</item>
         <item>"1"</item>
         <item>"2"</item>
+    </string-array>
+
+    <string-array name="supported_locales">
+        <item>"ru"</item>
+        <item>"en"</item>
+    </string-array>
+
+    <string-array name="supported_languages">
+        <item>"Russian (Русский)"</item>
+        <item>"English"</item>
     </string-array>
 </resources>

@@ -10,6 +10,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.example.follower.R
 import com.example.follower.ext.getStringOf
+import java.util.*
 
 class SettingsFragment: PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState)
@@ -22,6 +23,12 @@ class SettingsFragment: PreferenceFragmentCompat(), SharedPreferences.OnSharedPr
         when (key) {
             requireContext().getString(R.string.pref_theme) -> {
                 AppCompatDelegate.setDefaultNightMode(sharedPreferences.getStringOf(requireContext().getString(R.string.pref_theme))!!.toInt())
+                requireActivity().recreate()
+            }
+            requireContext().getString(R.string.pref_lang) -> {
+                val newLocale = Locale(sharedPreferences.getStringOf(key)!!)
+                Locale.setDefault(newLocale)
+                @Suppress("DEPRECATION") requireActivity().resources.updateConfiguration(resources.configuration.apply { setLocale(newLocale) }, resources.displayMetrics)
                 requireActivity().recreate()
             }
         }

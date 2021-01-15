@@ -9,11 +9,12 @@
     <string name="title_tracking_controls">Контроль записи местоположения</string>
     <string name="title_min_distance">Минимальное расстояние между точками в перемещении (в метрах)</string>
     <string name="title_min_location_update_interval">Минимальный временной интервал обновления местоположения (в миллисекундах)</string>
-    <string name="title_reset_to_defaults">Сброс к настройкам по-умолчанию</string>
+    <string name="title_reset_to_defaults">Сброс к настройкам по умолчанию</string>
     <string name="title_settings">Настройки</string>
     <string name="title_report_bug">Сообщить о баге</string>
     <string name="title_light_theme">Светлая тема</string>
     <string name="title_default_theme">Тема по-умолчанию устройства</string>
     <string name="title_dark_theme">Темная тема</string>
-    <string name="title_themes">Темы</string>
+    <string name="title_themes">Тема</string>
+    <string name="title_language">Язык</string>
 </resources>

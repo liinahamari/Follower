@@ -23,4 +23,10 @@
         android:entryValues="@array/theme_values"
         android:key="@string/pref_theme"
         android:title="@string/title_themes"/>
+
+    <ListPreference
+        android:entries="@array/supported_languages"
+        android:entryValues="@array/supported_locales"
+        android:key="@string/pref_lang"
+        android:title="@string/title_language" />
 </PreferenceScreen>
