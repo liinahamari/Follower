@@ -8,4 +8,6 @@
     <string name="error_location_permission_denied">You have denied location permission!</string>
     <string name="error_location_offline">Location is turned off, enable to make app work.</string>
     <string name="title_time">Time</string>
+    <string name="title_map">Map</string>
+    <string name="title_tracking_controls">Tracking controls</string>
 </resources>

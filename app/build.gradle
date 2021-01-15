@@ -78,6 +78,7 @@ dependencies {
     implementation 'org.osmdroid:osmdroid-android:6.1.8'
     implementation 'com.github.MKergall:osmbonuspack:6.6.0'
     implementation 'com.github.GrenderG:Toasty:1.5.0'
+    implementation 'nl.joery.animatedbottombar:library:1.0.9'
 }
 
 kapt {

@@ -5,6 +5,7 @@ import com.example.follower.FollowerApp
 import com.example.follower.MainActivity
 import com.example.follower.screens.show_trace.ShowTraceActivity
 import com.example.follower.screens.show_trace.ShowTraceComponent
+import com.example.follower.screens.tracking_control.TrackingControlFragment
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -21,6 +22,6 @@ interface AppComponent {
 
     fun showTraceComponent(): ShowTraceComponent.Builder
 
-    fun inject(activity: MainActivity)
+    fun inject(fragment: TrackingControlFragment)
     fun inject(service: LocationTrackingService)
 }

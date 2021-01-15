@@ -6,11 +6,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.concurrent.TimeUnit
 
-@RequiresApi(Build.VERSION_CODES.M)
 fun Activity.handleUsersReactionToPermission(
     permissionToHandle: String,
     allPermissions: Array<out String>,
@@ -30,6 +30,13 @@ fun Activity.handleUsersReactionToPermission(
         }
     }
 }
+
+fun Fragment.handleUsersReactionToPermission(permissionToHandle: String,
+                                             allPermissions: Array<out String>,
+                                             doIfDenied: () -> Unit,
+                                             doIfAllowed: () -> Unit,
+                                             doIfNeverAskAgain: () -> Unit) = requireActivity()
+    .handleUsersReactionToPermission(permissionToHandle, allPermissions, doIfDenied, doIfAllowed, doIfNeverAskAgain)
 
 fun Activity.hasPermission(permission: String) = ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
 

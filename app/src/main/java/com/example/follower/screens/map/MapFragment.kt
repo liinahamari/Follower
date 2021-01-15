@@ -11,11 +11,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.follower.BuildConfig
 import com.example.follower.R
 import com.example.follower.ext.isGpsEnabled
 import com.example.follower.ext.isNetworkLocationEnabled
 import com.example.follower.ext.toast
 import org.osmdroid.api.IMapController
+import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
@@ -30,6 +32,9 @@ class MapFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val layout = inflater.inflate(R.layout.fragment_map, container, false)
         with(layout.findViewById(R.id.map) as MapView) {
+            Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
+            Configuration.getInstance().osmdroidBasePath = requireActivity().getExternalFilesDir(null)
+
             mapController = controller
             isTilesScaledToDpi = true
             setTileSource(TileSourceFactory.MAPNIK)
