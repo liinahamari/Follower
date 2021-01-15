@@ -1,7 +1,7 @@
 package com.example.follower.di
 
 import android.content.Context
-import com.example.follower.FlightRecorder
+import com.example.follower.helper.FlightRecorder
 import dagger.Module
 import dagger.Provides
 import java.io.File

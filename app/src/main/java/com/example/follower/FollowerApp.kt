@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import androidx.multidex.MultiDexApplication
 import com.example.follower.di.AppComponent
 import com.example.follower.di.DaggerAppComponent
+import com.example.follower.services.CHANNEL_ID
 
 class FollowerApp: MultiDexApplication() {
     lateinit var appComponent: AppComponent
