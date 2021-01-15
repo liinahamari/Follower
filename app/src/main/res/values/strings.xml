@@ -7,4 +7,5 @@
     <string name="desc_map_view">DESCRIPTION_map_fragment_map_view</string>
     <string name="error_location_permission_denied">You have denied location permission!</string>
     <string name="error_location_offline">Location is turned off, enable to make app work.</string>
+    <string name="title_time">Time</string>
 </resources>
