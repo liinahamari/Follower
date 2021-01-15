@@ -9,10 +9,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import com.example.follower.BuildConfig
 import com.example.follower.R
+import com.example.follower.ext.getStringOf
 import com.example.follower.ext.isGpsEnabled
 import com.example.follower.ext.isNetworkLocationEnabled
 import com.example.follower.ext.toast
@@ -23,6 +26,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 
@@ -48,6 +52,10 @@ class MapFragment : Fragment() {
             })
 
             overlays.addAll(createTraceMarkers(this))
+
+            if (PreferenceManager.getDefaultSharedPreferences(requireContext()).getStringOf(getString(R.string.pref_theme))!!.toInt() == MODE_NIGHT_YES) /*todo: to repo*/ {
+                overlayManager.tilesOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
+            }
         }
         centerMap(Location(NETWORK_PROVIDER)) //todo: permission
         return layout.rootView
