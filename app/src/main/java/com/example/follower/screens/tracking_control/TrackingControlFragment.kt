@@ -47,6 +47,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             }
         }
 
+        /*calling if Service have been crashed or killed*/
         override fun onServiceDisconnected(name: ComponentName) {
             if (name.className.endsWith(LocationTrackingService::class.java.simpleName)) {
                 Log.d("a", "zzz disconnected")
