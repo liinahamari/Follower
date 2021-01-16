@@ -1,25 +1,25 @@
 package com.example.follower.screens.tracking_control
 
 import android.Manifest
-import android.app.AlertDialog
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
+import android.content.ServiceConnection
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
+import android.os.IBinder
 import android.provider.Settings
+import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.example.follower.*
 import com.example.follower.base.BaseFragment
-import com.example.follower.services.ACTION_TERMINATE
 import com.example.follower.services.LocationTrackingService
-import com.example.follower.services.TRACKING_ID
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
-import javax.inject.Inject
 
 private const val GEO_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val GEO_PERMISSION_REQUEST_CODE = 12
@@ -33,12 +33,44 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             .create()
     }
 
-    @Inject
-    lateinit var sharedPrefs: SharedPreferences
+    private val serviceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            if (className.className.endsWith(LocationTrackingService::class.java.simpleName)) {
+                Log.d("a", "zzz connected")
 
-    private val sharedPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
-        if (key == TRACKING_ID) {
-            toggleButtons(sharedPrefs.getBoolean(TRACKING_ID, false))
+                subscriptions += (service as LocationTrackingService.LocationServiceBinder)
+                    .service
+                    .isTracking
+                    .subscribe {
+                        toggleButtons(it)
+                    }
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            if (name.className.endsWith(LocationTrackingService::class.java.simpleName)) {
+                Log.d("a", "zzz disconnected")
+                toggleButtons(false)
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        requireActivity().bindService(Intent(requireActivity(), LocationTrackingService::class.java), serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        /*TODO `bound` flag*/
+        requireActivity().unbindService(serviceConnection)
+    }
+
+    private fun startTracking() {
+        with(requireActivity()) {
+            val intent = Intent(this, LocationTrackingService::class.java)
+            startService(intent)
+            bindService(intent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
         }
     }
 
@@ -47,32 +79,30 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         super.onAttach(context)
     }
 
-    override fun onDestroy() = super.onDestroy().also { sharedPrefs.unregisterOnSharedPreferenceChangeListener(sharedPrefListener) }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        toggleButtons(sharedPrefs.getBoolean(TRACKING_ID, false))
-        sharedPrefs.registerOnSharedPreferenceChangeListener(sharedPrefListener)
-
         subscriptions += btn_start_tracking.clicks()
-            .throttleFirst()
+            .throttleFirst(1000L)
             .subscribe {
-                if (requireContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
-                    startTrackingService()
+                if (requireContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_GRANTED) {
+                    startTracking()
                 } else {
                     requestPermissions(arrayOf(GEO_PERMISSION), GEO_PERMISSION_REQUEST_CODE)
                 }
             }
 
         subscriptions += btn_stop_tracking.clicks()
-            .throttleFirst()
-            .subscribe { startTrackingService(ACTION_TERMINATE) }
-
+            .throttleFirst(1000L)
+            .subscribe {
+                requireActivity().unbindService(serviceConnection)
+                requireActivity().stopService(Intent(requireActivity(), LocationTrackingService::class.java))
+            }
     }
 
+    /*todo investigate why NPE happens here and why lifecycle fires twice*/
     private fun toggleButtons(isTracking: Boolean) {
-        btn_start_tracking.isEnabled = isTracking.not()
-        btn_stop_tracking.isEnabled = isTracking
-        txt_status.text = getString(if (isTracking) R.string.title_tracking else R.string.title_gps_ready)
+        btn_start_tracking?.isEnabled = isTracking.not()
+        btn_stop_tracking?.isEnabled = isTracking
+        txt_status?.text = getString(if (isTracking) R.string.title_tracking else R.string.title_gps_ready)
     }
 
     private fun openSettings() {
@@ -83,13 +113,10 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         })
     }
 
-    private fun startTrackingService(action: String? = null) = requireActivity().startService(Intent(requireActivity(), LocationTrackingService::class.java)
-        .apply { action?.let { this.action = action } })
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) = handleUsersReactionToPermission(
         permissionToHandle = Manifest.permission.ACCESS_FINE_LOCATION,
         allPermissions = permissions,
-        doIfAllowed = { startTrackingService() },
+        doIfAllowed = { startTracking() },
         doIfDenied = { explanationDialog.show() },
         doIfNeverAskAgain = { openSettings() }
     )

@@ -14,6 +14,8 @@ import android.os.Bundle
 import android.os.IBinder
 import com.example.follower.FollowerApp
 import com.example.follower.helper.FlightRecorder
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import java.util.*
 import javax.inject.Inject
 
@@ -22,15 +24,16 @@ private const val FOREGROUND_SERVICE_ID = 123
 private const val LOCATION_INTERVAL = 500L
 private const val LOCATION_DISTANCE = 10f
 const val ACTION_TERMINATE = "BackgroundTracker.action_terminate"
-const val TRACKING_ID = "sharedPref.trackingId"
 
 class LocationTrackingService : Service() {
     @Inject lateinit var sharedPrefs: SharedPreferences
     @Inject lateinit var logger: FlightRecorder
     private lateinit var locationListener: LocationListener
     private lateinit var locationManager: LocationManager
+    private val binder = LocationServiceBinder()
+    val isTracking = BehaviorSubject.createDefault(false)
 
-    override fun onBind(intent: Intent): IBinder? = null
+    override fun onBind(intent: Intent): IBinder = binder
 
     private inner class LocationListener : android.location.LocationListener {
         private var lastLocation: Location
@@ -58,7 +61,7 @@ class LocationTrackingService : Service() {
         } else {
             startTracking()
         }
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onCreate() {
@@ -74,13 +77,15 @@ class LocationTrackingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        sharedPrefs.edit().putBoolean(TRACKING_ID, false).apply()
+        logger.d { "${javaClass.simpleName} onDestroy()" }
         if (::locationManager.isInitialized) {
             try {
                 locationManager.removeUpdates(locationListener)
             } catch (ex: Exception) {
                 logger.i { "Failed to remove location listeners" }
                 logger.e(stackTrace = ex.stackTrace)
+            } finally {
+                isTracking.onNext(false)
             }
         }
     }
@@ -90,15 +95,21 @@ class LocationTrackingService : Service() {
         locationListener = LocationListener()
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, locationListener)
-            sharedPrefs.edit().putBoolean(TRACKING_ID, true).apply()
+            isTracking.onNext(true)
         } catch (ex: SecurityException) {
-            sharedPrefs.edit().putBoolean(TRACKING_ID, false).apply()
+            isTracking.onNext(false)
             logger.i { "Failed to request location update" }
             logger.e(stackTrace = ex.stackTrace)
         } catch (ex: IllegalArgumentException) {
-            sharedPrefs.edit().putBoolean(TRACKING_ID, false).apply()
+            isTracking.onNext(false)
             logger.i { "GPS provider does not exist (${ex.localizedMessage})" }
             logger.e(stackTrace = ex.stackTrace)
         }
+    }
+
+    /*FIXME: shitty thing. TODO: try Broadcasts instead*/
+    inner class LocationServiceBinder : Binder() {
+        val service: LocationTrackingService
+            get() = this@LocationTrackingService
     }
 }

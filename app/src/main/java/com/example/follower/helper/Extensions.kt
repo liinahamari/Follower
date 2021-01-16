@@ -47,7 +47,7 @@ fun Activity.hasPermission(permission: String) = ActivityCompat.checkSelfPermiss
 fun Context.hasAllPermissions(permissions: Array<String>): Boolean = permissions.all { ActivityCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
 
 /** Only for RxView elements!*/
-fun Observable<Unit>.throttleFirst(): Observable<Unit> = compose { it.throttleFirst(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()) }
+fun Observable<Unit>.throttleFirst(skipDurationMillis: Long = 500L): Observable<Unit> = compose { it.throttleFirst(skipDurationMillis, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()) }
 
 fun Configuration.getLocalesLanguage(): String = locales[0].language
 
