@@ -2,6 +2,7 @@ package com.example.follower.di
 
 import com.example.follower.FollowerApp
 import com.example.follower.base.BaseActivity
+import com.example.follower.screens.map.MapFragment
 import com.example.follower.screens.show_trace.ShowTraceComponent
 import com.example.follower.screens.tracking_control.TrackingControlFragment
 import com.example.follower.services.LocationTrackingService
@@ -22,6 +23,7 @@ interface AppComponent {
     fun showTraceComponent(): ShowTraceComponent.Builder
 
     fun inject(fragment: TrackingControlFragment)
+    fun inject(fragment: MapFragment)
     fun inject(service: LocationTrackingService)
     fun inject(activity: BaseActivity)
 }

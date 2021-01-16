@@ -26,9 +26,10 @@ class SettingsFragment: PreferenceFragmentCompat(), SharedPreferences.OnSharedPr
                 requireActivity().recreate()
             }
             requireContext().getString(R.string.pref_lang) -> {
-                val newLocale = Locale(sharedPreferences.getStringOf(key)!!)
-                Locale.setDefault(newLocale)
-                @Suppress("DEPRECATION") requireActivity().resources.updateConfiguration(resources.configuration.apply { setLocale(newLocale) }, resources.displayMetrics)
+                with(Locale(sharedPreferences.getStringOf(key)!!)) {
+                    Locale.setDefault(this)
+                    @Suppress("DEPRECATION") requireActivity().resources.updateConfiguration(resources.configuration.also { it.setLocale(this) }, resources.displayMetrics)
+                }
                 requireActivity().recreate()
             }
         }
