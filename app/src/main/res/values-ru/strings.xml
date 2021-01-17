@@ -17,4 +17,9 @@
     <string name="title_dark_theme">Темная тема</string>
     <string name="title_themes">Тема</string>
     <string name="title_language">Язык</string>
+    <string name="hint_name_your_trace">Назовите свой маршрут</string>
+    <string name="message_you_have_no_waypoints">Запись маршрута пуста</string>
+    <string name="title_stop_tracking">Прекратить запись</string>
+    <string name="title_continue">Продолжить</string>
+
 </resources>

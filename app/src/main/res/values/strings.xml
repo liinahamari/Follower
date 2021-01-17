@@ -29,4 +29,8 @@
     <string name="title_dark_theme">Dark theme</string>
     <string name="title_themes">Themes</string>
     <string name="title_language">Language</string>
+    <string name="hint_name_your_trace">Name your trace</string>
+    <string name="message_you_have_no_waypoints">You have no waypoints in your trace yet</string>
+    <string name="title_stop_tracking">Stop tracking</string>
+    <string name="title_continue">Continue</string>
 </resources>

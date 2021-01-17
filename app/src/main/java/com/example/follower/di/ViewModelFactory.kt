@@ -3,6 +3,7 @@ package com.example.follower.di
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.follower.base.BaseActivity
+import com.example.follower.screens.tracking_control.TrackingControlViewModel
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
@@ -32,6 +33,11 @@ abstract class ViewModelBuilderModule {
     @IntoMap
     @ViewModelKey(BaseActivity.BaseActivityViewModel::class)
     abstract fun bindBaseViewModel(viewModel: BaseActivity.BaseActivityViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TrackingControlViewModel::class)
+    abstract fun trackingControlViewModel(viewModel: TrackingControlViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
