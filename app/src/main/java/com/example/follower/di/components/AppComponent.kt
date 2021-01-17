@@ -11,6 +11,7 @@ import com.example.follower.di.modules.ServiceModule
 import com.example.follower.di.modules.ViewModelBuilderModule
 import com.example.follower.screens.map.MapFragment
 import com.example.follower.screens.show_trace.ShowTraceComponent
+import com.example.follower.screens.track_list.TrackListFragment
 import com.example.follower.screens.tracking_control.TrackingControlFragment
 import com.example.follower.services.LocationTrackingService
 import dagger.BindsInstance
@@ -30,6 +31,7 @@ interface AppComponent {
     fun showTraceComponent(): ShowTraceComponent.Builder
 
     fun inject(fragment: TrackingControlFragment)
+    fun inject(fragment: TrackListFragment)
     fun inject(fragment: MapFragment)
     fun inject(service: LocationTrackingService)
     fun inject(activity: BaseActivity)

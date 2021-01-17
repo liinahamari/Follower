@@ -4,6 +4,6 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 data class TrackWithWayPoints(
-    @Embedded val user: Track,
+    @Embedded val track: Track,
     @Relation(parentColumn = "time", entityColumn = "trackId") val wayPoints: List<WayPoint>
 )
