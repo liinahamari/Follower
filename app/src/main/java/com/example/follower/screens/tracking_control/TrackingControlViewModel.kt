@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import com.example.follower.R
 import com.example.follower.base.BaseViewModel
-import com.example.follower.db.Track
+import com.example.follower.db.entities.Track
+import com.example.follower.db.entities.WayPoint
 import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.interactors.SaveTrackResult
 import com.example.follower.interactors.TrackInteractor
-import com.example.follower.screens.map.WayPoint
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject

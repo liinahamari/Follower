@@ -21,6 +21,8 @@ import com.example.follower.base.BaseFragment
 import com.example.follower.ext.toReadableDate
 import com.example.follower.ext.toast
 import com.example.follower.helper.FlightRecorder
+import com.example.follower.ext.handleUsersReactionToPermission
+import com.example.follower.ext.throttleFirst
 import com.example.follower.services.LocationTrackingService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks

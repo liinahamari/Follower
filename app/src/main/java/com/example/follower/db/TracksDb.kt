@@ -2,9 +2,10 @@ package com.example.follower.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.example.follower.db.Track
-import com.example.follower.db.TrackDao
-import com.example.follower.screens.map.WayPoint
+import com.example.follower.db.daos.TrackDao
+import com.example.follower.db.daos.WayPointDao
+import com.example.follower.db.entities.Track
+import com.example.follower.db.entities.WayPoint
 
 @Database(entities = [Track::class, WayPoint::class], version = 1)
 abstract class TracksDb : RoomDatabase() {

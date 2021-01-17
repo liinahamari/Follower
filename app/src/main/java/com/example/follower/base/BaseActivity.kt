@@ -7,15 +7,14 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.follower.FollowerApp
-import com.example.follower.getLocalesLanguage
+import com.example.follower.ext.getLocalesLanguage
 import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.interactors.BaseActivitySettingsInteractor
 import com.example.follower.interactors.LocaleChangedResult
 import com.example.follower.interactors.NightModeChangesResult
-import com.example.follower.provideUpdatedContextWithNewLocale
+import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject

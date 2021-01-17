@@ -3,6 +3,7 @@ package com.example.follower
 import android.os.Bundle
 import com.example.follower.base.BaseActivity
 import com.example.follower.helper.FlightRecorder
+import com.example.follower.ext.throttleFirst
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_logs.*

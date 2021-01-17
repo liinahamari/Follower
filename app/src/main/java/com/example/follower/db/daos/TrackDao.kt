@@ -1,4 +1,4 @@
-package com.example.follower.db
+package com.example.follower.db.daos
 
 import androidx.annotation.VisibleForTesting
 import androidx.room.Dao
@@ -6,7 +6,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
 import androidx.room.Transaction
-import com.example.follower.screens.map.WayPoint
+import com.example.follower.db.entities.Track
+import com.example.follower.db.entities.TrackWithWayPoints
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -38,10 +39,4 @@ interface TrackDao {
     @Transaction
     @Query("SELECT * FROM track WHERE time LIKE :taskId LIMIT 1")
     fun getTrackWithWayPoints(taskId: Long): Single<TrackWithWayPoints>
-}
-
-@Dao
-interface WayPointDao {
-    @Insert
-    fun insertAll(counters: List<WayPoint>): Completable
 }

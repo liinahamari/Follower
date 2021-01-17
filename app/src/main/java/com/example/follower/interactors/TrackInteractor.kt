@@ -1,11 +1,11 @@
 package com.example.follower.interactors
 
-import com.example.follower.db.Track
-import com.example.follower.db.TrackDao
-import com.example.follower.db.WayPointDao
+import com.example.follower.db.entities.Track
+import com.example.follower.db.daos.TrackDao
+import com.example.follower.db.daos.WayPointDao
+import com.example.follower.db.entities.WayPoint
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.screens.map.WayPoint
 import io.reactivex.Single
 import javax.inject.Inject
 

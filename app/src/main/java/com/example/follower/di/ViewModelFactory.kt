@@ -28,27 +28,6 @@ class ViewModelFactory @Inject constructor(private val creators: @JvmSuppressWil
     }
 }
 
-@Module
-abstract class ViewModelBuilderModule {
-    @Binds
-    @IntoMap
-    @ViewModelKey(BaseActivity.BaseActivityViewModel::class)
-    abstract fun bindBaseViewModel(viewModel: BaseActivity.BaseActivityViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(TrackingControlViewModel::class)
-    abstract fun trackingControlViewModel(viewModel: TrackingControlViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(MapFragmentViewModel::class)
-    abstract fun mapFragmentViewModel(viewModel: MapFragmentViewModel): ViewModel
-
-    @Binds
-    abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
-}
-
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
 @Retention(AnnotationRetention.RUNTIME)
 @MapKey

@@ -1,9 +1,14 @@
-package com.example.follower.di
+package com.example.follower.di.components
 
 import com.example.follower.FollowerApp
 import com.example.follower.LogsActivity
 import com.example.follower.MainActivity
 import com.example.follower.base.BaseActivity
+import com.example.follower.di.modules.AppModule
+import com.example.follower.di.modules.DatabaseModule
+import com.example.follower.di.modules.LoggerModule
+import com.example.follower.di.modules.ServiceModule
+import com.example.follower.di.modules.ViewModelBuilderModule
 import com.example.follower.screens.map.MapFragment
 import com.example.follower.screens.show_trace.ShowTraceComponent
 import com.example.follower.screens.tracking_control.TrackingControlFragment

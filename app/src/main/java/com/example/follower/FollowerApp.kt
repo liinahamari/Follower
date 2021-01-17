@@ -5,8 +5,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Configuration
 import androidx.multidex.MultiDexApplication
-import com.example.follower.di.AppComponent
-import com.example.follower.di.DaggerAppComponent
+import com.example.follower.di.components.AppComponent
+import com.example.follower.di.components.DaggerAppComponent
+import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import com.example.follower.model.PersistedLocaleResult
 import com.example.follower.model.PreferencesRepository
 import com.example.follower.services.CHANNEL_ID
@@ -21,7 +22,6 @@ class FollowerApp: MultiDexApplication() {
     override fun onCreate() {
         setupDagger()
         super.onCreate()
-        INSTANCE = this
 
         Toasty.Config.getInstance().apply()
 
@@ -46,9 +46,5 @@ class FollowerApp: MultiDexApplication() {
         appComponent = DaggerAppComponent.builder()
             .application(this)
             .build()
-    }
-
-    companion object {
-        lateinit var INSTANCE: FollowerApp
     }
 }

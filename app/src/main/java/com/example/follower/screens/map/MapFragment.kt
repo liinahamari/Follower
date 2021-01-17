@@ -14,8 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.example.follower.BuildConfig
 import com.example.follower.FollowerApp
 import com.example.follower.R
@@ -86,7 +84,8 @@ class MapFragment : Fragment() {
     private fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { toast(it) })
         viewModel.getTrackEvent.observe(viewLifecycleOwner, {
-            map.overlays.addAll(it.map { wayPoint -> map.standardMarker(wayPoint.first, wayPoint.second) })
+            it.map { wayPoint -> map.standardMarker(wayPoint.first, wayPoint.second) }
+                .apply { map.overlays.addAll(this) }
         })
     }
 
@@ -103,14 +102,3 @@ class MapFragment : Fragment() {
         if (animated) mapController.animateTo(position) else mapController.setCenter(position)
     }
 }
-
-@Entity
-data class WayPoint(
-    var trackId: Long,
-    val provider: String,
-    val latitude: Double,
-    val longitude: Double,
-    val altitude: Double = 0.0,
-    val accuracy: Float = 1f,
-    @PrimaryKey val time: Long
-)
