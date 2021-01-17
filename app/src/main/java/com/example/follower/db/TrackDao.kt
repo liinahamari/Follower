@@ -33,7 +33,11 @@ interface TrackDao {
 
     @Transaction
     @Query("SELECT * FROM track")
-    fun getTrackWithWayPoints(): Single<List<TrackWithWayPoints>>
+    fun getAllTracksWithWayPoints(): Single<List<TrackWithWayPoints>>
+
+    @Transaction
+    @Query("SELECT * FROM track WHERE time LIKE :taskId LIMIT 1")
+    fun getTrackWithWayPoints(taskId: Long): Single<TrackWithWayPoints>
 }
 
 @Dao

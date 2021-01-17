@@ -13,7 +13,10 @@ import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import com.example.follower.FollowerApp
+import com.example.follower.ext.now
+import com.example.follower.ext.today
 import com.example.follower.helper.FlightRecorder
+import com.example.follower.screens.map.WayPoint
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.util.*
@@ -26,6 +29,8 @@ private const val LOCATION_DISTANCE = 10f
 const val ACTION_TERMINATE = "BackgroundTracker.action_terminate"
 
 class LocationTrackingService : Service() {
+    @Volatile var wayPoints = mutableListOf<WayPoint>()
+    @Volatile var traceBeginningTime: Long? = null
     @Inject lateinit var sharedPrefs: SharedPreferences
     @Inject lateinit var logger: FlightRecorder
     private lateinit var locationListener: LocationListener
@@ -36,22 +41,26 @@ class LocationTrackingService : Service() {
     override fun onBind(intent: Intent): IBinder = binder
 
     private inner class LocationListener : android.location.LocationListener {
-        private var lastLocation: Location
-
-        init { lastLocation = Location(LocationManager.GPS_PROVIDER) }
+        init {
+            with(Location(LocationManager.GPS_PROVIDER)) {
+                /*todo: remove? sends zeroes in lat, long*/
+                logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${latitude}, long:${longitude}" }
+                wayPoints.add(WayPoint(1L/*fixme*/, provider, longitude = longitude, latitude = latitude, time = System.currentTimeMillis()))
+            }
+        }
 
         override fun onLocationChanged(location: Location) {
 //            val currAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)
 //            val prevAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
 //            if (currAddress[0].thoroughfare != prevAddress[0].thoroughfare && currAddress[0].featureName != prevAddress[0].featureName){
-                lastLocation = location
-                logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
-//            }
+            wayPoints.add(WayPoint(1L, location.provider, longitude = location.longitude, latitude = location.latitude, time = System.currentTimeMillis()))
+
+            logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
         }
 
-        override fun onProviderDisabled(provider: String) { logger.w { "onProviderDisabled: $provider" } }
-        override fun onProviderEnabled(provider: String) { logger.w {"onProviderEnabled: $provider" } }
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) { logger.w { "onStatusChanged: $status" } }
+        override fun onProviderDisabled(provider: String) = logger.w { "onProviderDisabled: $provider" }
+        override fun onProviderEnabled(provider: String) = logger.w { "onProviderEnabled: $provider" }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) = logger.w { "onStatusChanged: $status" }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -68,11 +77,12 @@ class LocationTrackingService : Service() {
         (application as FollowerApp).appComponent.inject(this)
 
         logger.i { "${javaClass.simpleName} onCreate()" }
-        getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
-        startForeground(FOREGROUND_SERVICE_ID, Notification.Builder(applicationContext, CHANNEL_ID)
-                                                    .setContentText("tracking...")
-                                                    .setAutoCancel(false)
-                                                    .build())
+        startForeground(
+            FOREGROUND_SERVICE_ID, Notification.Builder(applicationContext, CHANNEL_ID)
+                .setContentText("tracking...")
+                .setAutoCancel(false)
+                .build()
+        )
     }
 
     override fun onDestroy() {
@@ -96,6 +106,7 @@ class LocationTrackingService : Service() {
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, locationListener)
             isTracking.onNext(true)
+            traceBeginningTime = System.currentTimeMillis()
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
             logger.i { "Failed to request location update" }

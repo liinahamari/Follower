@@ -34,4 +34,6 @@
     <string name="title_stop_tracking">Stop tracking</string>
     <string name="title_continue">Continue</string>
     <string name="erase_logs">Erase logs</string>
+    <string name="toast_track_saved">Track saved</string>
+    <string name="db_error">Something wrong with database!</string>
 </resources>

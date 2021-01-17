@@ -22,5 +22,6 @@
     <string name="title_stop_tracking">Прекратить запись</string>
     <string name="title_continue">Продолжить</string>
     <string name="erase_logs">Стереть логи</string>
-
+    <string name="toast_track_saved">Маршрут сохранён</string>
+    <string name="db_error">Что-то не так с базой данных!</string>
 </resources>
