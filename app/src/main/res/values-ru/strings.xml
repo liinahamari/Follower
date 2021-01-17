@@ -21,5 +21,6 @@
     <string name="message_you_have_no_waypoints">Запись маршрута пуста</string>
     <string name="title_stop_tracking">Прекратить запись</string>
     <string name="title_continue">Продолжить</string>
+    <string name="erase_logs">Стереть логи</string>
 
 </resources>

@@ -1,6 +1,8 @@
 package com.example.follower.di
 
 import com.example.follower.FollowerApp
+import com.example.follower.LogsActivity
+import com.example.follower.MainActivity
 import com.example.follower.base.BaseActivity
 import com.example.follower.screens.map.MapFragment
 import com.example.follower.screens.show_trace.ShowTraceComponent
@@ -11,7 +13,7 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class, LoggerModule::class, ViewModelBuilderModule::class, DatabaseModule::class])
+@Component(modules = [AppModule::class, LoggerModule::class, ViewModelBuilderModule::class, DatabaseModule::class, ServiceModule::class])
 interface AppComponent {
     @Component.Builder
     interface Builder {
@@ -26,4 +28,6 @@ interface AppComponent {
     fun inject(fragment: MapFragment)
     fun inject(service: LocationTrackingService)
     fun inject(activity: BaseActivity)
+    fun inject(activity: MainActivity)
+    fun inject(activity: LogsActivity)
 }
