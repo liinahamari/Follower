@@ -2,8 +2,8 @@ package com.example.follower.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.example.follower.db.daos.TrackDao
-import com.example.follower.db.daos.WayPointDao
+import com.example.follower.model.TrackDao
+import com.example.follower.model.WayPointDao
 import com.example.follower.db.entities.Track
 import com.example.follower.db.entities.WayPoint
 

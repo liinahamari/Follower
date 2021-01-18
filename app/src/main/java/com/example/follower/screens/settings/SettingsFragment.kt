@@ -1,4 +1,4 @@
-package com.example.follower.screens
+package com.example.follower.screens.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle

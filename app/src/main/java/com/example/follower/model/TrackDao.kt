@@ -1,4 +1,4 @@
-package com.example.follower.db.daos
+package com.example.follower.model
 
 import androidx.annotation.VisibleForTesting
 import androidx.room.Dao

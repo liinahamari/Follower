@@ -3,14 +3,16 @@ package com.example.follower.screens.track_list
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.follower.FollowerApp
+import com.example.follower.MainActivity
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.ext.toast
+import com.example.follower.screens.map.MapFragment
 import kotlinx.android.synthetic.main.fragment_track_list.*
 import javax.inject.Inject
 
@@ -52,5 +54,5 @@ class TrackListFragment: BaseFragment(R.layout.fragment_track_list) {
         }
     }
 
-    override fun onResume() = super.onResume().also { viewModel.fetchTasks() }
+    override fun onResume() = super.onResume().also { viewModel.fetchTracks() }
 }

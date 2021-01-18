@@ -7,9 +7,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.example.follower.base.BaseActivity
-import com.example.follower.screens.SettingsFragment
+import com.example.follower.screens.logs.LogsActivity
+import com.example.follower.screens.settings.SettingsFragment
 import com.example.follower.screens.map.MapFragment
-import com.example.follower.screens.show_trace.ShowTraceActivity
 import com.example.follower.screens.tracking_control.TrackingControlFragment
 import com.squareup.seismic.ShakeDetector
 import kotlinx.android.synthetic.main.activity_main.*

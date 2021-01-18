@@ -1,6 +1,8 @@
-package com.example.follower
+package com.example.follower.screens.logs
 
 import android.os.Bundle
+import com.example.follower.FollowerApp
+import com.example.follower.R
 import com.example.follower.base.BaseActivity
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.ext.throttleFirst

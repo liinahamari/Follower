@@ -1,7 +1,7 @@
 package com.example.follower.di.components
 
 import com.example.follower.FollowerApp
-import com.example.follower.LogsActivity
+import com.example.follower.screens.logs.LogsActivity
 import com.example.follower.MainActivity
 import com.example.follower.base.BaseActivity
 import com.example.follower.di.modules.AppModule

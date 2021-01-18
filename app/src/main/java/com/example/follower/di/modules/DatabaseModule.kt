@@ -2,9 +2,9 @@ package com.example.follower.di.modules
 
 import android.content.Context
 import androidx.room.Room
-import com.example.follower.db.daos.TrackDao
+import com.example.follower.model.TrackDao
 import com.example.follower.db.TracksDb
-import com.example.follower.db.daos.WayPointDao
+import com.example.follower.model.WayPointDao
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

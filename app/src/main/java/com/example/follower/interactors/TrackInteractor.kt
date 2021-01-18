@@ -1,8 +1,8 @@
 package com.example.follower.interactors
 
 import com.example.follower.db.entities.Track
-import com.example.follower.db.daos.TrackDao
-import com.example.follower.db.daos.WayPointDao
+import com.example.follower.model.TrackDao
+import com.example.follower.model.WayPointDao
 import com.example.follower.db.entities.TrackWithWayPoints
 import com.example.follower.db.entities.WayPoint
 import com.example.follower.helper.FlightRecorder
@@ -28,10 +28,12 @@ class TrackInteractor @Inject constructor(private val trackDao: TrackDao, privat
         .andThen(wayPointDao.delete(taskId))
         .toSingleDefault<RemoveTrackResult>(RemoveTrackResult.Success)
         .onErrorReturn { RemoveTrackResult.DatabaseCorruptionError }
+        .compose(baseComposers.applySingleSchedulers())
 
     fun fetchTracks(): Single<FetchTracksResult> = trackDao.getAllTracksWithWayPoints()
         .map<FetchTracksResult> { FetchTracksResult.Success(it) }
         .onErrorReturn { FetchTracksResult.DatabaseCorruptionError }
+        .compose(baseComposers.applySingleSchedulers())
 }
 
 sealed class SaveTrackResult {

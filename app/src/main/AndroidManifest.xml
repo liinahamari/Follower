@@ -23,7 +23,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Follower">
-        <activity android:name=".LogsActivity"></activity>
+        <activity android:name=".screens.logs.LogsActivity" />
         <activity android:name=".screens.show_trace.ShowTraceActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
