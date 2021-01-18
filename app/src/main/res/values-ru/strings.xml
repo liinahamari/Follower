@@ -21,10 +21,16 @@
     <string name="message_you_have_no_waypoints">Запись маршрута пуста</string>
     <string name="title_stop_tracking">Прекратить запись</string>
     <string name="title_continue">Продолжить</string>
-    <string name="erase_logs">Стереть логи</string>
+    <string name="title_erase_logs">Стереть логи</string>
     <string name="toast_track_saved">Маршрут сохранён</string>
     <string name="db_error">Что-то не так с базой данных!</string>
     <string name="title_tracks">Маршруты</string>
     <string name="title_not_started">Готов к работе</string>
     <string name="title_start_tracking">Начать отслеживание</string>
+    <string name="title_pick_email_provider">Выберите приложение для отправки email</string>
+    <string name="title_send_logs">Отправить логи разработчику</string>
+    <string name="title_set_of_markers">Множество маркеров</string>
+    <string name="title_line">Линия</string>
+    <string name="title_track_representing">Представить маршрут как…</string>
+
 </resources>

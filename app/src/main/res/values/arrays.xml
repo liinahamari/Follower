@@ -21,4 +21,14 @@
         <item>"Russian (Русский)"</item>
         <item>"English"</item>
     </string-array>
+
+    <string-array name="track_representing">
+        <item>@string/title_set_of_markers</item>
+        <item>@string/title_line</item>
+    </string-array>
+
+    <string-array name="track_representing_values">
+        <item>@string/pref_marker_set</item>
+        <item>@string/pref_line</item>
+    </string-array>
 </resources>

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ import com.example.follower.ext.*
 import com.example.follower.helper.FlightRecorder
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.api.IMapController
+import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -30,6 +32,7 @@ import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import javax.inject.Inject
+
 
 /** Also mapped to `argument` in nav_graph.xml */
 private const val EXTRA_TRACK_ID = "track_id"
@@ -83,10 +86,19 @@ class MapFragment : Fragment() {
 
     private fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
-        viewModel.getTrackEvent.observe(viewLifecycleOwner, {
+        viewModel.getTrackAsLine.observe(viewLifecycleOwner, {
+            map.overlays.add(RoadManager.buildRoadOverlay(it))
+            map.invalidate()
+            with(it.mRouteHigh.first()) {
+                centerMap(latitude, longitude)
+            }
+        })
+        viewModel.getTrackAsMarkerSet.observe(viewLifecycleOwner, {
             it.map { wayPoint -> map.standardMarker(wayPoint.first, wayPoint.second) }
                 .apply { map.overlays.addAll(this) }
-            centerMap(it.first().second, it.first().first)
+            with(it.first()) {
+                centerMap(second, first)
+            }
         })
     }
 

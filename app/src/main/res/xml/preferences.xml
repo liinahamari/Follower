@@ -29,4 +29,10 @@
         android:entryValues="@array/supported_locales"
         android:key="@string/pref_lang"
         android:title="@string/title_language" />
+
+    <ListPreference
+        android:entries="@array/track_representing"
+        android:entryValues="@array/track_representing_values"
+        android:key="@string/pref_track_representing"
+        android:title="@string/title_track_representing" />
 </PreferenceScreen>

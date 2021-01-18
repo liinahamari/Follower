@@ -6,6 +6,9 @@
     <string name="pref_lang" translatable="false">pref_lang</string>
     <string name="pref_min_distance" translatable="false">pref_min_distance</string>
     <string name="pref_min_location_update_interval" translatable="false">pref_min_location_update_interval</string>
+    <string name="pref_track_representing" translatable="false">pref_track_representing</string>
+    <string name="pref_marker_set" translatable="false">pref_set</string>
+    <string name="pref_line" translatable="false">pref_road</string>
 
     <!--descriptions-->
     <string name="desc_map_view" translatable="false">DESCRIPTION_map_fragment_map_view</string>
@@ -33,10 +36,15 @@
     <string name="message_you_have_no_waypoints">You have no waypoints in your trace yet</string>
     <string name="title_stop_tracking">Stop tracking</string>
     <string name="title_continue">Continue</string>
-    <string name="erase_logs">Erase logs</string>
+    <string name="title_erase_logs">Erase logs</string>
     <string name="toast_track_saved">Track saved</string>
     <string name="db_error">Something wrong with database!</string>
     <string name="title_tracks">Tracks</string>
     <string name="title_not_started">Not Started</string>
     <string name="title_start_tracking">Start tracking</string>
+    <string name="title_pick_email_provider">Pick an Email provider</string>
+    <string name="title_send_logs">Send logs to developer</string>
+    <string name="title_set_of_markers">Set of markers</string>
+    <string name="title_line">Line</string>
+    <string name="title_track_representing">Represent track as…</string>
 </resources>
