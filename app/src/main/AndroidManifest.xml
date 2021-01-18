@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.follower">
 
-    <uses-feature android:name="android.hardware.location.gps" android:required="true" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="true" />
     <uses-feature android:name="android.hardware.location.network" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -11,7 +13,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
@@ -22,6 +23,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Follower">
+        <activity android:name=".screens.logs.LogsActivity" />
         <activity android:name=".screens.show_trace.ShowTraceActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -31,7 +33,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".LocationTrackingService" />
+        <service android:name=".services.LocationTrackingService" />
     </application>
 
 </manifest>

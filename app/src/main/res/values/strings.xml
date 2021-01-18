@@ -12,7 +12,7 @@
 
 
     <string name="location_permission_dialog_explanation">App needs geolocation to track your activity</string>
-    <string name="title_gps_ready">\"GPS Ready\"</string>
+    <string name="title_gps_ready">GPS Ready</string>
     <string name="title_tracking">Tracking</string>
     <string name="error_location_permission_denied">You have denied location permission!</string>
     <string name="error_location_offline">Location is turned off, enable to make app work.</string>
@@ -29,4 +29,12 @@
     <string name="title_dark_theme">Dark theme</string>
     <string name="title_themes">Themes</string>
     <string name="title_language">Language</string>
+    <string name="hint_name_your_trace">Name your trace</string>
+    <string name="message_you_have_no_waypoints">You have no waypoints in your trace yet</string>
+    <string name="title_stop_tracking">Stop tracking</string>
+    <string name="title_continue">Continue</string>
+    <string name="erase_logs">Erase logs</string>
+    <string name="toast_track_saved">Track saved</string>
+    <string name="db_error">Something wrong with database!</string>
+    <string name="title_tracks">Tracks</string>
 </resources>

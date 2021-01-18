@@ -1,37 +1,53 @@
 package com.example.follower.screens.map
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
-import android.location.LocationManager.NETWORK_PROVIDER
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.example.follower.BuildConfig
+import com.example.follower.FollowerApp
 import com.example.follower.R
-import com.example.follower.ext.getStringOf
-import com.example.follower.ext.isGpsEnabled
-import com.example.follower.ext.isNetworkLocationEnabled
-import com.example.follower.ext.toast
+import com.example.follower.ext.*
+import com.example.follower.helper.FlightRecorder
+import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
+import javax.inject.Inject
+
+/** Also mapped to `argument` in nav_graph.xml */
+private const val EXTRA_TRACK_ID = "track_id"
 
 class MapFragment : Fragment() {
+    @Inject
+    lateinit var logger: FlightRecorder
     private lateinit var mapController: IMapController
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private val viewModel by viewModels<MapFragmentViewModel> { viewModelFactory }
+
+    override fun onAttach(context: Context) {
+        (requireActivity().application as FollowerApp).appComponent.inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val layout = inflater.inflate(R.layout.fragment_map, container, false)
@@ -51,26 +67,28 @@ class MapFragment : Fragment() {
                 setCompassCenter(36f, 36f + (0 / requireContext().resources.displayMetrics.density))
             })
 
-            overlays.addAll(createTraceMarkers(this))
-
             if (PreferenceManager.getDefaultSharedPreferences(requireContext()).getStringOf(getString(R.string.pref_theme))!!.toInt() == MODE_NIGHT_YES) /*todo: to repo*/ {
                 overlayManager.tilesOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
             }
         }
-        centerMap(Location(NETWORK_PROVIDER)) //todo: permission
         return layout.rootView
     }
 
-    private fun createTraceMarkers(mapView: MapView): Collection<Marker> {
-        val startPoint = GeoPoint(59.436962, 24.753574)
-        val startPoint2 = GeoPoint(59.431362, 24.751074)
-        val startMarker = Marker(mapView)
-        startMarker.position = startPoint
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        val startMarker2 = Marker(mapView)
-        startMarker2.position = startPoint2
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        return listOf(startMarker, startMarker2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        setupViewModelSubscriptions()
+        with(arguments?.getLong(EXTRA_TRACK_ID, -1L)!!) {
+            require(this > 0L)
+            viewModel.getTrack(this)
+        }
+    }
+
+    private fun setupViewModelSubscriptions() {
+        viewModel.errorEvent.observe(viewLifecycleOwner, { toast(it) })
+        viewModel.getTrackEvent.observe(viewLifecycleOwner, {
+            it.map { wayPoint -> map.standardMarker(wayPoint.first, wayPoint.second) }
+                .apply { map.overlays.addAll(this) }
+            centerMap(it.first().second, it.first().first)
+        })
     }
 
     fun showLocationErrorToast(locationManager: LocationManager) {
@@ -81,18 +99,8 @@ class MapFragment : Fragment() {
         }
     }
 
-    private fun centerMap(location: Location, animated: Boolean = true) {
-        val position = GeoPoint(59.436962, 24.753574)
-//        val position = GeoPoint(location.latitude, location.longitude)
+    private fun centerMap(lat: Double, long: Double, animated: Boolean = true) {
+        val position = GeoPoint(lat, long)
         if (animated) mapController.animateTo(position) else mapController.setCenter(position)
     }
 }
-
-data class WayPoint(
-    val provider: String,
-    val latitude: Double,
-    val longitude: Double,
-    val altitude: Double,
-    val accuracy: Float,
-    val time: Long,
-)

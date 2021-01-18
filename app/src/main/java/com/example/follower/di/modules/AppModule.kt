@@ -1,4 +1,4 @@
-package com.example.follower.di
+package com.example.follower.di.modules
 
 import android.content.Context
 import android.content.SharedPreferences
