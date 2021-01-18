@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <EditTextPreference
         android:defaultValue="10"
+        app:iconSpaceReserved="false"
         android:key="@string/pref_min_distance"
         android:title="@string/title_min_distance" />
 
     <EditTextPreference
         android:defaultValue="5"
+        app:iconSpaceReserved="false"
         android:key="@string/pref_min_location_update_interval"
         android:title="@string/title_min_location_update_interval" />
 
-    <Preference android:title="@string/title_reset_to_defaults" />
+    <Preference app:iconSpaceReserved="false"
+        android:title="@string/title_reset_to_defaults" />
 
-    <Preference android:title="@string/title_report_bug">
+    <Preference
+        app:iconSpaceReserved="false"
+        android:title="@string/title_report_bug">
         <intent
             android:action="android.intent.action.VIEW"
             android:data="https://github.com/liinahamari/Follower/issues" />
@@ -20,6 +26,7 @@
 
     <ListPreference
         android:entries="@array/themes"
+        app:iconSpaceReserved="false"
         android:entryValues="@array/theme_values"
         android:key="@string/pref_theme"
         android:title="@string/title_themes"/>
@@ -27,11 +34,13 @@
     <ListPreference
         android:entries="@array/supported_languages"
         android:entryValues="@array/supported_locales"
+        app:iconSpaceReserved="false"
         android:key="@string/pref_lang"
         android:title="@string/title_language" />
 
     <ListPreference
         android:entries="@array/track_representing"
+        app:iconSpaceReserved="false"
         android:entryValues="@array/track_representing_values"
         android:key="@string/pref_track_representing"
         android:title="@string/title_track_representing" />
