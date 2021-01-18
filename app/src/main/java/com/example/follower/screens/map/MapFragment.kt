@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +32,8 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import javax.inject.Inject
 
-const val EXTRA_TRACK_ID = "MapFragment.track_id"
+/** Also mapped to `argument` in nav_graph.xml */
+private const val EXTRA_TRACK_ID = "track_id"
 
 class MapFragment : Fragment() {
     @Inject
@@ -73,12 +75,11 @@ class MapFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        with(requireActivity().intent.getLongExtra(EXTRA_TRACK_ID, -1L)) {
-        with(1L) {
-            require(this > 0)
+        setupViewModelSubscriptions()
+        with(arguments?.getLong(EXTRA_TRACK_ID, -1L)!!) {
+            require(this > 0L)
             viewModel.getTrack(this)
         }
-        setupViewModelSubscriptions()
     }
 
     private fun setupViewModelSubscriptions() {
@@ -86,6 +87,7 @@ class MapFragment : Fragment() {
         viewModel.getTrackEvent.observe(viewLifecycleOwner, {
             it.map { wayPoint -> map.standardMarker(wayPoint.first, wayPoint.second) }
                 .apply { map.overlays.addAll(this) }
+            centerMap(it.first().second, it.first().first)
         })
     }
 

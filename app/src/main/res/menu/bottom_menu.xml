@@ -4,9 +4,9 @@
         android:icon="@drawable/ic_baseline_edit_location_alt_24"
         android:title="@string/title_tracking_controls" />
     <item
-        android:id="@+id/tab_map"
-        android:icon="@drawable/ic_baseline_map_24"
-        android:title="@string/title_map" />
+        android:id="@+id/tracklist_fragment"
+        android:icon="@drawable/ic_baseline_list_alt_24"
+        android:title="@string/title_tracks" />
     <item
         android:id="@+id/tab_settings"
         android:icon="@drawable/ic_baseline_settings_applications_24"

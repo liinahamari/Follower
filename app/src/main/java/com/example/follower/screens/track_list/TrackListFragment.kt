@@ -2,10 +2,14 @@ package com.example.follower.screens.track_list
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.follower.FollowerApp
 import com.example.follower.MainActivity
@@ -23,7 +27,7 @@ class TrackListFragment: BaseFragment(R.layout.fragment_track_list) {
     private val tracksAdapter = TrackListAdapter(::removeTrack, ::goToMap)
 
     private fun removeTrack(id: Long) = viewModel.removeTask(id)
-    private fun goToMap(id: Long) = Unit
+    private fun goToMap(id: Long) = NavHostFragment.findNavController(this).navigate(R.id.action_to_map, bundleOf("track_id" to id))
 
     override fun onAttach(context: Context) {
         (context.applicationContext as FollowerApp).appComponent.inject(this)

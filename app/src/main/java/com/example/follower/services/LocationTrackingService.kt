@@ -35,14 +35,6 @@ class LocationTrackingService : Service() {
     override fun onBind(intent: Intent): IBinder = binder
 
     private inner class LocationListener : android.location.LocationListener {
-        init {
-            with(Location(LocationManager.GPS_PROVIDER)) {
-                /*todo: remove? sends zeroes in lat, long*/
-                logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${latitude}, long:${longitude}" }
-                wayPoints.add(WayPoint(1L/*fixme*/, provider, longitude = longitude, latitude = latitude, time = System.currentTimeMillis()))
-            }
-        }
-
         override fun onLocationChanged(location: Location) {
 //            val currAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)
 //            val prevAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
