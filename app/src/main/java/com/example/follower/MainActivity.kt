@@ -32,7 +32,6 @@ class MainActivity : BaseActivity(R.layout.activity_main), ShakeDetector.Listene
             adapter = MainScreenViewPagerAdapter(supportFragmentManager)
             globalMenu.setupWithViewPager(this)
         }
-
     }/*todo bug with different states of menu and pager*/
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {

@@ -13,7 +13,7 @@ import javax.inject.Inject
 class TrackInteractor @Inject constructor(private val trackDao: TrackDao, private val wayPointDao: WayPointDao, private val logger: FlightRecorder, private val baseComposers: BaseComposers) {
     fun saveTrack(track: Track, wayPoints: List<WayPoint>): Single<SaveTrackResult> = trackDao.insert(track)
         .doOnSuccess { trackId -> wayPoints.forEach { it.trackId = trackId } }
-        .flatMapCompletable { wayPointDao.insertAll(wayPoints) }
+        .flatMapCompletable { wayPointDao.insertAll(wayPoints).onErrorResumeNext { trackDao.delete(track.time) } }
         .toSingleDefault<SaveTrackResult>(SaveTrackResult.Success)
         .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
         .compose(baseComposers.applySingleSchedulers())

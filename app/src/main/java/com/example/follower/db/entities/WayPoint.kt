@@ -1,9 +1,11 @@
 package com.example.follower.db.entities
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(foreignKeys = [ForeignKey(onDelete = CASCADE, entity = Track::class, parentColumns = ["time"], childColumns = ["trackId"])])
 data class WayPoint(
     var trackId: Long,
     val provider: String,
