@@ -87,6 +87,7 @@ dependencies {
     implementation 'nl.joery.animatedbottombar:library:1.0.9'
     implementation 'com.afollestad.material-dialogs:input:3.3.0'
     implementation 'com.squareup:seismic:1.0.2'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
 
     /* ROOM */
     def room_version = "2.2.6"

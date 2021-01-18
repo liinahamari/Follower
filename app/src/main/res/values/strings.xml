@@ -37,4 +37,6 @@
     <string name="toast_track_saved">Track saved</string>
     <string name="db_error">Something wrong with database!</string>
     <string name="title_tracks">Tracks</string>
+    <string name="title_not_started">Not Started</string>
+    <string name="title_start_tracking">Start tracking</string>
 </resources>

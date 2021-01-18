@@ -25,5 +25,6 @@
     <string name="toast_track_saved">Маршрут сохранён</string>
     <string name="db_error">Что-то не так с базой данных!</string>
     <string name="title_tracks">Маршруты</string>
-
+    <string name="title_not_started">Готов к работе</string>
+    <string name="title_start_tracking">Начать отслеживание</string>
 </resources>
