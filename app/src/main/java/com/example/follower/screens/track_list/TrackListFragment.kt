@@ -2,21 +2,16 @@ package com.example.follower.screens.track_list
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.follower.FollowerApp
-import com.example.follower.MainActivity
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
-import com.example.follower.ext.toast
-import com.example.follower.screens.map.MapFragment
+import com.example.follower.ext.errorToast
 import kotlinx.android.synthetic.main.fragment_track_list.*
 import javax.inject.Inject
 
@@ -41,7 +36,7 @@ class TrackListFragment: BaseFragment(R.layout.fragment_track_list) {
 
     private fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner) { errorMessage ->
-            toast(getString(errorMessage))
+            errorToast(getString(errorMessage))
         }
         viewModel.fetchAllTracksEvent.observe(viewLifecycleOwner) {
             tracksAdapter.tracks = it.toMutableList()

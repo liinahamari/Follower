@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -83,7 +82,7 @@ class MapFragment : Fragment() {
     }
 
     private fun setupViewModelSubscriptions() {
-        viewModel.errorEvent.observe(viewLifecycleOwner, { toast(it) })
+        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
         viewModel.getTrackEvent.observe(viewLifecycleOwner, {
             it.map { wayPoint -> map.standardMarker(wayPoint.first, wayPoint.second) }
                 .apply { map.overlays.addAll(this) }
@@ -93,9 +92,9 @@ class MapFragment : Fragment() {
 
     fun showLocationErrorToast(locationManager: LocationManager) {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
-            toast(getString(R.string.error_location_permission_denied))
+            errorToast(getString(R.string.error_location_permission_denied))
         } else if (locationManager.isGpsEnabled().not() && locationManager.isNetworkLocationEnabled().not()) {
-            toast(getString(R.string.error_location_offline))
+            errorToast(getString(R.string.error_location_offline))
         }
     }
 

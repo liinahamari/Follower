@@ -18,11 +18,8 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.example.follower.*
 import com.example.follower.base.BaseFragment
-import com.example.follower.ext.toReadableDate
-import com.example.follower.ext.toast
+import com.example.follower.ext.*
 import com.example.follower.helper.FlightRecorder
-import com.example.follower.ext.handleUsersReactionToPermission
-import com.example.follower.ext.throttleFirst
 import com.example.follower.services.LocationTrackingService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
@@ -125,7 +122,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     }
 
     private fun setupViewModelSubscriptions() {
-        viewModel.errorEvent.observe(viewLifecycleOwner, { toast(it) })
+        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
         viewModel.saveTrackEvent.observe(viewLifecycleOwner, { toast(it) })
     }
 
