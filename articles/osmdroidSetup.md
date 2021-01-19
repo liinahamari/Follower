@@ -6,7 +6,7 @@ First of all, add ```osmdroid``` as a dependency in your app's gradle file:
 Also, for such functionality as drawing routes you'll need "bonus pack" dependency:
 <br>```implementation 'com.github.MKergall:osmbonuspack:6.6.0'``` ([official page](https://github.com/MKergall/osmbonuspack))
 
-Core functionality of showing the map won't work until configuration provides Application ID and path for osmdroid files. The better place for configuration setup is your Application's subclass:
+Core functionality of showing the map won't work until configuration provides Application ID and path for osmdroid files. The better place for configuration setup is your ```Application```'s subclass:
 ```
     class MyApp: Application() {
         ...
@@ -19,7 +19,7 @@ Core functionality of showing the map won't work until configuration provides Ap
     }
 ```
 
-In view container's (such as Fragment) layout, you'll need to declare MapView as a key element:
+In view container's (such as ```Fragment```) layout, you'll need to declare MapView as a key element:
 ```        <org.osmdroid.views.MapView
                android:id="@+id/map"
                android:layout_width="match_parent"
@@ -57,7 +57,7 @@ Optionally, you can invert colors in case your app supports dark theme:
     }
 ```
 
-... and add CompassOverlay (but, to be honest, on my device sensors doesn't provide accurate data for compass to show valid information):
+... and add ```CompassOverlay``` (but, to be honest, on my device sensors doesn't provide accurate data for compass to show valid information):
 ```
     overlays.add(CompassOverlay(context, InternalCompassOrientationProvider(context), this).apply {
         enableCompass()
@@ -69,7 +69,7 @@ Optionally, you can invert colors in case your app supports dark theme:
 
 <div align="center"><img src="https://github.com/liinahamari/Follower/blob/main/screenshots/line_preview.png" border="10"></div>
 
-To draw route as ordinary overlay represented by the line, you'll need "bonus pack" library mentioned above (com.github.MKergall:osmbonuspack). 
+To draw route as ordinary overlay represented by the line, you'll need "bonus pack" library mentioned above (```com.github.MKergall:osmbonuspack```). 
 Imagine, you have a set of coordinates (paired longitudes and latitudes, ```Double```s in most cases). First of all, coordinates you have needed to be presented as ```Geopoint``` object, which osmdroid operate:
 ```
     yourDataSource.getCoondinatesSet<List<Pair<Double, Double>>>()
@@ -78,9 +78,9 @@ Imagine, you have a set of coordinates (paired longitudes and latitudes, ```Doub
         .map { OSRMRoadManager(context).getRoad(ArrayList(it)) 
     }
 ```
-Beware! getRoad() function uses Internet to work and must be invoked in background! 
+Beware! ```getRoad()``` function uses Internet to work and must be invoked in background! 
 
-When the Road is Ready, show it in UI:
+When the ```Road``` is Ready, show it in UI:
 ```
     map.overlays.add(RoadManager.buildRoadOverlay(road))
         map.invalidate()
