@@ -25,7 +25,7 @@
         android:theme="@style/Theme.Follower">
         <activity android:name=".screens.logs.LogsActivity" />
         <activity android:name=".screens.show_trace.ShowTraceActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".screens.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -33,17 +33,14 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import javax.inject.Inject
 
-
 /** Also mapped to `argument` in nav_graph.xml */
 private const val EXTRA_TRACK_ID = "track_id"
 
 class MapFragment : Fragment() {
-    @Inject
-    lateinit var logger: FlightRecorder
+    @Inject lateinit var logger: FlightRecorder
     private lateinit var mapController: IMapController
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel by viewModels<MapFragmentViewModel> { viewModelFactory }
 
     override fun onAttach(context: Context) {
@@ -54,9 +51,6 @@ class MapFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val layout = inflater.inflate(R.layout.fragment_map, container, false)
         with(layout.findViewById(R.id.map) as MapView) {
-            Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
-            Configuration.getInstance().osmdroidBasePath = requireActivity().getExternalFilesDir(null)
-
             mapController = controller
             isTilesScaledToDpi = true
             setTileSource(TileSourceFactory.MAPNIK)

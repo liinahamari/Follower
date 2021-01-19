@@ -22,11 +22,18 @@ class FollowerApp: MultiDexApplication() {
     override fun onCreate() {
         setupDagger()
         super.onCreate()
-
+        setupOsmdroid()
         Toasty.Config.getInstance().apply()
 
         getSystemService(NotificationManager::class.java)
             .createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
+    }
+
+    private fun setupOsmdroid() {
+        with(org.osmdroid.config.Configuration.getInstance()) {
+            userAgentValue = BuildConfig.APPLICATION_ID
+            osmdroidBasePath = getExternalFilesDir(null)
+        }
     }
 
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale(defaultLocale = Locale.getDefault().language))

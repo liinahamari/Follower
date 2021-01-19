@@ -1,10 +1,12 @@
-package com.example.follower
+package com.example.follower.screens
 
 import android.content.Intent
 import android.hardware.SensorManager
 import android.os.Bundle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.example.follower.FollowerApp
+import com.example.follower.R
 import com.example.follower.base.BaseActivity
 import com.example.follower.screens.logs.LogsActivity
 import com.squareup.seismic.ShakeDetector
