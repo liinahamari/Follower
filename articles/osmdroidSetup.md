@@ -1,10 +1,10 @@
 ## Setting up osmdroid and drawing route overlay
 
 First of all, add ```osmdroid``` as a dependency in your app's gradle file:
-```implementation 'org.osmdroid:osmdroid-android:6.1.8'``` (version might vary, check [official page](https://github.com/osmdroid/osmdroid) to be aware of latest version)
+<br>```implementation 'org.osmdroid:osmdroid-android:6.1.8'``` (version might vary, check [official page](https://github.com/osmdroid/osmdroid) to be aware of latest version)
 
 Also, for such functionality as drawing routes you'll need "bonus pack" dependency:
-```implementation 'com.github.MKergall:osmbonuspack:6.6.0'``` ([official page](https://github.com/MKergall/osmbonuspack))
+<br>```implementation 'com.github.MKergall:osmbonuspack:6.6.0'``` ([official page](https://github.com/MKergall/osmbonuspack))
 
 Core functionality of showing the map won't work until configuration provides Application ID and path for osmdroid files. The better place for configuration setup is your Application's subclass:
 ```
