@@ -67,7 +67,7 @@ Optionally, you can invert colors in case your app supports dark theme:
 
 ### How to draw route overlay
 
-<div align="center">![line_preview](screenshots/line_preview.png)</div>
+<div align="center"><img src="screenshots/line_preview.png" border="10"></div>
 
 To draw route as ordinary overlay represented by the line, you'll need "bonus pack" library mentioned above (com.github.MKergall:osmbonuspack). 
 Imagine, you have a set of coordinates (paired longitudes and latitudes, ```Double```s in most cases). First of all, coordinates you have needed to be presented as ```Geopoint``` object, which osmdroid operate:
@@ -90,8 +90,8 @@ When the Road is Ready, show it in UI:
 ``` 
 
 ### How to represent a track as set of markers
-
-<div align="center">![line_preview](screenshots/set_of_markers.png)</div>
+<div align="center">
+<img src="screenshots/set_of_markers.png" border="10"/></div>
 
 Sometimes it might be handy to show trace as set of markers.
 ```
