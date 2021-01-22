@@ -16,8 +16,8 @@ fun Fragment.errorToast(message: String) = context?.errorToast(message)
 fun Activity.errorToast(message: String) = applicationContext.errorToast(message)
 
 fun Context.toast(message: String) = Toasty.info(this, message, Toast.LENGTH_LONG, true).show()
-fun Fragment.toast(message: String) = context?.errorToast(message)
-fun Activity.toast(message: String) = applicationContext.errorToast(message)
+fun Fragment.toast(message: String) = context?.toast(message)
+fun Activity.toast(message: String) = applicationContext.toast(message)
 
 fun Context.getStatusBarHeight(): Int = resources.getIdentifier("status_bar_height", "dimen", "android")
 
