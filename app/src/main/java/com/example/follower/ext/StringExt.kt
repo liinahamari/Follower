@@ -18,6 +18,12 @@ const val DATE_PATTERN_FOR_LOGGING = "dd EEE MMM yyyy HH:mm"
  *  */
 const val TIME_PATTERN_HOURS_24_MINUTES = "HH:mm"
 
+
+/** Represents full-format date (year-month-dayOfMonth-hours-minutes-seconds). Example:
+ *  2020-05-21-21-55-00
+ *  */
+const val PATTERN_SAVING_TIMESTAMP = "yyyy-MM-dd-HH-mm-ss"
+
 fun Long.toReadableDate(): String = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, Locale.UK).format(Date(this))
 
 /** String representing current hours in 24 format and minutes, with `:` delimiter. For example:
@@ -26,3 +32,5 @@ fun Long.toReadableDate(): String = DateFormat.getDateTimeInstance(DateFormat.LO
  * */
 fun now(): String = SimpleDateFormat(TIME_PATTERN_HOURS_24_MINUTES, Locale.getDefault()).format(Date())
 fun today(): String = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING, Locale.getDefault()).format(Date())
+
+fun Date.toSavingTimeStamp(): String = SimpleDateFormat(PATTERN_SAVING_TIMESTAMP, Locale.US).format(date)
