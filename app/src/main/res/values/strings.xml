@@ -47,4 +47,6 @@
     <string name="title_set_of_markers">Set of markers</string>
     <string name="title_line">Line</string>
     <string name="title_track_representing">Represent track as…</string>
+    <string name="title_file_manager_problem">Unable to save file. The problem might be with File Manager.</string>
+    <string name="io_error">Something wrong with file system!</string>
 </resources>

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.follower.base.BaseActivity
 import com.example.follower.di.ViewModelFactory
 import com.example.follower.di.ViewModelKey
+import com.example.follower.screens.logs.LogsActivityViewModel
 import com.example.follower.screens.map.MapFragmentViewModel
 import com.example.follower.screens.track_list.TrackListViewModel
 import com.example.follower.screens.tracking_control.TrackingControlViewModel
@@ -18,6 +19,11 @@ abstract class ViewModelBuilderModule {
     @IntoMap
     @ViewModelKey(BaseActivity.BaseActivityViewModel::class)
     abstract fun bindBaseViewModel(viewModel: BaseActivity.BaseActivityViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(LogsActivityViewModel::class)
+    abstract fun logsViewModel(viewModel: LogsActivityViewModel): ViewModel
 
     @Binds
     @IntoMap

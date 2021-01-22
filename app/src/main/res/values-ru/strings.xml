@@ -32,5 +32,7 @@
     <string name="title_set_of_markers">Множество маркеров</string>
     <string name="title_line">Линия</string>
     <string name="title_track_representing">Представить маршрут как…</string>
+    <string name="title_file_manager_problem">Невозможно сохранить файл. Возможно, проблема с файловым менеджером.</string>
+    <string name="io_error">Что-то не так с файловой системой!</string>
 
 </resources>

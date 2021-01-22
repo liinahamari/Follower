@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
-    <Button
-        android:id="@+id/eraseLogButton"
-        android:text="@string/erase_logs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            app:layout_constraintStart_toStartOf="parent"
+            android:id="@+id/eraseLogButton"
+            android:text="@string/title_erase_logs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints" />
+        <Button
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/sendLogsButton"
+            android:text="@string/title_send_logs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
