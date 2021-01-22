@@ -49,6 +49,7 @@ class BaseActivitySettingsInteractor @Inject constructor(
             logger.wtf { "Problem with locale changes handling!" }
             logger.e(stackTrace = it.stackTrace)
         }
+        .compose(baseComposers.applyMaybeSchedulers())
 }
 
 sealed class NightModeChangesResult {
