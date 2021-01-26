@@ -6,6 +6,7 @@ import com.example.follower.R
 import com.example.follower.base.BaseViewModel
 import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.interactors.ClearRecordResult
+import com.example.follower.interactors.FileInteractor
 import com.example.follower.interactors.GetRecordResult
 import com.example.follower.interactors.LoggerInteractor
 import io.reactivex.functions.Consumer

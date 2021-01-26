@@ -1,8 +1,9 @@
-package com.example.follower.screens.logs
+package com.example.follower.interactors
 
 import android.content.Context
 import android.net.Uri
 import com.example.follower.helper.rx.BaseComposers
+import com.example.follower.screens.logs.FileCreationResult
 import io.reactivex.Single
 import java.io.IOException
 import javax.inject.Inject
