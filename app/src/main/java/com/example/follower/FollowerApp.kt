@@ -60,5 +60,6 @@ class FollowerApp: MultiDexApplication() {
         appComponent = DaggerAppComponent.builder()
             .application(this)
             .build()
+            .apply { inject(this@FollowerApp) }
     }
 }

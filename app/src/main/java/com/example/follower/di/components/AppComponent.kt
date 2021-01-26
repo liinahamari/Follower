@@ -32,6 +32,7 @@ interface AppComponent {
 
     fun inject(fragment: TrackingControlFragment)
     fun inject(fragment: TrackListFragment)
+    fun inject(app: FollowerApp)
     fun inject(fragment: MapFragment)
     fun inject(service: LocationTrackingService)
     fun inject(activity: BaseActivity)
