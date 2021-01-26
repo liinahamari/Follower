@@ -59,7 +59,7 @@ class FlightRecorder(private val logStorage: File) {
         logStorage.readText()
     }
 
-    fun clear() = logStorage.writeText("")
+    fun clear() = kotlin.runCatching { logStorage.writeText("") }.isSuccess
 
     private fun clearBeginningIfNeeded(meta: String, what: () -> String) {
         val newDataSize = "$meta ${what.invoke()}\n\n".toByteArray().size

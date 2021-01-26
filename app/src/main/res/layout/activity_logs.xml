@@ -3,36 +3,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
         <Button
-            app:layout_constraintStart_toStartOf="parent"
             android:id="@+id/eraseLogButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/title_erase_logs"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             tools:ignore="MissingConstraints" />
+
         <Button
-            app:layout_constraintEnd_toEndOf="parent"
             android:id="@+id/sendLogsButton"
-            android:text="@string/title_send_logs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/title_send_logs"
             tools:ignore="MissingConstraints" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
-    <ScrollView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".screens.logs.LogActivity">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/logsContainer"
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </ScrollView>
+            android:layout_height="match_parent"
+            tools:context=".screens.logs.LogActivity">
+
+            <TextView
+                android:id="@+id/logsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </ScrollView>
+    </FrameLayout>
 </LinearLayout>

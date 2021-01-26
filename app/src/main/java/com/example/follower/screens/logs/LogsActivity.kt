@@ -1,15 +1,12 @@
 package com.example.follower.screens.logs
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.core.net.toFile
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseActivity
@@ -36,13 +33,21 @@ class LogsActivity : BaseActivity(R.layout.activity_logs) {
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as FollowerApp).appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        logsContainer.text = logger.getEntireRecord() /*todo: async*/
         setupClicks()
         setupViewModelSubscriptions()
     }
 
+    override fun onResume() = super.onResume().also { viewModel.fetchLogs() }
+
     private fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(this, { errorToast(getString(it)) })
+
+        viewModel.loadingEvent.observe(this, { progressBar.isVisible = it })
+
+        viewModel.displayLogsEvent.observe(this, { logsContainer.text = it })
+
+        viewModel.clearLogsEvent.observe(this, { logsContainer.text = "" })
+
         viewModel.createFileEvent.observe(this, {
             Intent(Intent.ACTION_SEND).apply {
                 type = TEXT_TYPE
@@ -59,7 +64,7 @@ class LogsActivity : BaseActivity(R.layout.activity_logs) {
         subscriptions += eraseLogButton
             .clicks()
             .throttleFirst()
-            .subscribe { logger.clear().also { logsContainer.text = "" } }
+            .subscribe { viewModel.clearLogs() }
 
         subscriptions += sendLogsButton
             .clicks()
