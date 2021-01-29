@@ -28,6 +28,7 @@ class LogsActivity : BaseActivity(R.layout.activity_logs) {
     }
 
     override fun onResume() = super.onResume().also { viewModel.fetchLogs() }
+    override fun onPause() = super.onPause().also { logsContainer.text = "" }
 
     private fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(this, { errorToast(getString(it)) })
