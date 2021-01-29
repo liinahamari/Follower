@@ -1,33 +1,23 @@
 package com.example.follower.screens.track_list
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.ext.errorToast
 import kotlinx.android.synthetic.main.fragment_track_list.*
-import javax.inject.Inject
 
 class TrackListFragment: BaseFragment(R.layout.fragment_track_list) {
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
 
     private val tracksAdapter = TrackListAdapter(::removeTrack, ::goToMap)
 
     private fun removeTrack(id: Long) = viewModel.removeTask(id)
-    private fun goToMap(id: Long) = NavHostFragment.findNavController(this).navigate(R.id.action_to_map, bundleOf("track_id" to id))
-
-    override fun onAttach(context: Context) {
-        (context.applicationContext as FollowerApp).appComponent.inject(this)
-        super.onAttach(context)
-    }
+    private fun goToMap(id: Long) = NavHostFragment.findNavController(this).navigate(R.id.action_to_map, bundleOf(getString(R.string.arg_addressFragment_trackId) to id))
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setupTrackList()

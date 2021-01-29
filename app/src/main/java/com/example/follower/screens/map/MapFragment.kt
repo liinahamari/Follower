@@ -33,9 +33,6 @@ import org.osmdroid.views.overlay.compass.CompassOverlay
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 import javax.inject.Inject
 
-/** Also mapped to `argument` in nav_graph.xml */
-private const val EXTRA_TRACK_ID = "track_id"
-
 class MapFragment : Fragment() {
     @Inject lateinit var logger: FlightRecorder
     private lateinit var mapController: IMapController
@@ -72,7 +69,7 @@ class MapFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setupViewModelSubscriptions()
-        with(arguments?.getLong(EXTRA_TRACK_ID, -1L)!!) {
+        with(arguments?.getLong(getString(R.string.arg_addressFragment_trackId), -1L)!!) {
             require(this > 0L)
             viewModel.getTrack(this)
         }
@@ -105,7 +102,8 @@ class MapFragment : Fragment() {
     }
 
     private fun centerMap(lat: Double, long: Double, animated: Boolean = true) {
-        val position = GeoPoint(lat, long)
-        if (animated) mapController.animateTo(position) else mapController.setCenter(position)
+        with(GeoPoint(lat, long)) {
+            if (animated) mapController.animateTo(this) else mapController.setCenter(this)
+        }
     }
 }

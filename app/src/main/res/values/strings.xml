@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">Follower</string>
 
+    <!--arguments-->
+    <string translatable="false" name="arg_addressFragment_trackId">com.example.follower.AddressTraceFragment.EXTRA_TRACK_ID</string>
+
     <!--prefs-->
     <string name="pref_theme" translatable="false">pref_theme</string>
     <string name="pref_lang" translatable="false">pref_lang</string>

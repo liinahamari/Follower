@@ -35,11 +35,11 @@
 
     <fragment
         android:id="@+id/tab_map"
-        android:name="com.example.follower.screens.map.MapFragment"
+        android:name="com.example.follower.screens.address_trace.AddressTraceFragment"
         android:label="Map"
-        tools:layout="@layout/fragment_map" >
+        tools:layout="@layout/fragment_address_trace" >
         <argument
-            android:name="track_id"
+            android:name="@string/arg_addressFragment_trackId"
             app:argType="long"
             android:defaultValue="-1L" />
     </fragment>

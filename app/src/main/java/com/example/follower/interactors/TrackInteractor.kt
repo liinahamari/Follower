@@ -48,13 +48,13 @@ class TrackInteractor @Inject constructor(
 
     fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
         .flattenAsObservable {
-            Log.d("a", "aadsdsafsaag ${it.wayPoints.size}")
+            logger.i { "getAddresses init size: ${it.wayPoints.size}" }
             it.wayPoints.map { wayPoint ->  wayPoint.latitude to wayPoint.longitude } }
         .distinctUntilChanged()
         .map { Geocoder(context, Locale.getDefault()).getFromLocation(it.first, it.second, 1).first().getAddressLine(0) }
         .toList()
         .toObservable()
-        .doOnNext { Log.d("a", "aadsdsafsaag ${it.size}") }
+        .doOnNext { logger.i { "getAddresses trimmed size: ${it.size}" } }
         .map<GetAddressesResult> { GetAddressesResult.Success(it) }
         .onErrorReturn { GetAddressesResult.DatabaseCorruptionError }
         .startWith(GetAddressesResult.Loading)
