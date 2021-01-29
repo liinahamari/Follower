@@ -1,5 +1,6 @@
 ## Features and problems:
 ###     [Drawing routes with OpenStreetMap osmdroid](articles/osmdroidSetup.md)
+###     [Sharing file dedicated to internal usage](articles/sharingInternalFile.md)
 
 ## Screenshots:
 <div align="center">
