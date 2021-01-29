@@ -1,6 +1,7 @@
 package com.example.follower.interactors
 
 import android.content.Context
+import android.location.Geocoder
 import android.util.Log
 import com.example.follower.R
 import com.example.follower.db.entities.Track
@@ -14,11 +15,14 @@ import com.example.follower.model.TrackDao
 import com.example.follower.model.WayPointDao
 import com.example.follower.screens.map.Latitude
 import com.example.follower.screens.map.Longitude
+import io.reactivex.Observable
 import io.reactivex.Single
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.util.GeoPoint
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 class TrackInteractor @Inject constructor(
     private val context: Context,
@@ -41,6 +45,20 @@ class TrackInteractor @Inject constructor(
         .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
         .compose(baseComposers.applySingleSchedulers())
         .doOnSuccess { logger.i { "Track saved with ${wayPoints.size} wayPoints" } }
+
+    fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
+        .flattenAsObservable {
+            Log.d("a", "aadsdsafsaag ${it.wayPoints.size}")
+            it.wayPoints.map { wayPoint ->  wayPoint.latitude to wayPoint.longitude } }
+        .distinctUntilChanged()
+        .map { Geocoder(context, Locale.getDefault()).getFromLocation(it.first, it.second, 1).first().getAddressLine(0) }
+        .toList()
+        .toObservable()
+        .doOnNext { Log.d("a", "aadsdsafsaag ${it.size}") }
+        .map<GetAddressesResult> { GetAddressesResult.Success(it) }
+        .onErrorReturn { GetAddressesResult.DatabaseCorruptionError }
+        .startWith(GetAddressesResult.Loading)
+        .compose(baseComposers.applyObservableSchedulers())
 
     fun getTrackById(taskId: Long): Single<GetTrackResult> = prefRepo.getPersistedTrackRepresentation()
         .flatMap { lineOrMarkerSet ->
@@ -82,6 +100,12 @@ class TrackInteractor @Inject constructor(
 sealed class SaveTrackResult {
     object Success : SaveTrackResult()
     object DatabaseCorruptionError : SaveTrackResult()
+}
+
+sealed class GetAddressesResult {
+    data class Success(val addresses: List<String>) : GetAddressesResult()
+    object DatabaseCorruptionError : GetAddressesResult()
+    object Loading : GetAddressesResult()
 }
 
 sealed class GetTrackResult {
