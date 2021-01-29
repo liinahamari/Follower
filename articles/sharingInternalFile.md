@@ -1,20 +1,18 @@
 ## Sharing file dedicated to internal usage
 
-https://developer.android.com/training/secure-file-sharing/setup-sharing
-
 Imagine you have a log file stored locally, which you want to share with another application (for example, email application). 
 [FileProvider](https://developer.android.com/reference/androidx/core/content/FileProvider) is what we need in this case.
 In ```AndroidManifest.xml``` you should declare ```<provider>``` section:
 ```
 <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:grantUriPermissions="true"
-            android:exported="false">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/filepaths" />
-        </provider>
+    android:name="androidx.core.content.FileProvider"
+    android:authorities="${applicationId}.fileprovider"
+    android:grantUriPermissions="true"
+    android:exported="false">
+        <meta-data
+            android:name="android.support.FILE_PROVIDER_PATHS"
+            android:resource="@xml/filepaths" />
+</provider>
 ```
 
 The most important attribute here is ```authorities``` attribute, it should contain unique identifier of your application. ```applicationId``` is a good choice (programmatically you can obtain applicationId 
