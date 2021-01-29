@@ -26,10 +26,12 @@ filepaths.xml), which should contain elements declaring shareable directories:
 </paths>
 ``` 
 
-and therefore, you can expose to other applications all the files you have in declared directories via implicit Intents:
+Caution! If you in some way saved your file to external storage, you should declare <external-path> tag instead <files-path>.
+
+Therefore, you can expose to other applications all the files you have in declared directories via implicit Intents:
 ```
 Intent(Intent.ACTION_SEND).apply {
-    putExtra(Intent.EXTRA_EMAIL, arrayOf(SOME_EMAIL))
+    putExtra(Intent.EXTRA_EMAIL, arrayOf(SOME_EMAIL_IN_TEMPLOGS_DIRECTORY))
     putExtra(Intent.EXTRA_SUBJECT, SOME_MESSAGE_TITLE)
     putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".fileprovider", logFile))
     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
