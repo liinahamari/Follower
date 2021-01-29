@@ -6,6 +6,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
 /** Represents date and in such format: "day_of_month concise_month_name year 24_format_hours:minutes"
  *  For example:
@@ -14,7 +15,7 @@ import java.util.*
  *  */
 private const val DATE_PATTERN_FOR_LOGGING = "dd EEE MMM yyyy HH:mm"
 
-class FlightRecorder(private val logStorage: File) {
+class FlightRecorder (private val logStorage: File) {
     private val isDebug = BuildConfig.DEBUG
     var TAPE_VOLUME = 10 * 1024 * 1024 /** 10 MB **/
 
