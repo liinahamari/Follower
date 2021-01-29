@@ -3,10 +3,9 @@ package com.example.follower.interactors
 import android.content.Context
 import android.net.Uri
 import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.screens.logs.FileCreationResult
 import io.reactivex.Single
-import java.io.IOException
 import javax.inject.Inject
+
 /*todo handle empty file impossibility to send*/
 class FileInteractor @Inject constructor(private val context: Context, private val baseComposers: BaseComposers) {
     fun copyFile(originalFileUri: Uri, targetFileUri: Uri): Single<FileCreationResult> = Single.just(originalFileUri to targetFileUri)
@@ -19,4 +18,9 @@ class FileInteractor @Inject constructor(private val context: Context, private v
         .map<FileCreationResult> { FileCreationResult.Success(targetFileUri) }
         .onErrorReturn { FileCreationResult.IOError }
         .compose(baseComposers.applySingleSchedulers())
+}
+
+sealed class FileCreationResult {
+    data class Success(val targetFileUri: Uri): FileCreationResult()
+    object IOError: FileCreationResult()
 }

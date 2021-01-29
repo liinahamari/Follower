@@ -7,7 +7,8 @@ import dagger.Provides
 import java.io.File
 import javax.inject.Singleton
 
-private const val DEBUG_LOGS_DIR = "FlightRecordings"
+/** related to file_paths.xml -> TempLogs directory*/
+private const val DEBUG_LOGS_DIR = "TempLogs"
 private const val DEBUG_LOGS_STORAGE_FILE_NAME = "tape.log"
 
 @Module

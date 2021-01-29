@@ -14,9 +14,6 @@ import java.util.*
  *  */
 private const val DATE_PATTERN_FOR_LOGGING = "dd EEE MMM yyyy HH:mm"
 
-private const val DEBUG_LOGS_DIR = "FlightRecordings"
-private const val DEBUG_LOGS_STORAGE_FILE_NAME = "tape.log"
-
 class FlightRecorder(private val logStorage: File) {
     private val isDebug = BuildConfig.DEBUG
     var TAPE_VOLUME = 10 * 1024 * 1024 /** 10 MB **/

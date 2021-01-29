@@ -1,24 +1,17 @@
 package com.example.follower.screens.logs
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseActivity
-import com.example.follower.ext.DEFAULT_DEBUG_LOG_FILE_NAME
 import com.example.follower.ext.errorToast
 import com.example.follower.ext.throttleFirst
-import com.example.follower.helper.FlightRecorder
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_logs.*
-import java.io.File
-import javax.inject.Inject
 
 private const val MY_EMAIL = "l1bills@protonmail.com"
 private const val MESSAGE_TITLE = "Follower Logs"
@@ -26,9 +19,6 @@ private const val TEXT_TYPE = "text/plain"
 
 class LogsActivity : BaseActivity(R.layout.activity_logs) {
     private val viewModel by viewModels<LogsActivityViewModel> { viewModelFactory }
-
-    @Inject lateinit var logger: FlightRecorder
-    @Inject lateinit var logFile: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as FollowerApp).appComponent.inject(this)
@@ -48,15 +38,14 @@ class LogsActivity : BaseActivity(R.layout.activity_logs) {
 
         viewModel.clearLogsEvent.observe(this, { logsContainer.text = "" })
 
-        viewModel.createFileEvent.observe(this, {
+        viewModel.logFilePathEvent.observe(this, {
             Intent(Intent.ACTION_SEND).apply {
-                type = TEXT_TYPE
                 putExtra(Intent.EXTRA_EMAIL, arrayOf(MY_EMAIL))
                 putExtra(Intent.EXTRA_SUBJECT, MESSAGE_TITLE)
                 putExtra(Intent.EXTRA_STREAM, it)
-            }.also { intent ->
-                startActivity(Intent.createChooser(intent, getString(R.string.title_pick_email_provider)))
-            }
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = TEXT_TYPE
+            }.also { startActivity(it) }
         })
     }
 
@@ -69,15 +58,6 @@ class LogsActivity : BaseActivity(R.layout.activity_logs) {
         subscriptions += sendLogsButton
             .clicks()
             .throttleFirst()
-            .subscribe { requestFileCreation() }
+            .subscribe { viewModel.requestLogFilePath() }
     }
-
-    private fun requestFileCreation() = registerForActivityResult(object : ActivityResultContracts.CreateDocument() {
-        override fun createIntent(context: Context, input: String): Intent = super.createIntent(context, input).apply {
-            type = TEXT_TYPE
-            addCategory(Intent.CATEGORY_OPENABLE)
-        }
-    }) {
-        it?.let { viewModel.copyFile(logFile.toUri(), it) }
-    }.launch(DEFAULT_DEBUG_LOG_FILE_NAME)
 }
