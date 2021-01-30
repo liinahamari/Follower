@@ -7,16 +7,21 @@ import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.interactors.FetchTracksResult
 import com.example.follower.interactors.RemoveTrackResult
 import com.example.follower.interactors.TrackInteractor
+import com.example.follower.model.PreferencesRepository
+import com.example.follower.model.TrackDisplayModeResult
 import io.reactivex.functions.Consumer
 import javax.inject.Inject
 import io.reactivex.rxkotlin.plusAssign
 
-class TrackListViewModel @Inject constructor(private val trackInteractor: TrackInteractor) : BaseViewModel() {
+class TrackListViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val preferencesRepository: PreferencesRepository) : BaseViewModel() {
     private val _errorEvent = SingleLiveEvent<Int>()
     val errorEvent: LiveData<Int> get() = _errorEvent
 
     private val _fetchAllTracksEvent = SingleLiveEvent<List<TrackUi>>()
     val fetchAllTracksEvent: LiveData<List<TrackUi>> get() = _fetchAllTracksEvent
+
+    private val _trackDisplayModeEvent = SingleLiveEvent<Pair<String, Long>>()
+    val trackDisplayModeEvent: LiveData<Pair<String, Long>> get() = _trackDisplayModeEvent
 
     private val _removeTrackEvent = SingleLiveEvent<Long>()
     val removeTrackEvent: LiveData<Long> get() = _removeTrackEvent
@@ -39,4 +44,16 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
         })
     }
 
+    fun saveDisplayType(displayMode: String) {
+        disposable += preferencesRepository.saveTrackDisplayMode(displayMode).subscribe()
+    }
+
+    fun getTrackDisplayMode(trackId: Long) {
+        disposable += preferencesRepository.getTrackDisplayMode().subscribe(Consumer {
+            when (it) {
+                is TrackDisplayModeResult.Success -> _trackDisplayModeEvent.value = it.displayMode to trackId
+                is TrackDisplayModeResult.Failure -> _errorEvent.value = R.string.error_couldnt_save_preference
+            }
+        })
+    }
 }

@@ -34,5 +34,11 @@
     <string name="title_track_representing">Представить маршрут как…</string>
     <string name="title_file_manager_problem">Невозможно сохранить файл. Возможно, проблема с файловым менеджером.</string>
     <string name="io_error">Что-то не так с файловой системой!</string>
-
+    <string name="title_show_map">Показать карту</string>
+    <string name="title_show_addresses">Показать список адресов</string>
+    <string name="title_remember_choice">Запомнить выбор</string>
+    <string name="error_couldnt_save_preference">Не удалось сохранить настройку!</string>
+    <string name="title_track_display_mode">Отображать маршрут как…</string>
+    <string name="title_addresses_list">Список адресов</string>
+    <string name="title_always_ask">Спрашивать всегда</string>
 </resources>

@@ -12,6 +12,10 @@
     <string name="pref_track_representing" translatable="false">pref_track_representing</string>
     <string name="pref_marker_set" translatable="false">pref_set</string>
     <string name="pref_line" translatable="false">pref_road</string>
+    <string name="pref_track_display_mode" translatable="false">pref_track_display_mode</string>
+    <string name="pref_value_track_display_mode_none" translatable="false">pref_value_track_display_mode_none</string>
+    <string name="pref_value_track_display_mode_map" translatable="false">pref_value_track_display_mode_map</string>
+    <string name="pref_value_track_display_mode_addresses_list" translatable="false">pref_value_track_display_mode_addresses_list</string>
 
     <!--descriptions-->
     <string name="desc_map_view" translatable="false">DESCRIPTION_map_fragment_map_view</string>
@@ -52,4 +56,11 @@
     <string name="title_track_representing">Represent track as…</string>
     <string name="title_file_manager_problem">Unable to save file. The problem might be with File Manager.</string>
     <string name="io_error">Something wrong with file system!</string>
+    <string name="title_show_map">Show Map</string>
+    <string name="title_show_addresses">Show addresses list</string>
+    <string name="title_remember_choice">Remember my choice</string>
+    <string name="error_couldnt_save_preference">"Couldn't save preference! "</string>
+    <string name="title_addresses_list">Addresses list</string>
+    <string name="title_always_ask">Always ask</string>
+    <string name="title_track_display_mode">Display track as…</string>
 </resources>

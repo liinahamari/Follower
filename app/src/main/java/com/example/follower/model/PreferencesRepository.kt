@@ -5,11 +5,22 @@ import android.content.SharedPreferences
 import com.example.follower.R
 import com.example.follower.ext.getStringOf
 import com.example.follower.ext.writeStringOf
+import com.example.follower.helper.rx.BaseComposers
+import io.reactivex.Completable
 import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
 
-class PreferencesRepository @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context) {
+class PreferencesRepository @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val baseComposers: BaseComposers) {
+    fun getTrackDisplayMode(): Single<TrackDisplayModeResult> = Single.just(context.getString(R.string.pref_track_display_mode))
+        .map { sharedPreferences.getStringOf(it) ?: context.getString(R.string.pref_value_track_display_mode_none) }
+        .map<TrackDisplayModeResult> { TrackDisplayModeResult.Success(it) }
+        .onErrorReturn { TrackDisplayModeResult.Failure }
+        .compose(baseComposers.applySingleSchedulers())
+
+    fun saveTrackDisplayMode(mode: String): Completable = Completable.fromCallable { sharedPreferences.writeStringOf(context.getString(R.string.pref_track_display_mode), mode) }
+        .compose(baseComposers.applyCompletableSchedulers())
+
     fun getPersistedLocale(): Single<PersistedLocaleResult> = Single.just(context.getString(R.string.pref_lang))
         .map { Locale(sharedPreferences.getStringOf(it) ?: Locale.UK.language) }
         .map<PersistedLocaleResult> { PersistedLocaleResult.Success(it) }
@@ -24,7 +35,7 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
                 context.getString(R.string.pref_marker_set) -> PersistedTrackResult.Success(context.getString(R.string.pref_marker_set))
                 context.getString(R.string.pref_line) -> PersistedTrackResult.Success(context.getString(R.string.pref_line))
                 else -> PersistedTrackResult.Success(context.getString(R.string.pref_line)).also {
-                    sharedPreferences.writeStringOf(context.getString(R.string.pref_line), context.getString(R.string.pref_line))
+                    sharedPreferences.writeStringOf(context.getString(R.string.pref_track_representing), context.getString(R.string.pref_line))
                 }
             }
         }
@@ -34,6 +45,11 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
 sealed class PersistedLocaleResult {
     data class Success(val locale: Locale) : PersistedLocaleResult()
     object Failure : PersistedLocaleResult()
+}
+
+sealed class TrackDisplayModeResult {
+    data class Success(val displayMode: String) : TrackDisplayModeResult()
+    object Failure : TrackDisplayModeResult()
 }
 
 sealed class PersistedTrackResult {

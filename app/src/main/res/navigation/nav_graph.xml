@@ -31,12 +31,25 @@
         <action
             android:id="@+id/action_to_map"
             app:destination="@id/tab_map" />
+        <action
+            android:id="@+id/action_to_addresses_list"
+            app:destination="@id/tab_addresses_list" />
     </fragment>
 
     <fragment
         android:id="@+id/tab_map"
-        android:name="com.example.follower.screens.address_trace.AddressTraceFragment"
+        android:name="com.example.follower.screens.map.MapFragment"
         android:label="Map"
+        tools:layout="@layout/fragment_map" >
+        <argument
+            android:name="@string/arg_addressFragment_trackId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </fragment>
+    <fragment
+        android:id="@+id/tab_addresses_list"
+        android:name="com.example.follower.screens.address_trace.AddressTraceFragment"
+        android:label="Addresses List"
         tools:layout="@layout/fragment_address_trace" >
         <argument
             android:name="@string/arg_addressFragment_trackId"
