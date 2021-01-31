@@ -41,9 +41,10 @@ class FlightRecorder (private val logStorage: File) {
         .also { logStorage.appendText("} W { ${what.invoke()}\n\n") }
         .also { if(toPrintInLogcat && isDebug) { Log.i(this::class.java.simpleName, what.invoke())} }
 
-    fun e(toPrintInLogcat: Boolean = true, stackTrace: Array<StackTraceElement>) {
+    fun e(label: String, toPrintInLogcat: Boolean = true, stackTrace: Array<StackTraceElement>) {
         val readableStackTrace = stackTrace.joinToString(separator = "\n\n") { it.toString() }
         clearBeginningIfNeeded("} E {") { readableStackTrace }
+            .also { logStorage.appendText("} E { label: $label") }
             .also { logStorage.appendText("} E { $readableStackTrace\n\n") }
             .also { if(toPrintInLogcat && isDebug) { Log.i(this::class.java.simpleName, readableStackTrace)} }
     }

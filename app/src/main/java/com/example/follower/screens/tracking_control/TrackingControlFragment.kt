@@ -104,8 +104,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             requireActivity().unbindService(serviceConnection)
             isServiceBound = false
         } catch (e: Throwable) {
-            logger.wtf { "Unbinding unsuccessful!" }
-            logger.e(stackTrace = e.stackTrace)
+            logger.e(label = "Unbinding unsuccessful...", stackTrace = e.stackTrace)
         }
     }
 

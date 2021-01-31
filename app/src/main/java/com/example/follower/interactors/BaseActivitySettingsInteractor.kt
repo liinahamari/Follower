@@ -35,20 +35,14 @@ class BaseActivitySettingsInteractor @Inject constructor(
                 NightModeChangesResult.SharedChangesCorruptionError
             }
         }.onErrorReturn { NightModeChangesResult.SharedChangesCorruptionError }
-        .doOnError {
-            logger.wtf { "Problem with changing theme!" }
-            logger.e(stackTrace = it.stackTrace)
-        }
+        .doOnError { logger.e(label = "theme change", stackTrace = it.stackTrace) }
         .compose(baseComposers.applyMaybeSchedulers())
 
     fun checkLocaleChanged(currentLocale: String): Maybe<LocaleChangedResult> = Single.just(currentLocale)
         .filter { sharedPreferences.getStringOf(context.getString(R.string.pref_lang)).equals(it).not() }
         .map<LocaleChangedResult> { LocaleChangedResult.Success }
         .onErrorReturn { LocaleChangedResult.SharedPreferencesCorruptionError }
-        .doOnError {
-            logger.wtf { "Problem with locale changes handling!" }
-            logger.e(stackTrace = it.stackTrace)
-        }
+        .doOnError { logger.e(label = "locale change", stackTrace = it.stackTrace) }
         .compose(baseComposers.applyMaybeSchedulers())
 }
 

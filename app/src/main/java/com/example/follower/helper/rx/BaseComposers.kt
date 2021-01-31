@@ -13,27 +13,27 @@ class BaseComposers constructor(private val schedulers: SchedulersProvider, priv
         SingleTransformer {
             it.subscribeOn(schedulers.io())
                 .observeOn(schedulers.ui())
-                .doOnError { error -> logger.e(stackTrace = error.stackTrace) }
+                .doOnError { error -> logger.e(label = "rx", stackTrace = error.stackTrace) }
         }
 
     fun <T> applyMaybeSchedulers(): MaybeTransformer<T, T> =
         MaybeTransformer {
             it.subscribeOn(schedulers.io())
                 .observeOn(schedulers.ui())
-                .doOnError { error -> logger.e(stackTrace = error.stackTrace) }
+                .doOnError { error -> logger.e(label = "rx", stackTrace = error.stackTrace) }
         }
 
     fun <T> applyObservableSchedulers(): ObservableTransformer<T, T> =
         ObservableTransformer {
             it.subscribeOn(schedulers.io())
                 .observeOn(schedulers.ui())
-                .doOnError { error -> logger.e(stackTrace = error.stackTrace) }
+                .doOnError { error -> logger.e(label = "rx", stackTrace = error.stackTrace) }
         }
 
     fun applyCompletableSchedulers(): CompletableTransformer =
         CompletableTransformer {
             it.subscribeOn(schedulers.io())
                 .observeOn(schedulers.ui())
-                .doOnError { error -> logger.e(stackTrace = error.stackTrace) }
+                .doOnError { error -> logger.e(label = "rx", stackTrace = error.stackTrace) }
         }
 }

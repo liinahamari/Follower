@@ -33,7 +33,7 @@ class FollowerApp: MultiDexApplication() {
         getSystemService(NotificationManager::class.java)
             .createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
 
-        RxJavaPlugins.setErrorHandler { logger.e(stackTrace = it.stackTrace) }
+        RxJavaPlugins.setErrorHandler { logger.e(label = "GLOBAL", stackTrace = it.stackTrace) }
     }
 
     private fun setupOsmdroid() {

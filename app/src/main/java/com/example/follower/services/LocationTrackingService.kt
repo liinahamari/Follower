@@ -78,8 +78,7 @@ class LocationTrackingService : Service() {
             try {
                 locationManager.removeUpdates(locationListener)
             } catch (ex: Exception) {
-                logger.i { "Failed to remove location listeners" }
-                logger.e(stackTrace = ex.stackTrace)
+                logger.e(label = "Failed to remove location listeners", stackTrace = ex.stackTrace)
             } finally {
                 isTracking.onNext(false)
             }
@@ -95,12 +94,10 @@ class LocationTrackingService : Service() {
             traceBeginningTime = System.currentTimeMillis()
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
-            logger.i { "Failed to request location update" }
-            logger.e(stackTrace = ex.stackTrace)
+            logger.e(label = "Failed to request location update", stackTrace = ex.stackTrace)
         } catch (ex: IllegalArgumentException) {
             isTracking.onNext(false)
-            logger.i { "GPS provider does not exist (${ex.localizedMessage})" }
-            logger.e(stackTrace = ex.stackTrace)
+            logger.e(label = "GPS provider does not exist (${ex.localizedMessage})", stackTrace = ex.stackTrace)
         }
     }
 

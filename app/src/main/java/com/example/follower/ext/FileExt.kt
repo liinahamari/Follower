@@ -6,8 +6,6 @@ import android.provider.OpenableColumns
 import com.example.follower.model.Directory
 import java.io.File
 
-const val DEFAULT_DEBUG_LOG_FILE_NAME = "debug.log"
-
 fun Context.getFileSize(uri: Uri): Long = contentResolver.query(uri, null, null, null, null)?.use {
     it.moveToFirst()
     return@use it.getLong(it.getColumnIndex(OpenableColumns.SIZE))
