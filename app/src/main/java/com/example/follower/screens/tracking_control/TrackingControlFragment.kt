@@ -32,10 +32,9 @@ private const val GEO_PERMISSION_REQUEST_CODE = 12
 
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
     @Inject lateinit var logger: FlightRecorder
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
     private var isServiceBound = false
-    private lateinit var gpsService: LocationTrackingService
+    private var gpsService: LocationTrackingService? = null
 
     private val permissionExplanationDialog by lazy {
         MaterialAlertDialogBuilder(requireContext())
@@ -68,11 +67,13 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
 
                 gpsService = (service as LocationTrackingService.LocationServiceBinder).service
 //                subscriptions.clear() /*TODO WTF?*/
-                subscriptions += gpsService
-                    .isTracking
-                    .subscribe {
-                        toggleButtons(it)
-                    }
+                gpsService?.let { gpsService ->
+                    subscriptions += gpsService
+                        .isTracking
+                        .subscribe {
+                            toggleButtons(it)
+                        }
+                }
             }
         }
 
@@ -84,6 +85,11 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                 toggleButtons(false)
             }
         }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        gpsService = null
     }
 
     override fun onStart() {
@@ -107,7 +113,8 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         with(requireActivity()) {
             val intent = Intent(this, LocationTrackingService::class.java)
             startService(intent)
-            bindService(intent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE).also { logger.i { "service bound ($it) from startTracking()" } }
+            bindService(intent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
+                .also { logger.i { "service bound ($it) from startTracking()" } }
         }
     }
 
@@ -140,13 +147,13 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         subscriptions += btn_stop_tracking.clicks()
             .throttleFirst(750L)
             .subscribe {
-                if (isServiceBound) {
-                    if (gpsService.wayPoints.isEmpty()) {
+                if (isServiceBound && gpsService != null) {
+                    if (gpsService!!.wayPoints.isEmpty()) {
                         emptyWayPointsDialog.show()
                     } else {
                         MaterialDialog(requireContext()).show {
-                            input(prefill = gpsService.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
-                                viewModel.saveTrack(gpsService.traceBeginningTime!!, text.toString(), gpsService.wayPoints)
+                            input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
+                                viewModel.saveTrack(gpsService!!.traceBeginningTime!!, text.toString(), gpsService!!.wayPoints)
                             }
                         }
                         requireActivity().unbindService(serviceConnection)
@@ -155,7 +162,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                         requireActivity().stopService(Intent(requireActivity(), LocationTrackingService::class.java))
                     }
                 } else {
-                    logger.wtf { "problem with service binding..." }
+                    logger.wtf { "problem with service binding... ${gpsService == null}" }
                     throw RuntimeException()
                 }
             }
