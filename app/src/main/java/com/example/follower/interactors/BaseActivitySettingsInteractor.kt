@@ -18,13 +18,13 @@ class BaseActivitySettingsInteractor @Inject constructor(
     private val context: Context
 ) {
     fun handleThemeChanges(toBeCompared: Int): Maybe<NightModeChangesResult> = Single.fromCallable {
-            kotlin.runCatching { sharedPreferences.getStringOf(context.getString(R.string.pref_theme)) }.getOrNull()
+            kotlin.runCatching { sharedPreferences.getStringOf(context.getString(R.string.pref_theme)) }.getOrThrow()
         }
         .filter { it != toBeCompared.toString() }
         .map { it.toInt() }
         .map<NightModeChangesResult> { NightModeChangesResult.Success(it) }
         .onErrorReturn {
-            if (it is NullPointerException) {
+            return@onErrorReturn if (it is NullPointerException) {
                 try {
                     sharedPreferences.writeStringOf(context.getString(R.string.pref_theme), toBeCompared.toString())
                     NightModeChangesResult.Success(toBeCompared)

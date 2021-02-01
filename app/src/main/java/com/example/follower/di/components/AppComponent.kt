@@ -1,16 +1,11 @@
 package com.example.follower.di.components
 
 import com.example.follower.FollowerApp
-import com.example.follower.screens.logs.LogsActivity
-import com.example.follower.screens.MainActivity
 import com.example.follower.base.BaseActivity
 import com.example.follower.base.BaseFragment
-import com.example.follower.di.modules.AppModule
-import com.example.follower.di.modules.DatabaseModule
-import com.example.follower.di.modules.LoggerModule
-import com.example.follower.di.modules.ServiceModule
-import com.example.follower.di.modules.ViewModelBuilderModule
-import com.example.follower.screens.map.MapFragment
+import com.example.follower.di.modules.*
+import com.example.follower.screens.MainActivity
+import com.example.follower.screens.logs.LogsActivity
 import com.example.follower.screens.tracking_control.TrackingControlFragment
 import com.example.follower.services.LocationTrackingService
 import dagger.BindsInstance
@@ -30,7 +25,6 @@ interface AppComponent {
     fun inject(fragment: BaseFragment)
     fun inject(fragment: TrackingControlFragment)
     fun inject(app: FollowerApp)
-    fun inject(fragment: MapFragment)
     fun inject(service: LocationTrackingService)
     fun inject(activity: BaseActivity)
     fun inject(activity: MainActivity)

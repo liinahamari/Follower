@@ -23,7 +23,7 @@ class AddressTraceViewModel @Inject constructor(private val trackInteractor: Tra
 
     fun getAddressTrace(id: Long) {
         disposable += trackInteractor.getAddressesList(id)
-            .subscribe(Consumer {
+            .subscribe {
                 when (it) {
                     is GetAddressesResult.Success -> {
                         _loadingEvent.value = false
@@ -35,6 +35,6 @@ class AddressTraceViewModel @Inject constructor(private val trackInteractor: Tra
                     }
                     is GetAddressesResult.Loading -> _loadingEvent.value = true
                 }
-            })
+            }
     }
 }

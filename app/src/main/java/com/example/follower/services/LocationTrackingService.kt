@@ -50,7 +50,6 @@ class LocationTrackingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
         if (intent.action == ACTION_TERMINATE) {
             stopSelf()
         } else {

@@ -6,43 +6,36 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
-import android.provider.Settings
+import android.view.KeyEvent
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
-import com.example.follower.*
+import com.example.follower.FollowerApp
+import com.example.follower.R
 import com.example.follower.base.BaseFragment
-import com.example.follower.ext.*
+import com.example.follower.ext.errorToast
+import com.example.follower.ext.throttleFirst
+import com.example.follower.ext.toReadableDate
+import com.example.follower.ext.toast
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.services.LocationTrackingService
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
 
-private const val GEO_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
-private const val GEO_PERMISSION_REQUEST_CODE = 12
-
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
     @Inject lateinit var logger: FlightRecorder
     private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
     private var isServiceBound = false
     private var gpsService: LocationTrackingService? = null
-
-    private val permissionExplanationDialog by lazy {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.app_name))
-            .setMessage(R.string.location_permission_dialog_explanation)
-            .setPositiveButton(getString(android.R.string.ok), null)
-            .create()
-    }
 
     private val emptyWayPointsDialog by lazy {
         MaterialAlertDialogBuilder(requireContext())
@@ -122,24 +115,23 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         super.onAttach(context)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setupClicks()
-        setupViewModelSubscriptions()
-    }
-
-    private fun setupViewModelSubscriptions() {
+    override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
         viewModel.saveTrackEvent.observe(viewLifecycleOwner, { toast(it) })
     }
 
-    private fun setupClicks() {
+    override fun setupClicks() {
         subscriptions += btn_start_tracking.clicks()
             .throttleFirst(750L)
             .subscribe {
                 if (requireContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_GRANTED) {
                     startTracking()
                 } else {
-                    requestPermissions(arrayOf(GEO_PERMISSION), GEO_PERMISSION_REQUEST_CODE)
+                    registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+                        if (it) {
+                            startTracking()
+                        }
+                    }.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
             }
 
@@ -173,20 +165,4 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         btn_stop_tracking?.isEnabled = isTracking
         txt_status?.text = getString(if (isTracking) R.string.title_tracking else R.string.title_gps_ready)
     }
-
-    private fun openSettings() {
-        startActivity(Intent().apply {
-            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        })
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) = handleUsersReactionToPermission(
-        permissionToHandle = Manifest.permission.ACCESS_FINE_LOCATION,
-        allPermissions = permissions,
-        doIfAllowed = { startTracking() },
-        doIfDenied = { permissionExplanationDialog.show() },
-        doIfNeverAskAgain = { openSettings() }
-    )
 }

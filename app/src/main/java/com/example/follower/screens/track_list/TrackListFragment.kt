@@ -54,11 +54,11 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupTrackList()
-        setupViewModelSubscriptions()
     }
 
-    private fun setupViewModelSubscriptions() {
+    override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner) { errorMessage ->
             errorToast(getString(errorMessage))
         }

@@ -23,14 +23,14 @@ class LogsActivity : BaseActivity(R.layout.activity_logs) {
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as FollowerApp).appComponent.inject(this)
         super.onCreate(savedInstanceState)
-        setupClicks()
-        setupViewModelSubscriptions()
     }
 
     override fun onResume() = super.onResume().also { viewModel.fetchLogs() }
     override fun onPause() = super.onPause().also { logsContainer.text = "" }
 
-    private fun setupViewModelSubscriptions() {
+    override fun setupViewModelSubscriptions() {
+        super.setupViewModelSubscriptions()
+
         viewModel.errorEvent.observe(this, { errorToast(getString(it)) })
 
         viewModel.loadingEvent.observe(this, { progressBar.isVisible = it })
@@ -50,7 +50,7 @@ class LogsActivity : BaseActivity(R.layout.activity_logs) {
         })
     }
 
-    private fun setupClicks() {
+    override fun setupClicks() {
         subscriptions += eraseLogButton
             .clicks()
             .throttleFirst()

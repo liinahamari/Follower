@@ -3,6 +3,7 @@ package com.example.follower.base
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -10,11 +11,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import com.example.follower.FollowerApp
 import com.example.follower.ext.getLocalesLanguage
+import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.interactors.BaseActivitySettingsInteractor
 import com.example.follower.interactors.LocaleChangedResult
 import com.example.follower.interactors.NightModeChangesResult
-import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject
@@ -31,8 +32,18 @@ open class BaseActivity(@LayoutRes layout: Int) : AppCompatActivity(layout) {
         (application as FollowerApp).appComponent.inject(this)
 
         super.onCreate(savedInstanceState)
+        setupViewModelSubscriptions()
+        setupClicks()
+
         currentLocale = resources.configuration.getLocalesLanguage()
 
+        viewModel.checkNightModeState(AppCompatDelegate.getDefaultNightMode())
+    }
+
+    protected open fun setupClicks() = Unit
+
+    @CallSuper
+    protected open fun setupViewModelSubscriptions(){
         viewModel.recreateEvent.observe(this, {
             recreate()
         })
@@ -40,7 +51,6 @@ open class BaseActivity(@LayoutRes layout: Int) : AppCompatActivity(layout) {
             AppCompatDelegate.setDefaultNightMode(it)
             recreate()
         })
-        viewModel.checkNightModeState(AppCompatDelegate.getDefaultNightMode())
     }
 
     override fun onRestart() = super.onRestart().also { viewModel.checkLocaleChanged(currentLocale) }

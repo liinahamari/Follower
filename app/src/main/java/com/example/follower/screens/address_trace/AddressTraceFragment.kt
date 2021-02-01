@@ -1,7 +1,5 @@
 package com.example.follower.screens.address_trace
 
-import android.os.Bundle
-import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.example.follower.R
@@ -19,7 +17,7 @@ class AddressTraceFragment : BaseFragment(R.layout.fragment_address_trace) {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun setupViewModelSubscriptions(){
         viewModel.loadingEvent.observe(viewLifecycleOwner, { progressBar.isVisible = it })
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
         viewModel.getTrackEvent.observe(viewLifecycleOwner, { logsContainer.text = it.joinToString(separator = "\n") })
