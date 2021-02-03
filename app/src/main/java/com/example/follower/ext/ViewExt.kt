@@ -6,6 +6,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.follower.R
+import com.example.follower.screens.map.Latitude
+import com.example.follower.screens.map.Longitude
 import es.dmoral.toasty.Toasty
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -21,8 +23,13 @@ fun Activity.toast(message: String) = applicationContext.toast(message)
 
 fun Context.getStatusBarHeight(): Int = resources.getIdentifier("status_bar_height", "dimen", "android")
 
-fun MapView.standardMarker(long: Double, lat: Double) = Marker(this).apply {
+fun MapView.createFollowerMarker(long: Longitude, lat: Latitude) = Marker(this).apply {
     position = GeoPoint(lat, long)
     icon = ContextCompat.getDrawable(context, R.drawable.marker)
+    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+}
+
+fun MapView.createStandardMarker(long: Double, lat: Double) = Marker(this).apply {
+    position = GeoPoint(lat, long)
     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
 }

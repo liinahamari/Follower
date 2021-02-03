@@ -13,6 +13,7 @@ import com.example.follower.model.PersistedTrackResult
 import com.example.follower.model.PreferencesRepository
 import com.example.follower.model.TrackDao
 import com.example.follower.model.WayPointDao
+import com.example.follower.screens.address_trace.MapPointer
 import com.example.follower.screens.map.Latitude
 import com.example.follower.screens.map.Longitude
 import io.reactivex.Observable
@@ -49,9 +50,13 @@ class TrackInteractor @Inject constructor(
     fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
         .flattenAsObservable {
             logger.i { "getAddresses init size: ${it.wayPoints.size}" }
-            it.wayPoints.map { wayPoint ->  wayPoint.latitude to wayPoint.longitude } }
+            it.wayPoints.map { wayPoint ->  wayPoint.latitude as Latitude to wayPoint.longitude as Longitude } }
         .distinctUntilChanged()
-        .map { Geocoder(context, Locale.getDefault()).getFromLocation(it.first, it.second, 1).first().getAddressLine(0) }
+        .map {
+            return@map with(Geocoder(context, Locale.getDefault())) {
+                MapPointer(getFromLocation(it.first, it.second, 1).first().getAddressLine(0), it.first, it.second)
+            }
+        }
         .toList()
         .toObservable()
         .doOnNext { logger.i { "getAddresses trimmed size: ${it.size}" } }
@@ -103,7 +108,7 @@ sealed class SaveTrackResult {
 }
 
 sealed class GetAddressesResult {
-    data class Success(val addresses: List<String>) : GetAddressesResult()
+    data class Success(val addresses: List<MapPointer>) : GetAddressesResult()
     object DatabaseCorruptionError : GetAddressesResult()
     object Loading : GetAddressesResult()
 }

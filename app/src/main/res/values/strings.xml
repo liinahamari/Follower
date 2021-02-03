@@ -3,6 +3,8 @@
 
     <!--arguments-->
     <string translatable="false" name="arg_addressFragment_trackId">com.example.follower.AddressTraceFragment.EXTRA_TRACK_ID</string>
+    <string translatable="false" name="arg_toSinglePointerMap_Longitude">com.example.follower.SinglePointerMapFragment.LONGITUDE</string>
+    <string translatable="false" name="arg_toSinglePointerMap_Latitude">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
 
     <!--prefs-->
     <string name="pref_theme" translatable="false">pref_theme</string>
@@ -19,6 +21,7 @@
 
     <!--descriptions-->
     <string name="desc_map_view" translatable="false">DESCRIPTION_map_fragment_map_view</string>
+    <string name="desc_sp_map_view" translatable="false">DESCRIPTION_map_fragment_single_pointer_map_view</string>
 
 
     <string name="location_permission_dialog_explanation">App needs geolocation to track your activity</string>

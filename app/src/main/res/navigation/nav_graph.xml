@@ -44,16 +44,34 @@
         <argument
             android:name="@string/arg_addressFragment_trackId"
             app:argType="long"
-            android:defaultValue="-1L" />
+            android:defaultValue="-9999L" />
     </fragment>
     <fragment
         android:id="@+id/tab_addresses_list"
         android:name="com.example.follower.screens.address_trace.AddressTraceFragment"
         android:label="Addresses List"
         tools:layout="@layout/fragment_address_trace" >
+        <action
+            android:id="@+id/action_to_single_pointer_map"
+            app:destination="@id/tab_single_pointer_map" />
         <argument
             android:name="@string/arg_addressFragment_trackId"
             app:argType="long"
-            android:defaultValue="-1L" />
+            android:defaultValue="-9999L" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tab_single_pointer_map"
+        android:name="com.example.follower.screens.single_pointer_map.SinglePointerMapFragment"
+        android:label="SinglePointerMap"
+        tools:layout="@layout/fragment_single_pointer_map">
+        <argument
+            android:name="@string/arg_toSinglePointerMap_Longitude"
+            app:argType="float"
+            android:defaultValue="-999.0" />
+        <argument
+            android:name="@string/arg_toSinglePointerMap_Latitude"
+            app:argType="float"
+            android:defaultValue="-999.0" />
     </fragment>
 </navigation>

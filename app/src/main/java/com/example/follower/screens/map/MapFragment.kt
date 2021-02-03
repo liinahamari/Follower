@@ -31,8 +31,8 @@ class MapFragment : BaseFragment(R.layout.fragment_map) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with(arguments?.getLong(getString(R.string.arg_addressFragment_trackId), -1L)!!) {
-            require(this > 0L)
+        with(arguments?.getLong(getString(R.string.arg_addressFragment_trackId), -9999L)!!) {
+            require(this != -9999L)
             viewModel.getTrack(this)
         }
 
@@ -65,7 +65,7 @@ class MapFragment : BaseFragment(R.layout.fragment_map) {
             }
         })
         viewModel.getTrackAsMarkerSet.observe(viewLifecycleOwner, {
-            it.map { wayPoint -> map.standardMarker(wayPoint.first, wayPoint.second) }
+            it.map { wayPoint -> map.createFollowerMarker(wayPoint.first, wayPoint.second) }
                 .apply { map.overlays.addAll(this) }
             with(it.first()) {
                 centerMap(second, first)

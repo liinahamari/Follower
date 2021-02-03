@@ -1,6 +1,7 @@
 <component name="ProjectDictionaryState">
   <dictionary name="liinahamari">
     <words>
+      <w>coords</w>
       <w>geocoder</w>
       <w>gson</w>
       <w>interactor</w>
