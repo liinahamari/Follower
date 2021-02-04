@@ -1,24 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.example.follower.screens.settings.TimePickerPreference
+        android:defaultValue="0"
+        app:iconSpaceReserved="false"
+        android:key="@string/pref_tracking_start_time"
+        android:title="Automatic Tracking start time" />
+
+    <com.example.follower.screens.settings.TimePickerPreference
+        android:defaultValue="0"
+        app:iconSpaceReserved="false"
+        android:key="@string/pref_tracking_end_time"
+        android:title="Automatic Tracking end time" />
+
     <EditTextPreference
         android:defaultValue="10"
-        app:iconSpaceReserved="false"
         android:key="@string/pref_min_distance"
-        android:title="@string/title_min_distance" />
+        android:title="@string/title_min_distance"
+        app:iconSpaceReserved="false" />
 
     <EditTextPreference
         android:defaultValue="5"
-        app:iconSpaceReserved="false"
         android:key="@string/pref_min_location_update_interval"
-        android:title="@string/title_min_location_update_interval" />
-
-    <Preference app:iconSpaceReserved="false"
-        android:title="@string/title_reset_to_defaults" />
+        android:title="@string/title_min_location_update_interval"
+        app:iconSpaceReserved="false" />
 
     <Preference
-        app:iconSpaceReserved="false"
-        android:title="@string/title_report_bug">
+        android:title="@string/title_reset_to_defaults"
+        app:iconSpaceReserved="false" />
+
+    <Preference
+        android:title="@string/title_report_bug"
+        app:iconSpaceReserved="false">
         <intent
             android:action="android.intent.action.VIEW"
             android:data="https://github.com/liinahamari/Follower/issues" />
@@ -26,29 +39,29 @@
 
     <ListPreference
         android:entries="@array/themes"
-        app:iconSpaceReserved="false"
         android:entryValues="@array/theme_values"
         android:key="@string/pref_theme"
-        android:title="@string/title_themes"/>
+        android:title="@string/title_themes"
+        app:iconSpaceReserved="false" />
 
     <ListPreference
         android:entries="@array/supported_languages"
         android:entryValues="@array/supported_locales"
-        app:iconSpaceReserved="false"
         android:key="@string/pref_lang"
-        android:title="@string/title_language" />
+        android:title="@string/title_language"
+        app:iconSpaceReserved="false" />
 
     <ListPreference
         android:entries="@array/track_representing"
-        app:iconSpaceReserved="false"
         android:entryValues="@array/track_representing_values"
         android:key="@string/pref_track_representing"
-        android:title="@string/title_track_representing" />
+        android:title="@string/title_track_representing"
+        app:iconSpaceReserved="false" />
 
     <ListPreference
         android:entries="@array/track_display_mode"
-        app:iconSpaceReserved="false"
         android:entryValues="@array/track_display_mode_values"
         android:key="@string/pref_track_display_mode"
-        android:title="@string/title_track_display_mode" />
+        android:title="@string/title_track_display_mode"
+        app:iconSpaceReserved="false" />
 </PreferenceScreen>

@@ -7,6 +7,8 @@
     <string translatable="false" name="arg_toSinglePointerMap_Latitude">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
 
     <!--prefs-->
+    <string name="pref_tracking_start_time" translatable="false">pref_tracking_start_time</string>
+    <string name="pref_tracking_end_time" translatable="false">pref_tracking_end_time</string>
     <string name="pref_theme" translatable="false">pref_theme</string>
     <string name="pref_lang" translatable="false">pref_lang</string>
     <string name="pref_min_distance" translatable="false">pref_min_distance</string>
@@ -22,7 +24,6 @@
     <!--descriptions-->
     <string name="desc_map_view" translatable="false">DESCRIPTION_map_fragment_map_view</string>
     <string name="desc_sp_map_view" translatable="false">DESCRIPTION_map_fragment_single_pointer_map_view</string>
-
 
     <string name="location_permission_dialog_explanation">App needs geolocation to track your activity</string>
     <string name="title_gps_ready">GPS Ready</string>
