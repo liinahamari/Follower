@@ -41,4 +41,5 @@
     <string name="title_track_display_mode">Отображать маршрут как…</string>
     <string name="title_addresses_list">Список адресов</string>
     <string name="title_always_ask">Спрашивать всегда</string>
+    <string name="title_tracklist_is_empty">У Вас нет сохраненных маршрутов.</string>
 </resources>

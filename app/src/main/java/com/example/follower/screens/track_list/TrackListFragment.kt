@@ -3,6 +3,7 @@ package com.example.follower.screens.track_list
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -62,11 +63,21 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
         viewModel.errorEvent.observe(viewLifecycleOwner) { errorMessage ->
             errorToast(getString(errorMessage))
         }
-        viewModel.fetchAllTracksEvent.observe(viewLifecycleOwner) {
+        viewModel.emptyTrackListEvent.observe(viewLifecycleOwner) {
+            emptyListTv.isVisible = true
+            trackList.isVisible = false
+        }
+        viewModel.nonEmptyTrackListEvent.observe(viewLifecycleOwner) {
+            emptyListTv.isVisible = false
+            trackList.isVisible = true
             tracksAdapter.tracks = it.toMutableList()
         }
         viewModel.removeTrackEvent.observe(viewLifecycleOwner) { id ->
             tracksAdapter.removeTask(id)
+            if (tracksAdapter.tracks.isEmpty()) {
+                emptyListTv.isVisible = true
+                trackList.isVisible = false
+            }
         }
         viewModel.trackDisplayModeEvent.observe(viewLifecycleOwner) { trackAndDisplayMode ->
             when (trackAndDisplayMode.first) {

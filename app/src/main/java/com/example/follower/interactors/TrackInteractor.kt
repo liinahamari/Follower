@@ -97,8 +97,8 @@ class TrackInteractor @Inject constructor(
         .compose(baseComposers.applySingleSchedulers())
 
     fun fetchTracks(): Single<FetchTracksResult> = trackDao.getAllTracksWithWayPoints()
-        .map { it.map { TrackUi(id = it.track.time, title = it.track.title) } }
-        .map<FetchTracksResult> { FetchTracksResult.Success(it) }
+        .map { it.map { track -> TrackUi(id = track.track.time, title = track.track.title) } }
+        .map { if(it.isEmpty()) FetchTracksResult.SuccessEmpty else FetchTracksResult.Success(it) }
         .onErrorReturn { FetchTracksResult.DatabaseCorruptionError }
         .compose(baseComposers.applySingleSchedulers())
 }
@@ -128,5 +128,6 @@ sealed class RemoveTrackResult {
 
 sealed class FetchTracksResult {
     data class Success(val tracks: List<TrackUi>) : FetchTracksResult()
+    object SuccessEmpty : FetchTracksResult()
     object DatabaseCorruptionError : FetchTracksResult()
 }

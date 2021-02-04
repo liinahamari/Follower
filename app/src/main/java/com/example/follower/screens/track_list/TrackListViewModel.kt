@@ -17,8 +17,11 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
     private val _errorEvent = SingleLiveEvent<Int>()
     val errorEvent: LiveData<Int> get() = _errorEvent
 
-    private val _fetchAllTracksEvent = SingleLiveEvent<List<TrackUi>>()
-    val fetchAllTracksEvent: LiveData<List<TrackUi>> get() = _fetchAllTracksEvent
+    private val _nonEmptyTrackListEvent = SingleLiveEvent<List<TrackUi>>()
+    val nonEmptyTrackListEvent: LiveData<List<TrackUi>> get() = _nonEmptyTrackListEvent
+
+    private val _emptyTrackListEvent = SingleLiveEvent<Any>()
+    val emptyTrackListEvent: LiveData<Any> get() = _emptyTrackListEvent
 
     private val _trackDisplayModeEvent = SingleLiveEvent<Pair<String, Long>>()
     val trackDisplayModeEvent: LiveData<Pair<String, Long>> get() = _trackDisplayModeEvent
@@ -38,7 +41,8 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
     fun fetchTracks() {
         disposable += trackInteractor.fetchTracks().subscribe(Consumer {
             when (it) {
-                is FetchTracksResult.Success -> _fetchAllTracksEvent.value = it.tracks
+                is FetchTracksResult.Success -> _nonEmptyTrackListEvent.value = it.tracks
+                is FetchTracksResult.SuccessEmpty -> _emptyTrackListEvent.call()
                 is FetchTracksResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
             }
         })
