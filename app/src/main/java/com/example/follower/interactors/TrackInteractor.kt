@@ -15,6 +15,7 @@ import com.example.follower.model.WayPointDao
 import com.example.follower.screens.address_trace.MapPointer
 import com.example.follower.screens.trace_map.Latitude
 import com.example.follower.screens.trace_map.Longitude
+import com.example.follower.screens.track_list.TrackUi
 import io.reactivex.Observable
 import io.reactivex.Single
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
@@ -96,6 +97,7 @@ class TrackInteractor @Inject constructor(
         .compose(baseComposers.applySingleSchedulers())
 
     fun fetchTracks(): Single<FetchTracksResult> = trackDao.getAllTracksWithWayPoints()
+        .map { it.map { TrackUi(id = it.track.time, title = it.track.title) } }
         .map<FetchTracksResult> { FetchTracksResult.Success(it) }
         .onErrorReturn { FetchTracksResult.DatabaseCorruptionError }
         .compose(baseComposers.applySingleSchedulers())
@@ -125,6 +127,6 @@ sealed class RemoveTrackResult {
 }
 
 sealed class FetchTracksResult {
-    data class Success(val tracks: List<TrackWithWayPoints>) : FetchTracksResult()
+    data class Success(val tracks: List<TrackUi>) : FetchTracksResult()
     object DatabaseCorruptionError : FetchTracksResult()
 }

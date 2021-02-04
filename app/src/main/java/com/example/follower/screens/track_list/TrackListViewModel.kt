@@ -38,7 +38,7 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
     fun fetchTracks() {
         disposable += trackInteractor.fetchTracks().subscribe(Consumer {
             when (it) {
-                is FetchTracksResult.Success -> _fetchAllTracksEvent.value = it.tracks.map { TrackUi(id = it.track.time, title = it.track.title) }
+                is FetchTracksResult.Success -> _fetchAllTracksEvent.value = it.tracks
                 is FetchTracksResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
             }
         })
