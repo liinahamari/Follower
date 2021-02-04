@@ -7,8 +7,6 @@ import com.example.follower.base.BaseViewModel
 import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.interactors.GetAddressesResult
 import com.example.follower.interactors.TrackInteractor
-import com.example.follower.screens.map.Latitude
-import com.example.follower.screens.map.Longitude
 import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject
 

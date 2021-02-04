@@ -1,4 +1,4 @@
-package com.example.follower.screens.map
+package com.example.follower.screens.trace_map
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -15,7 +15,7 @@ import javax.inject.Inject
 typealias Longitude = Double
 typealias Latitude = Double
 
-class MapFragmentViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val context: Context): BaseViewModel() {
+class TraceFragmentViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val context: Context): BaseViewModel() {
     private val _getTrackAsLine = SingleLiveEvent<Road>()
     val getTrackAsLine: LiveData<Road> get() = _getTrackAsLine
 

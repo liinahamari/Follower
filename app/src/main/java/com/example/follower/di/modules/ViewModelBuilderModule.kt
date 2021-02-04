@@ -7,7 +7,7 @@ import com.example.follower.di.ViewModelFactory
 import com.example.follower.di.ViewModelKey
 import com.example.follower.screens.address_trace.AddressTraceViewModel
 import com.example.follower.screens.logs.LogsActivityViewModel
-import com.example.follower.screens.map.MapFragmentViewModel
+import com.example.follower.screens.trace_map.TraceFragmentViewModel
 import com.example.follower.screens.track_list.TrackListViewModel
 import com.example.follower.screens.tracking_control.TrackingControlViewModel
 import dagger.Binds
@@ -43,8 +43,8 @@ abstract class ViewModelBuilderModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(MapFragmentViewModel::class)
-    abstract fun mapFragmentViewModel(viewModel: MapFragmentViewModel): ViewModel
+    @ViewModelKey(TraceFragmentViewModel::class)
+    abstract fun mapFragmentViewModel(viewModel: TraceFragmentViewModel): ViewModel
 
     @Binds
     abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory

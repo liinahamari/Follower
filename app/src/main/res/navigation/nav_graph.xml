@@ -38,7 +38,7 @@
 
     <fragment
         android:id="@+id/tab_map"
-        android:name="com.example.follower.screens.map.MapFragment"
+        android:name="com.example.follower.screens.trace_map.TraceFragment"
         android:label="Map"
         tools:layout="@layout/fragment_map" >
         <argument
@@ -64,7 +64,7 @@
         android:id="@+id/tab_single_pointer_map"
         android:name="com.example.follower.screens.single_pointer_map.SinglePointerMapFragment"
         android:label="SinglePointerMap"
-        tools:layout="@layout/fragment_single_pointer_map">
+        tools:layout="@layout/fragment_map">
         <argument
             android:name="@string/arg_toSinglePointerMap_Longitude"
             app:argType="float"

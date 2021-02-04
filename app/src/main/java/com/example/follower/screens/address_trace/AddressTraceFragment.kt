@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.ext.errorToast
-import com.example.follower.screens.map.Latitude
-import com.example.follower.screens.map.Longitude
+import com.example.follower.screens.trace_map.Latitude
+import com.example.follower.screens.trace_map.Longitude
 import kotlinx.android.synthetic.main.fragment_address_trace.*
 import kotlinx.android.synthetic.main.fragment_track_list.*
 

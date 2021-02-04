@@ -2,7 +2,6 @@ package com.example.follower.interactors
 
 import android.content.Context
 import android.location.Geocoder
-import android.util.Log
 import com.example.follower.R
 import com.example.follower.db.entities.Track
 import com.example.follower.db.entities.TrackWithWayPoints
@@ -14,8 +13,8 @@ import com.example.follower.model.PreferencesRepository
 import com.example.follower.model.TrackDao
 import com.example.follower.model.WayPointDao
 import com.example.follower.screens.address_trace.MapPointer
-import com.example.follower.screens.map.Latitude
-import com.example.follower.screens.map.Longitude
+import com.example.follower.screens.trace_map.Latitude
+import com.example.follower.screens.trace_map.Longitude
 import io.reactivex.Observable
 import io.reactivex.Single
 import org.osmdroid.bonuspack.routing.OSRMRoadManager

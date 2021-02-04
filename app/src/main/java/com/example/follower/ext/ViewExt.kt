@@ -6,8 +6,8 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.follower.R
-import com.example.follower.screens.map.Latitude
-import com.example.follower.screens.map.Longitude
+import com.example.follower.screens.trace_map.Latitude
+import com.example.follower.screens.trace_map.Longitude
 import es.dmoral.toasty.Toasty
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView

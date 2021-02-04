@@ -7,8 +7,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.follower.databinding.ItemAddressBinding
 import com.example.follower.ext.throttleFirst
-import com.example.follower.screens.map.Latitude
-import com.example.follower.screens.map.Longitude
+import com.example.follower.screens.trace_map.Latitude
+import com.example.follower.screens.trace_map.Longitude
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
