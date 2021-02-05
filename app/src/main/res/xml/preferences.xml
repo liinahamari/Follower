@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        android:key="@string/pref_enable_auto_tracking"
+        app:iconSpaceReserved="false"
+        android:title="Enable automatic tracking in some time range"
+        android:summary="blablabla"/>
+
     <com.example.follower.screens.settings.TimePickerPreference
         android:defaultValue="0"
         app:iconSpaceReserved="false"
+        android:dependency="@string/pref_enable_auto_tracking"
         android:key="@string/pref_tracking_start_time"
         android:title="Automatic Tracking start time" />
 
     <com.example.follower.screens.settings.TimePickerPreference
         android:defaultValue="0"
         app:iconSpaceReserved="false"
+        android:dependency="@string/pref_enable_auto_tracking"
         android:key="@string/pref_tracking_end_time"
         android:title="Automatic Tracking end time" />
 
