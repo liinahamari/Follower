@@ -2,66 +2,70 @@ package com.example.follower.helper
 
 import android.util.Log
 import com.example.follower.BuildConfig
+import com.example.follower.ext.today
 import java.io.File
 import java.io.FileNotFoundException
-import java.text.SimpleDateFormat
-import java.util.*
-import javax.inject.Inject
 
-/** Represents date and in such format: "day_of_month concise_month_name year 24_format_hours:minutes"
- *  For example:
- *  23 Dec 2014 00:12
- *  01 May 2020 05:55
- *  */
-private const val DATE_PATTERN_FOR_LOGGING = "dd EEE MMM yyyy HH:mm"
-
-class FlightRecorder (private val logStorage: File) {
+class FlightRecorder(private val logStorage: File) {
     private val isDebug = BuildConfig.DEBUG
-    var TAPE_VOLUME = 10 * 1024 * 1024 /** 10 MB **/
+    var TAPE_VOLUME = 10 * 1024 * 1024
 
-    /**
-     * @param when - time in milliseconds
-     * */
-    fun logScheduledEvent(toPrintInLogcat: Boolean = true, what: () -> String, `when`: Long) {
-        val message = { what.invoke() + " " + SimpleDateFormat(DATE_PATTERN_FOR_LOGGING, Locale.UK).format(`when`) }
-        clearBeginningIfNeeded("} I {", message)
-            .also { logStorage.appendText("} I { ${message.invoke()}\n\n") }
-            .also { if(toPrintInLogcat && isDebug) { Log.i(this::class.java.simpleName, message.invoke())} }
+    /** 10 MB **/
+
+    fun i(toPrintInLogcat: Boolean = true, what: () -> String) {
+        clearBeginningIfNeeded("} I {", what, today())
+        logStorage.appendText("} I { ${today()} ${what.invoke()}\n\n")
+        if (toPrintInLogcat && isDebug) {
+            Log.i(this::class.java.simpleName, what.invoke())
+        }
     }
 
-    fun i(toPrintInLogcat: Boolean = true, what: () -> String) = clearBeginningIfNeeded("} I {", what)
-        .also { logStorage.appendText("} I { ${what.invoke()}\n\n") }
-        .also { if(toPrintInLogcat && isDebug) { Log.i(this::class.java.simpleName, what.invoke())} }
+    fun d(toPrintInLogcat: Boolean = true, what: () -> String) {
+        clearBeginningIfNeeded("} D {", what, today())
+        logStorage.appendText("} D { ${today()} ${what.invoke()}\n\n")
+        if (toPrintInLogcat && isDebug) {
+            Log.i(this::class.java.simpleName, what.invoke())
+        }
+    }
 
-    fun d(toPrintInLogcat: Boolean = true, what: () -> String) = clearBeginningIfNeeded("} D {", what)
-        .also { logStorage.appendText("} D { ${what.invoke()}\n\n") }
-        .also { if(toPrintInLogcat && isDebug) { Log.i(this::class.java.simpleName, what.invoke())} }
+    fun w(toPrintInLogcat: Boolean = true, what: () -> String) {
+        clearBeginningIfNeeded("} W {", what, today())
+        logStorage.appendText("} W { ${today()} ${what.invoke()}\n\n")
+        if (toPrintInLogcat && isDebug) {
+            Log.i(this::class.java.simpleName, what.invoke())
+        }
+    }
 
-    fun w(toPrintInLogcat: Boolean = true, what: () -> String) = clearBeginningIfNeeded("} W {", what)
-        .also { logStorage.appendText("} W { ${what.invoke()}\n\n") }
-        .also { if(toPrintInLogcat && isDebug) { Log.i(this::class.java.simpleName, what.invoke())} }
-
+    /*TODO ability for LogActivity to view expandable stack traces*/
     fun e(label: String, toPrintInLogcat: Boolean = true, stackTrace: Array<StackTraceElement>) {
         val readableStackTrace = stackTrace.joinToString(separator = "\n\n") { it.toString() }
-        clearBeginningIfNeeded("} E {") { readableStackTrace }
-            .also { logStorage.appendText("} E { label: $label") }
-            .also { logStorage.appendText("} E { $readableStackTrace\n\n") }
-            .also { if(toPrintInLogcat && isDebug) { Log.i(this::class.java.simpleName, readableStackTrace)} }
+        clearBeginningIfNeeded("} E {", { "$readableStackTrace label: $label" }, today())
+        logStorage.appendText("} E { ${today()} label: $label")
+        logStorage.appendText("} E { $readableStackTrace\n\n")
+        if (toPrintInLogcat && isDebug) {
+            Log.i(this::class.java.simpleName, readableStackTrace)
+        }
     }
 
-    fun wtf(toPrintInLogcat: Boolean = true, what: () -> String) = clearBeginningIfNeeded("} X {", what)
-        .also { logStorage.appendText("} X { ${what.invoke()}\n\n") }
-        .also { if(toPrintInLogcat && isDebug) { Log.i(this::class.java.simpleName, what.invoke())} }
+    fun wtf(toPrintInLogcat: Boolean = true, what: () -> String) {
+        clearBeginningIfNeeded("} X {", what, today())
+        logStorage.appendText("} X { ${today()} ${what.invoke()}\n\n")
+        if (toPrintInLogcat && isDebug) {
+            Log.i(this::class.java.simpleName, what.invoke())
+        }
+    }
 
-    fun getEntireRecord() = try { logStorage.readText() } catch (e: FileNotFoundException) {
+    fun getEntireRecord() = try {
+        logStorage.readText()
+    } catch (e: FileNotFoundException) {
         logStorage.createNewFile()
         logStorage.readText()
     }
 
-    fun clear() = kotlin.runCatching { logStorage.writeText("") }.isSuccess
+    fun clear(): Boolean = kotlin.runCatching { logStorage.writeText("") }.isSuccess
 
-    private fun clearBeginningIfNeeded(meta: String, what: () -> String) {
-        val newDataSize = "$meta ${what.invoke()}\n\n".toByteArray().size
+    private fun clearBeginningIfNeeded(meta: String, what: () -> String, timestamp: String) {
+        val newDataSize = "$meta $timestamp ${what.invoke()}\n\n".toByteArray().size
         if ((logStorage.length() + newDataSize.toLong()) > TAPE_VOLUME) {
             val dataToRemain = logStorage.readBytes().drop(newDataSize).toByteArray()
             logStorage.writeBytes(dataToRemain)

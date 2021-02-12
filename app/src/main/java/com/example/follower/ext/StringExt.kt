@@ -4,12 +4,12 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-/** Represents date and in such format: "day_of_month concise_month_name year 24_format_hours:minutes"
+/** Represents date and in such format: "day_of_month concise_month_name 24_format_hours:minutes"
  *  For example:
- *  23 Dec 2014 00:12
- *  01 May 2020 05:55
+ *  23 Dec 00:12
+ *  01 May 05:55
  *  */
-const val DATE_PATTERN_FOR_LOGGING = "dd EEE MMM yyyy HH:mm"
+private const val DATE_PATTERN_FOR_LOGGING = "dd EEE MMM HH:mm"
 
 /** Represents hours and minutes in hours:minutes way. Hours will be shown in 24-hour format. For example,
  *  00:12
