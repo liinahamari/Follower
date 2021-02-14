@@ -33,8 +33,6 @@ fun Long.toReadableDate(): String = DateFormat.getDateTimeInstance(DateFormat.LO
 fun now(): String = SimpleDateFormat(TIME_PATTERN_HOURS_24_MINUTES, Locale.getDefault()).format(Date())
 fun today(): String = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING, Locale.getDefault()).format(Date())
 
-fun Date.toSavingTimeStamp(): String = SimpleDateFormat(PATTERN_SAVING_TIMESTAMP, Locale.US).format(date)
-
 fun minutesFromMidnightToHourlyTime(minutes: Int): String {
     val hour: Int = minutes / 60
     val minute: Int = minutes % 60

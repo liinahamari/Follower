@@ -44,8 +44,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 }
                 requireActivity().recreate()
             }
-            /*todo remove (debug only)*/
-            requireContext().getString(R.string.pref_tracking_start_time) -> Log.d("a", "pref_tracking_start_time ${sharedPreferences.getInt(getString(R.string.pref_tracking_start_time), -1)}")
         }
     }
 }

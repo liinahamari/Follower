@@ -12,7 +12,7 @@ fun Configuration.getLocalesLanguage(): String = locales[0].language
 fun Context.provideUpdatedContextWithNewLocale(
     persistedLanguage: String? = kotlin.runCatching { getSavedAppLocale() }.getOrNull(),
     defaultLocale: String? = null
-): Context { /*TODO RTL*/
+): Context {
     val locales = resources.getStringArray(R.array.supported_locales)
     val newLocale = Locale(locales.firstOrNull { it == persistedLanguage } ?: locales.firstOrNull { it == defaultLocale } ?: Locale.UK.language)
     saveAppLocale(newLocale.language)

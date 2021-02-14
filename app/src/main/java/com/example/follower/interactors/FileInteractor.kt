@@ -6,7 +6,6 @@ import com.example.follower.helper.rx.BaseComposers
 import io.reactivex.Single
 import javax.inject.Inject
 
-/*todo handle empty file impossibility to send*/
 class FileInteractor @Inject constructor(private val context: Context, private val baseComposers: BaseComposers) {
     fun copyFile(originalFileUri: Uri, targetFileUri: Uri): Single<FileCreationResult> = Single.just(originalFileUri to targetFileUri)
         .doOnSuccess {
