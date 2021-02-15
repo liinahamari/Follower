@@ -33,10 +33,7 @@ class LogsActivity : BaseActivity(R.layout.activity_logs) {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.fetchLogs()
-    }
+    override fun onResume() = super.onResume().also { viewModel.fetchLogs() }
 
     override fun setupViewModelSubscriptions() {
         super.setupViewModelSubscriptions()

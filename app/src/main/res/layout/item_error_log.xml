@@ -9,7 +9,8 @@
             type="com.example.follower.screens.logs.LogUi.ErrorLog" />
     </data>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/errorColor"
@@ -18,13 +19,49 @@
         app:cardCornerRadius="6dp"
         app:cardElevation="6dp">
 
-        <TextView
-            android:id="@+id/logErrorTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:textColor="@color/white"
-            android:text="@{errorLog.label}"
-            tools:text="Some log info..." />
-    </androidx.cardview.widget.CardView>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <TextView
+                android:id="@+id/logErrorTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:padding="8dp"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:text="@{errorLog.label}"
+                tools:text="Some log info..." />
+
+            <Button
+                android:id="@+id/arrowBtn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/ic_arrow_down"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <net.cachapa.expandablelayout.ExpandableLayout
+                android:id="@+id/expandableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:el_duration="400"
+                app:el_expanded="false"
+                app:layout_constraintTop_toBottomOf="@id/logErrorTv"
+                tools:visibility="visible">
+                <TextView
+                    android:id="@+id/stacktraceTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    tools:text="stacktrace 1"
+                    android:padding="14dp"
+                    android:textSize="14sp"
+                    android:text="@{errorLog.stacktrace}" />
+            </net.cachapa.expandablelayout.ExpandableLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

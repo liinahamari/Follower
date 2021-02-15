@@ -31,7 +31,7 @@ class LoggerInteractor @Inject constructor(
             @Suppress("RegExpRedundantEscape") /* https://stackoverflow.com/questions/13508992/android-syntax-error-in-regexp-pattern */
             if (it.contains("\\} E \\{".toRegex())) {
                 val stackTraceLines = "(.*)(label:(.|\n)*)".toRegex().find(it)!!.groupValues[2].split("\n")
-                LogUi.ErrorLog(stackTraceLines.first(), stackTraceLines.subList(1, stackTraceLines.lastIndex))
+                LogUi.ErrorLog(stackTraceLines.first(), stackTraceLines.subList(1, stackTraceLines.lastIndex).joinToString(separator = "\n"))
             } else {
                 LogUi.InfoLog(it)
             }

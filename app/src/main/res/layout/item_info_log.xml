@@ -23,6 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
+            android:textSize="16sp"
             android:textColor="@color/white"
             android:text="@{infoLog.message}"
             tools:text="Some address" />
