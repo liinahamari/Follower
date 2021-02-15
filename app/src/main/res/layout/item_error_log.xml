@@ -35,11 +35,12 @@
                 android:text="@{errorLog.label}"
                 tools:text="Some log info..." />
 
-            <Button
+            <ImageView
                 android:id="@+id/arrowBtn"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginEnd="12dp"
+                android:drawableTint="@color/white"
                 android:background="@drawable/ic_arrow_down"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
