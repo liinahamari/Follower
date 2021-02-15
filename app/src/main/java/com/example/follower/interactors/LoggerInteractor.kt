@@ -2,11 +2,13 @@ package com.example.follower.interactors
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.core.content.FileProvider
 import com.example.follower.BuildConfig
 import com.example.follower.di.modules.DEBUG_LOGS_STORAGE_FILE_NAME
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.rx.BaseComposers
+import com.example.follower.screens.logs.LogUi
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.io.File
@@ -17,11 +19,25 @@ import javax.inject.Named
 /** Refers to <provider>'s authority in AndroidManifest.xml*/
 private const val FILE_PROVIDER_META = ".fileprovider"
 
-class LoggerInteractor @Inject constructor(private val context: Context,
-                                           private val logger: FlightRecorder,
-                                           private val baseComposers: BaseComposers,
-                                           @param:Named(DEBUG_LOGS_STORAGE_FILE_NAME) private val logFile: File) {
+class LoggerInteractor @Inject constructor(
+    private val context: Context,
+    private val logger: FlightRecorder,
+    private val baseComposers: BaseComposers,
+    @param:Named(DEBUG_LOGS_STORAGE_FILE_NAME) private val logFile: File
+) {
     fun getEntireRecord(): Observable<GetRecordResult> = Observable.fromCallable { logger.getEntireRecord() }
+        .concatMapIterable { it.split("\n\n".toRegex()).filter { line -> line.isNotBlank() } }
+        .map {
+            @Suppress("RegExpRedundantEscape") /* https://stackoverflow.com/questions/13508992/android-syntax-error-in-regexp-pattern */
+            if (it.contains("\\} E \\{".toRegex())) {
+                val stackTraceLines = "(.*)(label:(.|\n)*)".toRegex().find(it)!!.groupValues[2].split("\n")
+                LogUi.ErrorLog(stackTraceLines.first(), stackTraceLines.subList(1, stackTraceLines.lastIndex))
+            } else {
+                LogUi.InfoLog(it)
+            }
+        }
+        .toList()
+        .toObservable()
         .delaySubscription(1, TimeUnit.SECONDS)
         .compose(baseComposers.applyObservableSchedulers())
         .map<GetRecordResult> { GetRecordResult.Success(it) }
@@ -49,7 +65,7 @@ sealed class GetPathResult {
 
 sealed class GetRecordResult {
     object InProgress : GetRecordResult()
-    data class Success(val text: String) : GetRecordResult()
+    data class Success(val logs: List<LogUi>) : GetRecordResult()
     object IOError : GetRecordResult()
 }
 

@@ -35,15 +35,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center" />
 
-        <ScrollView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/logsRv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".screens.logs.LogActivity">
-
-            <TextView
-                android:id="@+id/logsContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </ScrollView>
+            android:layout_height="match_parent" />
     </FrameLayout>
 </LinearLayout>

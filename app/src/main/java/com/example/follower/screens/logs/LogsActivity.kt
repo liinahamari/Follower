@@ -1,9 +1,12 @@
+@file:Suppress("CAST_NEVER_SUCCEEDS")
+
 package com.example.follower.screens.logs
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseActivity
@@ -19,14 +22,21 @@ private const val TEXT_TYPE = "text/plain"
 
 class LogsActivity : BaseActivity(R.layout.activity_logs) {
     private val viewModel by viewModels<LogsActivityViewModel> { viewModelFactory }
+    private val logsAdapter = LogsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as FollowerApp).appComponent.inject(this)
         super.onCreate(savedInstanceState)
+        logsRv.apply {
+            layoutManager = LinearLayoutManager(this@LogsActivity)
+            adapter = logsAdapter
+        }
     }
 
-    override fun onResume() = super.onResume().also { viewModel.fetchLogs() }
-    override fun onPause() = super.onPause().also { logsContainer.text = "" }
+    override fun onResume() {
+        super.onResume()
+        viewModel.fetchLogs()
+    }
 
     override fun setupViewModelSubscriptions() {
         super.setupViewModelSubscriptions()
@@ -35,9 +45,9 @@ class LogsActivity : BaseActivity(R.layout.activity_logs) {
 
         viewModel.loadingEvent.observe(this, { progressBar.isVisible = it })
 
-        viewModel.displayLogsEvent.observe(this, { logsContainer.text = it })
+        viewModel.displayLogsEvent.observe(this, { logsAdapter.logs = it })
 
-        viewModel.clearLogsEvent.observe(this, { logsContainer.text = "" })
+        viewModel.clearLogsEvent.observe(this, { logsAdapter.logs = emptyList() })
 
         viewModel.logFilePathEvent.observe(this, {
             Intent(Intent.ACTION_SEND).apply {

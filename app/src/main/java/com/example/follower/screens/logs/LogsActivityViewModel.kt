@@ -26,14 +26,14 @@ class LogsActivityViewModel @Inject constructor(private val loggerInteractor: Lo
     private val _errorEvent = SingleLiveEvent<Int>()
     val errorEvent: LiveData<Int> get() = _errorEvent
 
-    private val _displayLogsEvent = SingleLiveEvent<String>()
-    val displayLogsEvent: LiveData<String> get() = _displayLogsEvent
+    private val _displayLogsEvent = SingleLiveEvent<List<LogUi>>()
+    val displayLogsEvent: LiveData<List<LogUi>> get() = _displayLogsEvent
 
     fun fetchLogs() {
         disposable += loggerInteractor.getEntireRecord().subscribe {
             when (it) {
                 is GetRecordResult.Success -> {
-                    _displayLogsEvent.value = it.text
+                    _displayLogsEvent.value = it.logs
                     _loadingEvent.value = false
                 }
                 is GetRecordResult.IOError -> {

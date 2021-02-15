@@ -37,13 +37,14 @@ class FlightRecorder(private val logStorage: File) {
     }
 
     /*TODO ability for LogActivity to view expandable stack traces*/
+    /*TODO improve tests*/
     fun e(label: String, toPrintInLogcat: Boolean = true, stackTrace: Array<StackTraceElement>) {
-        val readableStackTrace = stackTrace.joinToString(separator = "\n\n") { it.toString() }
+        val readableStackTrace = stackTrace.joinToString(separator = "\n") { it.toString() }
         clearBeginningIfNeeded("} E {", { "$readableStackTrace label: $label" }, today())
-        logStorage.appendText("} E { ${today()} label: $label")
+        logStorage.appendText("} E { ${today()} label: $label\n")
         logStorage.appendText("} E { $readableStackTrace\n\n")
         if (toPrintInLogcat && isDebug) {
-            Log.i(this::class.java.simpleName, readableStackTrace)
+            Log.w(this::class.java.simpleName, readableStackTrace)
         }
     }
 
