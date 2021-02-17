@@ -6,10 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.os.Bundle
 import android.os.IBinder
-import android.view.KeyEvent
-import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
@@ -24,7 +21,6 @@ import com.example.follower.ext.toReadableDate
 import com.example.follower.ext.toast
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.services.LocationTrackingService
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign

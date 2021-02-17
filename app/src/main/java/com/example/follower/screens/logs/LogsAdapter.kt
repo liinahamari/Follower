@@ -71,7 +71,7 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 }
             }
 
-            if (errorItemHeight != -1) {
+            if (errorItemHeight != -1) { /** expedient duplicated code */
                 arrowBtn.layoutParams = (arrowBtn.layoutParams as ConstraintLayout.LayoutParams).apply {
                     setMargins(0, errorItemHeight, 0, 0)
                 }

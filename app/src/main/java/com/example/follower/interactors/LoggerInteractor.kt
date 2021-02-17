@@ -2,10 +2,9 @@ package com.example.follower.interactors
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.core.content.FileProvider
 import com.example.follower.BuildConfig
-import com.example.follower.di.modules.DEBUG_LOGS_STORAGE_FILE_NAME
+import com.example.follower.di.modules.DEBUG_LOGS_STORAGE_FILE
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.screens.logs.LogUi
@@ -23,7 +22,7 @@ class LoggerInteractor @Inject constructor(
     private val context: Context,
     private val logger: FlightRecorder,
     private val baseComposers: BaseComposers,
-    @param:Named(DEBUG_LOGS_STORAGE_FILE_NAME) private val logFile: File
+    @param:Named(DEBUG_LOGS_STORAGE_FILE) private val logFile: File
 ) {
     fun getEntireRecord(): Observable<GetRecordResult> = Observable.fromCallable { logger.getEntireRecord() }
         .concatMapIterable { it.split("\n\n".toRegex()).filter { line -> line.isNotBlank() } }
