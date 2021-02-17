@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="arrow_button_height">30</dimen>
+    <dimen name="arrow_button_height">30dp</dimen>
 </resources>
