@@ -1,7 +1,5 @@
 package com.example.follower.screens.logs
 
-import android.os.Handler
-import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
@@ -13,14 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.follower.R
 import com.example.follower.databinding.ItemErrorLogBinding
 import com.example.follower.databinding.ItemInfoLogBinding
-import com.example.follower.ext.dpToPx
-import com.example.follower.ext.pxToDp
 import com.example.follower.ext.throttleFirst
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_error_log.*
+
 
 private const val LOG_TYPE_INFO = 1
 private const val LOG_TYPE_ERROR = 2
@@ -57,7 +54,7 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             is ErrorLogViewHolder -> {
                 holder.itemView.doOnLayout {
                     if (errorItemHeight == -1) {
-                        errorItemHeight =(holder.itemView.height - holder.itemView.context.resources.getDimensionPixelSize(R.dimen.arrow_button_height)) / 2
+                        errorItemHeight = (holder.itemView.height - holder.itemView.context.resources.getDimensionPixelSize(R.dimen.arrow_button_height)) / 2
                         holder.arrowBtn.layoutParams = (holder.arrowBtn.layoutParams as ConstraintLayout.LayoutParams).apply {
                             setMargins(0, errorItemHeight, 0, 0)
                         }
@@ -69,8 +66,13 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                         setMargins(0, errorItemHeight, 0, 0)
                     }
                 }
+
                 holder.binding?.errorLog = logs[position] as LogUi.ErrorLog
-                holder.expandableLayout.setExpanded(expandedMarkers[position], false)
+
+                with(expandedMarkers[position]) {
+                    holder.arrowBtn.rotation = if (this) 180f else 0f
+                    holder.expandableLayout.setExpanded(this, false)
+                }
 
                 clicks += holder.itemView.clicks()
                     .throttleFirst()
