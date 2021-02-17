@@ -1,32 +1,39 @@
 package com.example.follower.screens.logs
 
-import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
+import android.os.Handler
+import android.util.Log
+import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.LinearInterpolator
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.doOnLayout
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.follower.R
 import com.example.follower.databinding.ItemErrorLogBinding
 import com.example.follower.databinding.ItemInfoLogBinding
+import com.example.follower.ext.dpToPx
+import com.example.follower.ext.pxToDp
 import com.example.follower.ext.throttleFirst
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_error_log.*
-import io.reactivex.rxkotlin.plusAssign
 
 private const val LOG_TYPE_INFO = 1
 private const val LOG_TYPE_ERROR = 2
 
 class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val clicks = CompositeDisposable()
+    private lateinit var expandedMarkers: SparseBooleanArray
+    private var errorItemHeight = -1
 
     var logs: List<LogUi> = emptyList()
         set(value) {
             field = value
+            expandedMarkers = SparseBooleanArray(value.size)
             notifyDataSetChanged()
         }
 
@@ -47,9 +54,33 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is ErrorLogViewHolder -> holder.onBind(logs[position] as LogUi.ErrorLog)
-                .also { clicks += it }
-            
+            is ErrorLogViewHolder -> {
+                holder.itemView.doOnLayout {
+                    if (errorItemHeight == -1) {
+                        errorItemHeight =(holder.itemView.height - holder.itemView.context.resources.getDimensionPixelSize(R.dimen.arrow_button_height)) / 2
+                        holder.arrowBtn.layoutParams = (holder.arrowBtn.layoutParams as ConstraintLayout.LayoutParams).apply {
+                            setMargins(0, errorItemHeight, 0, 0)
+                        }
+                    }
+                }
+
+                if (errorItemHeight != -1) {
+                    holder.arrowBtn.layoutParams = (holder.arrowBtn.layoutParams as ConstraintLayout.LayoutParams).apply {
+                        setMargins(0, errorItemHeight, 0, 0)
+                    }
+                }
+                holder.binding?.errorLog = logs[position] as LogUi.ErrorLog
+                holder.expandableLayout.setExpanded(expandedMarkers[position], false)
+
+                clicks += holder.itemView.clicks()
+                    .throttleFirst()
+                    .map { holder.expandableLayout.isExpanded.not() }
+                    .subscribe {
+                        expandedMarkers.put(position, it)
+                        notifyItemChanged(position)
+                    }
+            }
+
             is InfoLogViewHolder -> holder.binding?.infoLog = logs[position] as LogUi.InfoLog
 
             else -> throw IllegalStateException()
@@ -57,21 +88,7 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     class ErrorLogViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-        private val binding: ItemErrorLogBinding? = DataBindingUtil.bind(containerView)
-
-        fun onBind(log: LogUi.ErrorLog): Disposable {
-            binding?.errorLog = log
-            return itemView.clicks()
-                .throttleFirst()
-                .map { expandableLayout.isExpanded }
-                .subscribe {
-                    ObjectAnimator.ofFloat(arrowBtn, "rotation", if (it) 180f else 0f, if (it) 0f else 180f).apply {
-                        duration = 400
-                        interpolator = LinearInterpolator()
-                    }.start()
-                    expandableLayout.isExpanded = it.not()
-                }
-        }
+        val binding: ItemErrorLogBinding? = DataBindingUtil.bind(containerView)
     }
 
     class InfoLogViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {

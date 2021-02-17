@@ -33,3 +33,7 @@ fun MapView.createStandardMarker(long: Double, lat: Double) = Marker(this).apply
     position = GeoPoint(lat, long)
     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
 }
+
+fun Context.dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
+
+fun Context.pxToDp(px: Int) = (px / resources.displayMetrics.density).toInt()

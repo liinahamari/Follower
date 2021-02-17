@@ -38,12 +38,14 @@
             <ImageView
                 android:id="@+id/arrowBtn"
                 android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_height="@dimen/arrow_button_height"
                 android:layout_marginEnd="12dp"
                 android:drawableTint="@color/white"
                 android:background="@drawable/ic_arrow_down"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="errorLogExpandButton"
+                tools:ignore="HardcodedText" />
 
             <net.cachapa.expandablelayout.ExpandableLayout
                 android:id="@+id/expandableLayout"
@@ -51,8 +53,7 @@
                 android:layout_height="wrap_content"
                 app:el_duration="400"
                 app:el_expanded="false"
-                app:layout_constraintTop_toBottomOf="@id/logErrorTv"
-                tools:visibility="visible">
+                app:layout_constraintTop_toBottomOf="@id/logErrorTv" >
                 <TextView
                     android:id="@+id/stacktraceTv"
                     android:layout_width="match_parent"
