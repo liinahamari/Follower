@@ -35,7 +35,7 @@
     <string name="title_map">Map</string>
     <string name="title_tracking_controls">Tracking controls</string>
     <string name="title_min_distance">Minimum distance between location updates (in meters)</string>
-    <string name="title_min_location_update_interval">Minimum time interval between location updates (in milliseconds)</string>
+    <string name="title_min_location_update_interval">Minimum time interval between location updates (in seconds)</string>
     <string name="title_reset_to_defaults">Reset to defaults</string>
     <string name="title_settings">Settings</string>
     <string name="title_report_bug">Report bug</string>

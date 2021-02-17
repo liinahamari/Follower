@@ -8,7 +8,7 @@
     <string name="title_map">Карта</string>
     <string name="title_tracking_controls">Контроль записи местоположения</string>
     <string name="title_min_distance">Минимальное расстояние между точками в перемещении (в метрах)</string>
-    <string name="title_min_location_update_interval">Минимальный временной интервал обновления местоположения (в миллисекундах)</string>
+    <string name="title_min_location_update_interval">Минимальный временной интервал обновления местоположения (в секундах)</string>
     <string name="title_reset_to_defaults">Сброс к настройкам по умолчанию</string>
     <string name="title_settings">Настройки</string>
     <string name="title_report_bug">Сообщить о баге</string>

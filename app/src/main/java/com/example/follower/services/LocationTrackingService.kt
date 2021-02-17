@@ -2,6 +2,7 @@ package com.example.follower.services
 
 import android.app.Notification
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.location.Location
@@ -9,24 +10,31 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import com.example.follower.FollowerApp
+import com.example.follower.R
 import com.example.follower.db.entities.WayPoint
 import com.example.follower.helper.FlightRecorder
+import com.example.follower.helper.rx.BaseComposers
+import com.example.follower.interactors.GetDistanceResult
+import com.example.follower.interactors.GetTimeIntervalResult
+import com.example.follower.interactors.LocationPreferenceInteractor
+import io.reactivex.Single
 import io.reactivex.subjects.BehaviorSubject
 import java.util.*
 import javax.inject.Inject
 
 const val CHANNEL_ID = "GPS_CHANNEL"
 private const val FOREGROUND_SERVICE_ID = 123
-private const val LOCATION_INTERVAL = 500L
-private const val LOCATION_DISTANCE = 10f
 const val ACTION_TERMINATE = "BackgroundTracker.action_terminate"
 
 class LocationTrackingService : Service() {
     @Volatile var wayPoints = mutableListOf<WayPoint>()
     @Volatile var traceBeginningTime: Long? = null
-    @Inject lateinit var sharedPrefs: SharedPreferences
+
+    @Inject lateinit var prefInteractor: LocationPreferenceInteractor
     @Inject lateinit var logger: FlightRecorder
+
     private lateinit var locationListener: LocationListener
     private lateinit var locationManager: LocationManager
     private val binder = LocationServiceBinder()
@@ -36,11 +44,7 @@ class LocationTrackingService : Service() {
 
     private inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
-//            val currAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(location.latitude, location.longitude, 1)
-//            val prevAddress = Geocoder(this@LocationTrackingService, Locale.getDefault()).getFromLocation(lastLocation.latitude, lastLocation.longitude, 1)
-//            if (currAddress[0].thoroughfare != prevAddress[0].thoroughfare && currAddress[0].featureName != prevAddress[0].featureName){
             wayPoints.add(WayPoint(1L, location.provider, longitude = location.longitude, latitude = location.latitude, time = System.currentTimeMillis()))
-
             logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
         }
 
@@ -87,8 +91,15 @@ class LocationTrackingService : Service() {
     private fun startTracking() {
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener()
+
+        val timeUpdateInterval = (prefInteractor.getTimeIntervalBetweenUpdates()
+            .blockingGet() as GetTimeIntervalResult.Success).timeInterval
+
+        val distanceBetweenUpdates = (prefInteractor.getDistanceBetweenUpdates()
+            .blockingGet() as GetDistanceResult.Success).distanceBetweenUpdates
+
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, locationListener)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeUpdateInterval, distanceBetweenUpdates, locationListener)
             isTracking.onNext(true)
             traceBeginningTime = System.currentTimeMillis()
         } catch (ex: SecurityException) {
