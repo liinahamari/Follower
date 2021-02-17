@@ -18,7 +18,6 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_error_log.*
 
-
 private const val LOG_TYPE_INFO = 1
 private const val LOG_TYPE_ERROR = 2
 
@@ -51,46 +50,46 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is ErrorLogViewHolder -> {
-                holder.itemView.doOnLayout {
-                    if (errorItemHeight == -1) {
-                        errorItemHeight = (holder.itemView.height - holder.itemView.context.resources.getDimensionPixelSize(R.dimen.arrow_button_height)) / 2
-                        holder.arrowBtn.layoutParams = (holder.arrowBtn.layoutParams as ConstraintLayout.LayoutParams).apply {
-                            setMargins(0, errorItemHeight, 0, 0)
-                        }
-                    }
-                }
-
-                if (errorItemHeight != -1) {
-                    holder.arrowBtn.layoutParams = (holder.arrowBtn.layoutParams as ConstraintLayout.LayoutParams).apply {
-                        setMargins(0, errorItemHeight, 0, 0)
-                    }
-                }
-
-                holder.binding?.errorLog = logs[position] as LogUi.ErrorLog
-
-                with(expandedMarkers[position]) {
-                    holder.arrowBtn.rotation = if (this) 180f else 0f
-                    holder.expandableLayout.setExpanded(this, false)
-                }
-
-                clicks += holder.itemView.clicks()
-                    .throttleFirst()
-                    .map { holder.expandableLayout.isExpanded.not() }
-                    .subscribe {
-                        expandedMarkers.put(position, it)
-                        notifyItemChanged(position)
-                    }
-            }
-
+            is ErrorLogViewHolder -> holder.bind(position)
             is InfoLogViewHolder -> holder.binding?.infoLog = logs[position] as LogUi.InfoLog
-
             else -> throw IllegalStateException()
         }
     }
 
-    class ErrorLogViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-        val binding: ItemErrorLogBinding? = DataBindingUtil.bind(containerView)
+    private inner class ErrorLogViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+        private val binding: ItemErrorLogBinding? = DataBindingUtil.bind(containerView)
+
+        fun bind(position: Int) {
+            binding?.errorLog = logs[position] as LogUi.ErrorLog
+
+            itemView.doOnLayout {
+                if (errorItemHeight == -1) {
+                    errorItemHeight = (itemView.height - itemView.context.resources.getDimensionPixelSize(R.dimen.arrow_button_height)) / 2
+                    arrowBtn.layoutParams = (arrowBtn.layoutParams as ConstraintLayout.LayoutParams).apply {
+                        setMargins(0, errorItemHeight, 0, 0)
+                    }
+                }
+            }
+
+            if (errorItemHeight != -1) {
+                arrowBtn.layoutParams = (arrowBtn.layoutParams as ConstraintLayout.LayoutParams).apply {
+                    setMargins(0, errorItemHeight, 0, 0)
+                }
+            }
+
+            with(expandedMarkers[position]) {
+                arrowBtn.rotation = if (this) 180f else 0f
+                expandableLayout.setExpanded(this, false)
+            }
+
+            clicks += itemView.clicks()
+                .throttleFirst()
+                .map { expandableLayout.isExpanded.not() }
+                .subscribe {
+                    expandedMarkers.put(position, it)
+                    notifyItemChanged(position)
+                }
+        }
     }
 
     class InfoLogViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
