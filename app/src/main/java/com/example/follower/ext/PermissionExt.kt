@@ -24,4 +24,7 @@ fun Fragment.handleUsersReactionToPermission(permissionToHandle: String, allPerm
         = requireActivity().handleUsersReactionToPermission(permissionToHandle, allPermissions, doIfDenied, doIfAllowed, doIfNeverAskAgain)
 
 fun Activity.hasPermission(permission: String) = ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+fun Fragment.hasPermission(permission: String) = ActivityCompat.checkSelfPermission(requireActivity(), permission) == PackageManager.PERMISSION_GRANTED
+
 fun Context.hasAllPermissions(permissions: Array<String>): Boolean = permissions.all { ActivityCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
+

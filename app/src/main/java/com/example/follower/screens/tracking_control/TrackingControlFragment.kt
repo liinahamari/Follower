@@ -5,20 +5,18 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.net.Uri
 import android.os.IBinder
-import androidx.activity.result.contract.ActivityResultContracts
+import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
+import com.example.follower.BuildConfig
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
-import com.example.follower.ext.errorToast
-import com.example.follower.ext.throttleFirst
-import com.example.follower.ext.toReadableDate
-import com.example.follower.ext.toast
+import com.example.follower.ext.*
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.services.LocationTrackingService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -27,11 +25,30 @@ import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
 
+private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
+private const val CODE_PERMISSION_LOCATION = 101
+
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
     @Inject lateinit var logger: FlightRecorder
     private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
     private var isServiceBound = false
     private var gpsService: LocationTrackingService? = null
+
+    private val locationPermissionExplanationDialog by lazy {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.app_name))
+            .setMessage(R.string.location_permission_dialog_explanation)
+            .setPositiveButton(getString(android.R.string.ok), null)
+            .setNegativeButton(
+                getString(R.string.title_settings)
+            ) { dialog, _ ->
+                dialog.dismiss()
+                requireActivity().startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${BuildConfig.APPLICATION_ID}"))
+                )
+            }
+            .create()
+    }
 
     private val emptyWayPointsDialog by lazy {
         MaterialAlertDialogBuilder(requireContext())
@@ -116,18 +133,27 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         viewModel.saveTrackEvent.observe(viewLifecycleOwner, { toast(it) })
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (isDetached.not() && requestCode == CODE_PERMISSION_LOCATION) {
+            handleUsersReactionToPermission(
+                permissionToHandle = PERMISSION_LOCATION,
+                allPermissions = permissions,
+                doIfAllowed = { startTracking() },
+                doIfDenied = { locationPermissionExplanationDialog.show() },
+                doIfNeverAskAgain = { locationPermissionExplanationDialog.show() }
+            )
+        }
+    }
+
     override fun setupClicks() {
         subscriptions += btn_start_tracking.clicks()
             .throttleFirst(750L)
             .subscribe {
-                if (requireContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_GRANTED) {
+                if (hasPermission(PERMISSION_LOCATION)) {
                     startTracking()
                 } else {
-                    registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-                        if (it) {
-                            startTracking()
-                        }
-                    }.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    requestPermissions(arrayOf(PERMISSION_LOCATION), CODE_PERMISSION_LOCATION)
                 }
             }
 
