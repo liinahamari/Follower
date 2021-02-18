@@ -2,6 +2,7 @@ package com.example.follower.interactors
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.follower.R
 import com.example.follower.ext.getStringOf
 import com.example.follower.ext.writeStringOf
@@ -20,14 +21,16 @@ class BaseActivitySettingsInteractor @Inject constructor(
     fun handleThemeChanges(toBeCompared: Int): Maybe<NightModeChangesResult> = Single.fromCallable {
             kotlin.runCatching { sharedPreferences.getStringOf(context.getString(R.string.pref_theme)) }.getOrThrow()
         }
-        .filter { it != toBeCompared.toString() }
         .map { it.toInt() }
-        .map<NightModeChangesResult> { NightModeChangesResult.Success(it) }
+        .filter { it != toBeCompared }
+        .map<NightModeChangesResult> { if (it == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM || it == AppCompatDelegate.MODE_NIGHT_NO || it == AppCompatDelegate.MODE_NIGHT_YES) NightModeChangesResult.Success(it) else NightModeChangesResult.Success(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) }
         .onErrorReturn {
-            return@onErrorReturn if (it is NullPointerException) {
+            if (it is NullPointerException) { /**pref_theme contains null: doing initial setup... */
                 try {
-                    sharedPreferences.writeStringOf(context.getString(R.string.pref_theme), toBeCompared.toString())
-                    NightModeChangesResult.Success(toBeCompared)
+                    with (AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                        sharedPreferences.writeStringOf(context.getString(R.string.pref_theme), this.toString())
+                        NightModeChangesResult.Success(this)
+                    }
                 } catch (e: Throwable) {
                     NightModeChangesResult.SharedChangesCorruptionError
                 }
@@ -35,7 +38,7 @@ class BaseActivitySettingsInteractor @Inject constructor(
                 NightModeChangesResult.SharedChangesCorruptionError
             }
         }.onErrorReturn { NightModeChangesResult.SharedChangesCorruptionError }
-        .doOnError { logger.e(label = "theme change", stackTrace = it.stackTrace) }
+        .doOnError { logger.e(label = "Problem with changing theme!", stackTrace = it.stackTrace) }
         .compose(baseComposers.applyMaybeSchedulers())
 
     fun checkLocaleChanged(currentLocale: String): Maybe<LocaleChangedResult> = Single.just(currentLocale)
