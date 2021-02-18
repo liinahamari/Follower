@@ -69,4 +69,6 @@
     <string name="title_always_ask">Always ask</string>
     <string name="title_track_display_mode">Display track as…</string>
     <string name="title_tracklist_is_empty">You have to tracks saved.</string>
+    <string name="title_map_display_model">If track displaying on the map (see the option above), you can represent it as a line or as a set of markers</string>
+    <string name="title_track_representing_summary">Observe saved tracks on a map or as sequence of addresses</string>
 </resources>

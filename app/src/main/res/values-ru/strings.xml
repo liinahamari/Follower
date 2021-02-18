@@ -42,4 +42,6 @@
     <string name="title_addresses_list">Список адресов</string>
     <string name="title_always_ask">Спрашивать всегда</string>
     <string name="title_tracklist_is_empty">У Вас нет сохраненных маршрутов.</string>
+    <string name="title_map_display_model">Если маршрут отображается на карте (см. опцию выше), Вы можете отображать его как линию или как множество маркеров</string>
+    <string name="title_track_representing_summary">Просматривайте сохраненный маршрут с помощью карты или как последовательность адресов</string>
 </resources>

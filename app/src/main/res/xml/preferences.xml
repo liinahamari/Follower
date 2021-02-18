@@ -25,7 +25,6 @@
     <EditTextPreference
         android:defaultValue="10"
         android:key="@string/pref_min_distance"
-
         android:title="@string/title_min_distance"
         app:iconSpaceReserved="false" />
 
@@ -66,12 +65,14 @@
         android:entryValues="@array/track_representing_values"
         android:key="@string/pref_track_representing"
         android:title="@string/title_track_representing"
+        android:summary="@string/title_track_representing_summary"
         app:iconSpaceReserved="false" />
 
     <ListPreference
         android:entries="@array/track_display_mode"
         android:entryValues="@array/track_display_mode_values"
         android:key="@string/pref_track_display_mode"
+        android:summary="@string/title_map_display_model"
         android:title="@string/title_track_display_mode"
         app:iconSpaceReserved="false" />
 </PreferenceScreen>
