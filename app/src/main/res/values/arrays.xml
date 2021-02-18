@@ -13,23 +13,23 @@
     </string-array>
 
     <string-array name="supported_locales">
-        <item>"ru"</item>
         <item>"en"</item>
+        <item>"ru"</item>
     </string-array>
 
     <string-array name="supported_languages">
-        <item>"Russian (Русский)"</item>
         <item>"English"</item>
+        <item>"Russian (Русский)"</item>
     </string-array>
 
     <string-array name="track_representing">
-        <item>@string/title_set_of_markers</item>
         <item>@string/title_line</item>
+        <item>@string/title_set_of_markers</item>
     </string-array>
 
     <string-array name="track_representing_values">
-        <item>@string/pref_marker_set</item>
         <item>@string/pref_line</item>
+        <item>@string/pref_marker_set</item>
     </string-array>
 
     <string-array name="track_display_mode">

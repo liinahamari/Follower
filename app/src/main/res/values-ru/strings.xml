@@ -13,6 +13,7 @@
     <string name="title_settings">Настройки</string>
     <string name="title_report_bug">Сообщить о баге</string>
     <string name="title_light_theme">Светлая тема</string>
+    <string name="title_reset_to_defaults_dialog">Вы желаете восстановить настройки по-умолчанию?</string>
     <string name="title_default_theme">Тема по-умолчанию устройства</string>
     <string name="title_dark_theme">Темная тема</string>
     <string name="title_themes">Тема</string>
@@ -35,6 +36,8 @@
     <string name="title_file_manager_problem">Невозможно сохранить файл. Возможно, проблема с файловым менеджером.</string>
     <string name="io_error">Что-то не так с файловой системой!</string>
     <string name="title_show_map">Показать карту</string>
+    <string name="title_loading">Загрузка</string>
+    <string name="error_unexpected">Произошла непредвиденная ошибка!</string>
     <string name="title_show_addresses">Показать список адресов</string>
     <string name="title_remember_choice">Запомнить выбор</string>
     <string name="error_couldnt_save_preference">Не удалось сохранить настройку!</string>

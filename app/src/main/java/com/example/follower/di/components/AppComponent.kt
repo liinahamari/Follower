@@ -6,6 +6,7 @@ import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.*
 import com.example.follower.screens.MainActivity
 import com.example.follower.screens.logs.LogsActivity
+import com.example.follower.screens.settings.SettingsFragment
 import com.example.follower.screens.tracking_control.TrackingControlFragment
 import com.example.follower.services.LocationTrackingService
 import dagger.BindsInstance
@@ -27,6 +28,7 @@ interface AppComponent {
     fun inject(app: FollowerApp)
     fun inject(service: LocationTrackingService)
     fun inject(activity: BaseActivity)
+    fun inject(fragment: SettingsFragment)
     fun inject(activity: MainActivity)
     fun inject(activity: LogsActivity)
 }

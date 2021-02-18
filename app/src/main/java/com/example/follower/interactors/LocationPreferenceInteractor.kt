@@ -6,8 +6,8 @@ import com.example.follower.R
 import io.reactivex.Single
 import javax.inject.Inject
 
-private const val DEFAULT_TIME_UPDATE_INTERVAL = 5L
-private const val DEFAULT_LOCATION_UPDATE_INTERVAL = 10f
+const val DEFAULT_TIME_UPDATE_INTERVAL = 5L
+const val DEFAULT_LOCATION_UPDATE_INTERVAL = 10f
 
 class LocationPreferenceInteractor @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context) {
     fun getTimeIntervalBetweenUpdates(): Single<GetTimeIntervalResult> = Single.just(context.getString(R.string.pref_min_location_update_interval))

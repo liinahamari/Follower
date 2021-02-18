@@ -35,6 +35,7 @@
         app:iconSpaceReserved="false" />
 
     <Preference
+        android:key="@string/pref_reset_to_default"
         android:title="@string/title_reset_to_defaults"
         app:iconSpaceReserved="false" />
 
