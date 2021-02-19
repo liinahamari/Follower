@@ -11,15 +11,18 @@ import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
 
+private const val DEFAULT_AUTO_TRACKING_START_TIME = "09:00"
+private const val DEFAULT_AUTO_TRACKING_END_TIME = "21:00"
+
 class PreferencesRepository @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val baseComposers: BaseComposers) {
     /** If App is launching first time, then set default preferences*/
     fun applyDefaultPreferences(): Completable = Completable.fromCallable {
             if (sharedPreferences.getBoolean(context.getString(R.string.pref_is_first_launch), false).not()) {
                 sharedPreferences.writeBooleanOf(context.getString(R.string.pref_is_first_launch), true)
-        
+
                 PreferenceManager.setDefaultValues(context, R.xml.preferences, false)
-                sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_start_time), hourlyTimeToMinutesFromMidnight("09:00"))
-                sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_end_time), hourlyTimeToMinutesFromMidnight("21:00"))
+                sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_start_time), hourlyTimeToMinutesFromMidnight(DEFAULT_AUTO_TRACKING_START_TIME))
+                sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_end_time), hourlyTimeToMinutesFromMidnight(DEFAULT_AUTO_TRACKING_END_TIME))
             }
         }
 
