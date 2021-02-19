@@ -75,4 +75,6 @@
     <string name="title_map_display_model">If track displaying on the map (see the option above), you can represent it as a line or as a set of markers</string>
     <string name="title_track_representing_summary">Observe saved tracks on a map or as sequence of addresses</string>
     <string name="title_loading">Loading</string>
+    <string name="title_automatic_tracking_setting_summary">Enable automatic tracking in some time range</string>
+    <string name="title_automatic_tracking_setting">Auto-tracking</string>
 </resources>

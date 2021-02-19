@@ -39,9 +39,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             .setTitle(getString(R.string.app_name))
             .setMessage(R.string.location_permission_dialog_explanation)
             .setPositiveButton(getString(android.R.string.ok), null)
-            .setNegativeButton(
-                getString(R.string.title_settings)
-            ) { dialog, _ ->
+            .setNegativeButton(getString(R.string.title_settings)) { dialog, _ ->
                 dialog.dismiss()
                 requireActivity().startActivity(
                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${BuildConfig.APPLICATION_ID}"))

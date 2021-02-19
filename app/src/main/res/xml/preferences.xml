@@ -5,8 +5,8 @@
     <SwitchPreferenceCompat
         android:key="@string/pref_enable_auto_tracking"
         app:iconSpaceReserved="false"
-        android:title="Enable automatic tracking in some time range"
-        android:summary="blablabla"/>
+        android:title="@string/title_automatic_tracking_setting"
+        android:summary="@string/title_automatic_tracking_setting_summary"/>
 
     <com.example.follower.screens.settings.TimePickerPreference
         android:defaultValue="0"

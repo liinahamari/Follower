@@ -47,4 +47,6 @@
     <string name="title_tracklist_is_empty">У Вас нет сохраненных маршрутов.</string>
     <string name="title_map_display_model">Если маршрут отображается на карте (см. опцию выше), Вы можете отображать его как линию или как множество маркеров</string>
     <string name="title_track_representing_summary">Просматривайте сохраненный маршрут с помощью карты или как последовательность адресов</string>
+    <string name="title_automatic_tracking_setting_summary">Включить автоматическое отслеживание местоположения в заданный промежуток времени</string>
+    <string name="title_automatic_tracking_setting">Автоматический трекинг</string>
 </resources>
