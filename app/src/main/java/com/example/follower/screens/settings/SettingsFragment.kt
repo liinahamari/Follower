@@ -22,6 +22,9 @@ import com.example.follower.R
 import com.example.follower.ext.errorToast
 import com.example.follower.ext.getBooleanOf
 import com.example.follower.ext.getStringOf
+import com.example.follower.ext.toast
+import com.example.follower.interactors.ID_AUTO_TRACKING_START
+import com.example.follower.interactors.ID_AUTO_TRACKING_STOP
 import com.example.follower.services.LocationTrackingService
 import java.util.*
 import javax.inject.Inject
@@ -63,6 +66,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             }
         })
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
+        viewModel.successfulSchedulingEvent.observe(viewLifecycleOwner, { toast(getString(it)) })
         viewModel.resetToDefaultsEvent.observe(viewLifecycleOwner, { requireActivity().recreate() })
     }
 
@@ -106,6 +110,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     alarmManager.cancel(PendingIntent.getService(requireContext().applicationContext, ID_AUTO_TRACKING_STOP, Intent(requireActivity(), LocationTrackingService::class.java),0))
                 }
             }
+
+            
         }
     }
 }

@@ -80,4 +80,5 @@
     <string name="title_automatic_tracking_setting">Auto-tracking</string>
     <string name="title_auto_tracking_start_time">Automatic tracking start time</string>
     <string name="title_auto_tracking_stop_time">Automatic tracking stop time</string>
+    <string name="auto_tracking_scheduling_successful">Scheduling has been successful!</string>
 </resources>

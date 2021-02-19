@@ -51,4 +51,5 @@
     <string name="title_automatic_tracking_setting">Автоматический трекинг</string>
     <string name="title_auto_tracking_start_time">Автоматическое отслеживание: начальное время</string>
     <string name="title_auto_tracking_stop_time">Автоматическое отслеживание: конечное время</string>
+    <string name="auto_tracking_scheduling_successful">Автоматическое отслеживание включено!</string>
 </resources>
