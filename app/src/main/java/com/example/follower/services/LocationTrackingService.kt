@@ -26,7 +26,8 @@ import javax.inject.Inject
 
 const val CHANNEL_ID = "GPS_CHANNEL"
 private const val FOREGROUND_SERVICE_ID = 123
-const val ACTION_TERMINATE = "BackgroundTracker.action_terminate"
+const val ACTION_START_TRACKING = "BackgroundTracker.action_start_tracking"
+const val ACTION_STOP_TRACKING = "BackgroundTracker.action_stop_tracking"
 
 class LocationTrackingService : Service() {
     @Volatile var wayPoints = mutableListOf<WayPoint>()
@@ -54,10 +55,9 @@ class LocationTrackingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (intent.action == ACTION_TERMINATE) {
-            stopSelf()
-        } else {
-            startTracking()
+        when (intent.action) {
+            ACTION_STOP_TRACKING -> stopSelf()
+            ACTION_START_TRACKING -> startTracking()
         }
         return START_STICKY
     }

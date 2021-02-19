@@ -8,7 +8,7 @@
 
     <!--prefs-->
     <string name="pref_tracking_start_time" translatable="false">pref_tracking_start_time</string>
-    <string name="pref_tracking_end_time" translatable="false">pref_tracking_end_time</string>
+    <string name="pref_tracking_stop_time" translatable="false">pref_tracking_end_time</string>
     <string name="pref_theme" translatable="false">pref_theme</string>
     <string name="pref_lang" translatable="false">pref_lang</string>
     <string name="pref_min_distance" translatable="false">pref_min_distance</string>
@@ -79,5 +79,5 @@
     <string name="title_automatic_tracking_setting_summary">Enable automatic tracking in some time range</string>
     <string name="title_automatic_tracking_setting">Auto-tracking</string>
     <string name="title_auto_tracking_start_time">Automatic tracking start time</string>
-    <string name="title_auto_tracking_end_time">Automatic tracking end time</string>
+    <string name="title_auto_tracking_stop_time">Automatic tracking stop time</string>
 </resources>

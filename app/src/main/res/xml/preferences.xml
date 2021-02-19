@@ -19,8 +19,8 @@
         app:defaultValue="1080"
         app:iconSpaceReserved="false"
         android:dependency="@string/pref_enable_auto_tracking"
-        android:key="@string/pref_tracking_end_time"
-        android:title="@string/title_auto_tracking_end_time" />
+        android:key="@string/pref_tracking_stop_time"
+        android:title="@string/title_auto_tracking_stop_time" />
 
     <EditTextPreference
         android:defaultValue="10"

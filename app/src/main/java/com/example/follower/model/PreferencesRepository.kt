@@ -22,7 +22,7 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
 
                 PreferenceManager.setDefaultValues(context, R.xml.preferences, false)
                 sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_start_time), hourlyTimeToMinutesFromMidnight(DEFAULT_AUTO_TRACKING_START_TIME))
-                sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_end_time), hourlyTimeToMinutesFromMidnight(DEFAULT_AUTO_TRACKING_END_TIME))
+                sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_stop_time), hourlyTimeToMinutesFromMidnight(DEFAULT_AUTO_TRACKING_END_TIME))
             }
         }
 

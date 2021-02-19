@@ -50,5 +50,5 @@
     <string name="title_automatic_tracking_setting_summary">Включить автоматическое отслеживание местоположения в заданный промежуток времени</string>
     <string name="title_automatic_tracking_setting">Автоматический трекинг</string>
     <string name="title_auto_tracking_start_time">Автоматическое отслеживание: начальное время</string>
-    <string name="title_auto_tracking_end_time">Автоматическое отслеживание: конечное время</string>
+    <string name="title_auto_tracking_stop_time">Автоматическое отслеживание: конечное время</string>
 </resources>

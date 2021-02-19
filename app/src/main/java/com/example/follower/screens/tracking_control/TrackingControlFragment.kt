@@ -18,6 +18,7 @@ import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.ext.*
 import com.example.follower.helper.FlightRecorder
+import com.example.follower.services.ACTION_START_TRACKING
 import com.example.follower.services.LocationTrackingService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
@@ -115,6 +116,9 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     private fun startTracking() {
         with(requireActivity()) {
             val intent = Intent(this, LocationTrackingService::class.java)
+                .apply {
+                    action = ACTION_START_TRACKING
+                }
             startService(intent)
             bindService(intent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
                 .also { logger.i { "service bound ($it) from startTracking()" } }

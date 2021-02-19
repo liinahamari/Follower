@@ -1,16 +1,17 @@
 package com.example.follower.screens.settings
 
+import android.app.AlarmManager
 import android.app.Dialog
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -18,25 +19,17 @@ import androidx.preference.PreferenceManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.example.follower.FollowerApp
 import com.example.follower.R
-import com.example.follower.base.BaseViewModel
 import com.example.follower.ext.errorToast
+import com.example.follower.ext.getBooleanOf
 import com.example.follower.ext.getStringOf
-import com.example.follower.ext.writeStringOf
-import com.example.follower.helper.SingleLiveEvent
-import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.interactors.DEFAULT_LOCATION_UPDATE_INTERVAL
-import com.example.follower.interactors.DEFAULT_TIME_UPDATE_INTERVAL
-import com.example.follower.interactors.ResetToDefaultsState
-import com.example.follower.interactors.SettingsPrefsInteractor
-import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.plusAssign
+import com.example.follower.services.LocationTrackingService
 import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject lateinit var alarmManager: AlarmManager
+
     private val viewModel by viewModels<SettingsViewModel> { viewModelFactory }
 
     private val loadingDialog by lazy {
@@ -104,6 +97,14 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     @Suppress("DEPRECATION") requireActivity().resources.updateConfiguration(resources.configuration.also { it.setLocale(this) }, resources.displayMetrics)
                 }
                 requireActivity().recreate()
+            }
+            getString(R.string.pref_enable_auto_tracking) -> {
+                if (sharedPreferences.getBooleanOf(key)) {
+                    viewModel.scheduleAutoTracking()
+                } else {
+                    alarmManager.cancel(PendingIntent.getService(requireContext().applicationContext, ID_AUTO_TRACKING_START, Intent(requireActivity(), LocationTrackingService::class.java),0))
+                    alarmManager.cancel(PendingIntent.getService(requireContext().applicationContext, ID_AUTO_TRACKING_STOP, Intent(requireActivity(), LocationTrackingService::class.java),0))
+                }
             }
         }
     }
