@@ -18,7 +18,6 @@ class TimePickerPreference(context: Context?, attrs: AttributeSet?) : DialogPref
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        super.onSetInitialValue(defaultValue)
         summary = minutesFromMidnightToHourlyTime(getPersistedMinutesFromMidnight())
     }
 }

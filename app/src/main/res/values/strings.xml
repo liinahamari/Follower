@@ -22,6 +22,7 @@
     <string name="pref_value_track_display_mode_addresses_list" translatable="false">pref_value_track_display_mode_addresses_list</string>
     <string name="pref_enable_auto_tracking" translatable="false">pref_enable_auto_tracking</string>
     <string name="pref_reset_to_default" translatable="false">pref_reset_to_default</string>
+    <string name="pref_is_first_launch" translatable="false">pref_is_first_launch</string>
 
     <!--descriptions-->
     <string name="desc_map_view" translatable="false">DESCRIPTION_map_fragment_map_view</string>
@@ -77,4 +78,6 @@
     <string name="title_loading">Loading</string>
     <string name="title_automatic_tracking_setting_summary">Enable automatic tracking in some time range</string>
     <string name="title_automatic_tracking_setting">Auto-tracking</string>
+    <string name="title_auto_tracking_start_time">Automatic tracking start time</string>
+    <string name="title_auto_tracking_end_time">Automatic tracking end time</string>
 </resources>

@@ -9,18 +9,18 @@
         android:summary="@string/title_automatic_tracking_setting_summary"/>
 
     <com.example.follower.screens.settings.TimePickerPreference
-        android:defaultValue="0"
+        android:defaultValue="540"
         app:iconSpaceReserved="false"
         android:dependency="@string/pref_enable_auto_tracking"
         android:key="@string/pref_tracking_start_time"
-        android:title="Automatic Tracking start time" />
+        android:title="@string/title_auto_tracking_start_time" />
 
     <com.example.follower.screens.settings.TimePickerPreference
-        android:defaultValue="0"
+        app:defaultValue="1080"
         app:iconSpaceReserved="false"
         android:dependency="@string/pref_enable_auto_tracking"
         android:key="@string/pref_tracking_end_time"
-        android:title="Automatic Tracking end time" />
+        android:title="@string/title_auto_tracking_end_time" />
 
     <EditTextPreference
         android:defaultValue="10"
@@ -64,6 +64,7 @@
     <ListPreference
         android:entries="@array/track_representing"
         android:entryValues="@array/track_representing_values"
+        android:defaultValue="@string/pref_line"
         android:key="@string/pref_track_representing"
         android:title="@string/title_track_representing"
         android:summary="@string/title_track_representing_summary"
@@ -73,6 +74,7 @@
         android:entries="@array/track_display_mode"
         android:entryValues="@array/track_display_mode_values"
         android:key="@string/pref_track_display_mode"
+        android:defaultValue="@string/pref_value_track_display_mode_none"
         android:summary="@string/title_map_display_model"
         android:title="@string/title_track_display_mode"
         app:iconSpaceReserved="false" />

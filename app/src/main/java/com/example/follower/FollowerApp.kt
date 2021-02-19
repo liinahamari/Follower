@@ -25,6 +25,9 @@ class FollowerApp: Application() {
     override fun onCreate() {
         setupDagger()
         super.onCreate()
+
+        preferencesRepository.applyDefaultPreferences().blockingAwait()
+
         setupOsmdroid()
         Toasty.Config.getInstance().apply()
 

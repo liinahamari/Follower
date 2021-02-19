@@ -38,3 +38,9 @@ fun minutesFromMidnightToHourlyTime(minutes: Int): String {
     val minute: Int = minutes % 60
     return String.format("%02d:%02d", hour, minute)
 }
+
+/** @param time should be presented in 24-hour format and with leading zero in hours section, if it less than 10*/
+fun hourlyTimeToMinutesFromMidnight(time: String): Int {
+    val hoursAndMinutes = time.split(":")
+    return hoursAndMinutes.first().toInt() * 60 + hoursAndMinutes[1].toInt()
+}
