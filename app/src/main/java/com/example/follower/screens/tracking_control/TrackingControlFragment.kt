@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.IBinder
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
@@ -31,7 +32,7 @@ private const val CODE_PERMISSION_LOCATION = 101
 
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
     @Inject lateinit var logger: FlightRecorder
-    private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
+    private val viewModel by activityViewModels<TrackingControlViewModel> { viewModelFactory }
     private var isServiceBound = false
     private var gpsService: LocationTrackingService? = null
 
@@ -120,7 +121,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                     action = ACTION_START_TRACKING
                 }
             startService(intent)
-            bindService(intent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
+            bindService(intent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE) /*todo remove*/
                 .also { logger.i { "service bound ($it) from startTracking()" } }
         }
     }
