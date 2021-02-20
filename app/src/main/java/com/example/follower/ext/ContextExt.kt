@@ -1,5 +1,6 @@
 package com.example.follower.ext
 
+import android.app.ActivityManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
@@ -23,3 +24,5 @@ fun Context.provideUpdatedContextWithNewLocale(
 private fun Context.getDefaultSharedPreferences(): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 private fun Context.getSavedAppLocale(): String = getDefaultSharedPreferences().getStringOf(getString(R.string.pref_lang))!!
 private fun Context.saveAppLocale(newLocale: String) = getDefaultSharedPreferences().writeStringOf(getString(R.string.pref_lang), newLocale)
+
+fun Context.isServiceRunning(serviceClass: Class<*>) = (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningServices(Int.MAX_VALUE).any { serviceClass.name == it.service.className }

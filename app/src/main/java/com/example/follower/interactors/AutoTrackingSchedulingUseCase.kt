@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import com.example.follower.R
+import com.example.follower.ext.isServiceRunning
 import com.example.follower.ext.isTimeBetweenTwoTimes
 import com.example.follower.ext.minutesFromMidnightToHourlyTime
 import com.example.follower.ext.now
@@ -21,41 +22,44 @@ const val ID_AUTO_TRACKING_START = 1
 const val ID_AUTO_TRACKING_STOP = 2
 
 class AutoTrackingSchedulingUseCase @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val alarmManager: AlarmManager, private val baseComposers: BaseComposers) {
-    fun execute(): Single<SchedulingResult> = Single.just(sharedPreferences.getInt(context.getString(R.string.pref_tracking_start_time), -1) to sharedPreferences.getInt(context.getString(R.string.pref_tracking_stop_time), -1))
-        .doOnSuccess { require(it.first >= 0 && it.second >= 0) }
-        .map { minutesFromMidnightToHourlyTime(it.first) to minutesFromMidnightToHourlyTime(it.second) }
-        .compose(baseComposers.applySingleSchedulers())
-        .doOnSuccess {
-            if (isTimeBetweenTwoTimes(it.first, it.second, now())) {
-                context.startService(Intent(context, LocationTrackingService::class.java).apply {
-                    action = ACTION_START_TRACKING
-                })
-            } else {
-                val startPendingIntent = PendingIntent.getService(
+    fun setupStartAndStop(): Single<SchedulingStartStopResult> =
+        Single.just(sharedPreferences.getInt(context.getString(R.string.pref_tracking_start_time), -1) to sharedPreferences.getInt(context.getString(R.string.pref_tracking_stop_time), -1))
+            .doOnSuccess { require(it.first >= 0 && it.second >= 0) }
+            .map { minutesFromMidnightToHourlyTime(it.first) to minutesFromMidnightToHourlyTime(it.second) }
+            .compose(baseComposers.applySingleSchedulers())
+            .doOnSuccess {
+                if (isTimeBetweenTwoTimes(it.first, it.second, now())) {
+                    if (context.isServiceRunning(LocationTrackingService::class.java).not()) {
+                        context.startService(Intent(context, LocationTrackingService::class.java).apply {
+                            action = ACTION_START_TRACKING
+                        })
+                    }
+                } else {
+                    val startPendingIntent = PendingIntent.getService(
+                        context,
+                        ID_AUTO_TRACKING_START,
+                        Intent(context, LocationTrackingService::class.java).apply {
+                            action = ACTION_START_TRACKING
+                            /*todo next launch timestamp or WORKER?*/
+                        },
+                        0
+                    )
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, getNextLaunchTime(it.first), startPendingIntent)
+                }
+            }
+            .doOnEvent { startStopTimeValues, _ ->
+                val stopPendingIntent = PendingIntent.getService(
                     context,
-                    ID_AUTO_TRACKING_START,
+                    ID_AUTO_TRACKING_STOP,
                     Intent(context, LocationTrackingService::class.java).apply {
-                        action = ACTION_START_TRACKING
-                        /*todo next launch timestamp or WORKER?*/
+                        action = ACTION_STOP_TRACKING
                     },
                     0
                 )
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, getNextLaunchTime(it.first), startPendingIntent)
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, getNextLaunchTime(startStopTimeValues.second), stopPendingIntent)
             }
-        }
-        .doOnSuccess {
-            val stopPendingIntent = PendingIntent.getService(
-                context,
-                ID_AUTO_TRACKING_STOP,
-                Intent(context, LocationTrackingService::class.java).apply {
-                    action = ACTION_STOP_TRACKING
-                },
-                0
-            )
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, getNextLaunchTime(it.second), stopPendingIntent)
-        }
-        .map<SchedulingResult> { SchedulingResult.Success }
-        .onErrorReturn { SchedulingResult.Failure }
+            .map<SchedulingStartStopResult> { SchedulingStartStopResult.Success }
+            .onErrorReturn { SchedulingStartStopResult.Failure }
 
     /** @param time - Timestamp, implies hours (in 24-hour format) and minutes divided with separator ":". For example, 21:12
 
@@ -79,7 +83,7 @@ class AutoTrackingSchedulingUseCase @Inject constructor(private val sharedPrefer
     }
 }
 
-sealed class SchedulingResult {
-    object Success : SchedulingResult()
-    object Failure : SchedulingResult()
+sealed class SchedulingStartStopResult {
+    object Success : SchedulingStartStopResult()
+    object Failure : SchedulingStartStopResult()
 }

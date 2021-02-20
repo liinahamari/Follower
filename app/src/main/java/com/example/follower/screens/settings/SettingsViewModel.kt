@@ -6,7 +6,7 @@ import com.example.follower.base.BaseViewModel
 import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.interactors.AutoTrackingSchedulingUseCase
 import com.example.follower.interactors.ResetToDefaultsState
-import com.example.follower.interactors.SchedulingResult
+import com.example.follower.interactors.SchedulingStartStopResult
 import com.example.follower.interactors.SettingsPrefsInteractor
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
@@ -42,10 +42,10 @@ class SettingsViewModel @Inject constructor(private val prefInteractor: Settings
     }
 
     fun scheduleAutoTracking() {
-        disposable += autoTrackingSchedulingUseCase.execute().subscribe(Consumer {
+        disposable += autoTrackingSchedulingUseCase.setupStartAndStop().subscribe(Consumer {
             when (it) {
-                is SchedulingResult.Success -> _successfulSchedulingEvent.value = R.string.auto_tracking_scheduling_successful
-                is SchedulingResult.Failure -> _errorEvent.value = R.string.error_unexpected
+                is SchedulingStartStopResult.Success -> _successfulSchedulingEvent.value = R.string.auto_tracking_scheduling_successful
+                is SchedulingStartStopResult.Failure -> _errorEvent.value = R.string.error_unexpected
             }
         })
     }
