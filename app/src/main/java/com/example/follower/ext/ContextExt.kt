@@ -25,4 +25,6 @@ private fun Context.getDefaultSharedPreferences(): SharedPreferences = Preferenc
 private fun Context.getSavedAppLocale(): String = getDefaultSharedPreferences().getStringOf(getString(R.string.pref_lang))!!
 private fun Context.saveAppLocale(newLocale: String) = getDefaultSharedPreferences().writeStringOf(getString(R.string.pref_lang), newLocale)
 
+@Suppress("DEPRECATION"
+    /** """this method is no longer available to third party applications""" -- but we don't care tracking our application's services*/)
 fun Context.isServiceRunning(serviceClass: Class<*>) = (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningServices(Int.MAX_VALUE).any { serviceClass.name == it.service.className }

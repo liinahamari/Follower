@@ -1,27 +1,26 @@
 package com.example.follower.interactors
 
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
+import android.util.Log
+import androidx.work.*
 import com.example.follower.R
 import com.example.follower.ext.isServiceRunning
 import com.example.follower.ext.isTimeBetweenTwoTimes
 import com.example.follower.ext.minutesFromMidnightToHourlyTime
 import com.example.follower.ext.now
 import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.services.ACTION_START_TRACKING
-import com.example.follower.services.ACTION_STOP_TRACKING
 import com.example.follower.services.LocationTrackingService
+import com.example.follower.workers.AutoStartTrackingWorker
+import com.example.follower.workers.AutoStopTrackingWorker
+import com.example.follower.workers.TAG_AUTO_START_WORKER
+import com.example.follower.workers.TAG_AUTO_STOP_WORKER
 import io.reactivex.Single
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-const val ID_AUTO_TRACKING_START = 1
-const val ID_AUTO_TRACKING_STOP = 2
-
-class AutoTrackingSchedulingUseCase @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val alarmManager: AlarmManager, private val baseComposers: BaseComposers) {
+class AutoTrackingSchedulingUseCase @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val baseComposers: BaseComposers, private val workManager: WorkManager) {
     fun setupStartAndStop(): Single<SchedulingStartStopResult> =
         Single.just(sharedPreferences.getInt(context.getString(R.string.pref_tracking_start_time), -1) to sharedPreferences.getInt(context.getString(R.string.pref_tracking_stop_time), -1))
             .doOnSuccess { require(it.first >= 0 && it.second >= 0) }
@@ -30,33 +29,28 @@ class AutoTrackingSchedulingUseCase @Inject constructor(private val sharedPrefer
             .doOnSuccess {
                 if (isTimeBetweenTwoTimes(it.first, it.second, now())) {
                     if (context.isServiceRunning(LocationTrackingService::class.java).not()) {
-                        context.startService(Intent(context, LocationTrackingService::class.java).apply {
-                            action = ACTION_START_TRACKING
-                        })
+                        workManager.enqueueUniquePeriodicWork(TAG_AUTO_START_WORKER, ExistingPeriodicWorkPolicy.KEEP, defaultConstraints<AutoStartTrackingWorker>().build())
                     }
                 } else {
-                    val startPendingIntent = PendingIntent.getService(
-                        context,
-                        ID_AUTO_TRACKING_START,
-                        Intent(context, LocationTrackingService::class.java).apply {
-                            action = ACTION_START_TRACKING
-                            /*todo next launch timestamp or WORKER?*/
-                        },
-                        0
+                    Log.d("a", "START_WORKER start delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}")
+                    workManager.enqueueUniquePeriodicWork(
+                        TAG_AUTO_START_WORKER,
+                        ExistingPeriodicWorkPolicy.KEEP,
+                        defaultConstraints<AutoStartTrackingWorker>()
+                            .setInitialDelay(getNextLaunchTime(it.first) - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                            .build()
                     )
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, getNextLaunchTime(it.first), startPendingIntent)
                 }
             }
             .doOnEvent { startStopTimeValues, _ ->
-                val stopPendingIntent = PendingIntent.getService(
-                    context,
-                    ID_AUTO_TRACKING_STOP,
-                    Intent(context, LocationTrackingService::class.java).apply {
-                        action = ACTION_STOP_TRACKING
-                    },
-                    0
+                Log.d("a", "STOP_WORKER stop delay ${(getNextLaunchTime(startStopTimeValues.second) - System.currentTimeMillis()) / 3600000}")
+                workManager.enqueueUniquePeriodicWork(
+                    TAG_AUTO_STOP_WORKER,
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    defaultConstraints<AutoStopTrackingWorker>()
+                        .setInitialDelay(getNextLaunchTime(startStopTimeValues.second) - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                        .build()
                 )
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, getNextLaunchTime(startStopTimeValues.second), stopPendingIntent)
             }
             .map<SchedulingStartStopResult> { SchedulingStartStopResult.Success }
             .onErrorReturn { SchedulingStartStopResult.Failure }
@@ -81,6 +75,16 @@ class AutoTrackingSchedulingUseCase @Inject constructor(private val sharedPrefer
             set(Calendar.MILLISECOND, 0)
         }.timeInMillis
     }
+
+    private inline fun <reified T : ListenableWorker> defaultConstraints() = PeriodicWorkRequestBuilder<T>(1, TimeUnit.DAYS)
+        .setConstraints(
+            Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                .setRequiresBatteryNotLow(true) /*todo preference?*/
+                .setRequiresStorageNotLow(true)
+                .build()
+        )
+        .setBackoffCriteria(BackoffPolicy.LINEAR, PeriodicWorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
 }
 
 sealed class SchedulingStartStopResult {
