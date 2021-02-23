@@ -23,6 +23,7 @@
     <string name="pref_enable_auto_tracking" translatable="false">pref_enable_auto_tracking</string>
     <string name="pref_reset_to_default" translatable="false">pref_reset_to_default</string>
     <string name="pref_is_first_launch" translatable="false">pref_is_first_launch</string>
+    <string name="pref_enable_biometric_protection" translatable="false">pref_enable_biometric_protection</string>
 
     <!--descriptions-->
     <string name="desc_map_view" translatable="false">DESCRIPTION_map_fragment_map_view</string>
@@ -81,4 +82,12 @@
     <string name="title_auto_tracking_start_time">Automatic tracking start time</string>
     <string name="title_auto_tracking_stop_time">Automatic tracking stop time</string>
     <string name="auto_tracking_scheduling_successful">Scheduling has been successful!</string>
+    <string name="title_records_access">Records access</string>
+    <string name="title_fingerprint_instruction">Touch your finger on the fingerprint sensor to reveal your records</string>
+    <string name="title_not_recognized">Not recognized</string>
+    <string name="summary_lack_of_fingerprint_permission">Fingerprint permission haven\'t been granted.</string>
+    <string name="summary_lack_of_fingerprint_sensor">You don\'t have fingerprint sensor!</string>
+    <string name="summary_you_dont_have_fingerprint_presented">You don\'t have any fingerprints presented. Please, provide at least one.</string>
+    <string name="title_lock_records">Auto-lock records</string>
+    <string name="summary_lock_explanation">Turn this feature on to auto-lock your records and use a fingerprint to unlock it.</string>
 </resources>

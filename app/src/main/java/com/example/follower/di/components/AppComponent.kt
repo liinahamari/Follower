@@ -23,6 +23,8 @@ interface AppComponent {
         fun build(): AppComponent
     }
 
+    fun biometricComponent(module: BiometricModule): BiometricComponent
+
     fun inject(fragment: BaseFragment)
     fun inject(fragment: TrackingControlFragment)
     fun inject(app: FollowerApp)

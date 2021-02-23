@@ -1,5 +1,7 @@
 package com.example.follower.screens.track_list
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
@@ -9,17 +11,33 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
+import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
+import com.example.follower.di.modules.BiometricModule
 import com.example.follower.ext.errorToast
+import com.example.follower.ext.throttleFirst
+import com.example.follower.screens.biometric.Authenticator
+import com.jakewharton.rxbinding3.view.clicks
 import kotlinx.android.synthetic.main.fragment_track_list.*
+import javax.inject.Inject
+import io.reactivex.rxkotlin.plusAssign
 
 class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
+    @Inject lateinit var sharedPreferences: SharedPreferences
+    @Inject lateinit var authenticator: Authenticator
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
     private val tracksAdapter = TrackListAdapter(::removeTrack, ::getTrackDisplayMode)
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
     private fun removeTrack(id: Long) = viewModel.removeTask(id)
+
+    override fun onAttach(context: Context) = super.onAttach(context).also {
+        (context.applicationContext as FollowerApp)
+            .appComponent
+            .biometricComponent(BiometricModule(requireActivity()) { setupTrackList() })
+            .inject(this)
+    }
 
     private fun showDialogMapOrAddresses(trackId: Long) {
         MaterialDialog(requireContext()).show {
@@ -56,7 +74,18 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupTrackList()
+        if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
+            ivLock.isVisible = true
+            trackList.isVisible = false
+
+            authenticator.authenticate()
+
+            subscriptions += ivLock.clicks()
+                .throttleFirst()
+                .subscribe { authenticator.authenticate() }
+        } else {
+            setupTrackList()
+        }
     }
 
     override fun setupViewModelSubscriptions() {
@@ -89,9 +118,14 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
         }
     }
 
-    private fun setupTrackList() = trackList.apply {
-        layoutManager = LinearLayoutManager(requireContext())
-        adapter = tracksAdapter
+    private fun setupTrackList(){
+        ivLock.isVisible = false
+        trackList.isVisible = true
+
+        trackList.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = tracksAdapter
+        }
     }
 
     override fun onResume() = super.onResume().also { viewModel.fetchTracks() }

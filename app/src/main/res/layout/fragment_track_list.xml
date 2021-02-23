@@ -20,4 +20,13 @@
         android:visibility="gone"
         tools:listitem="@layout/item_track"
         tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/ivLock"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_baseline_lock"
+        android:contentDescription="LOCK_ICON"
+        tools:ignore="HardcodedText" />
 </FrameLayout>

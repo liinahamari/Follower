@@ -46,6 +46,25 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupViewModelSubscriptions()
+        handleFingerprintAvailability()
+    }
+
+    private fun handleFingerprintAvailability() {
+        val biometricPref = findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!
+        when {
+            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED -> {
+                biometricPref.isEnabled = false
+                biometricPref.summary = getString(R.string.summary_lack_of_fingerprint_permission)
+            }
+            FingerprintManagerCompat.from(requireContext()).isHardwareDetected.not() -> {
+                biometricPref.isEnabled = false
+                biometricPref.summary = getString(R.string.summary_lack_of_fingerprint_sensor)
+            }
+            FingerprintManagerCompat.from(requireContext()).hasEnrolledFingerprints().not() -> {
+                biometricPref.isEnabled = false
+                biometricPref.summary = getString(R.string.summary_you_dont_have_fingerprint_presented)
+            }
+        }
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference?) {
