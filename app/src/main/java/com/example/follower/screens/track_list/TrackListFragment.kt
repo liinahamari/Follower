@@ -19,9 +19,9 @@ import com.example.follower.ext.errorToast
 import com.example.follower.ext.throttleFirst
 import com.example.follower.screens.biometric.Authenticator
 import com.jakewharton.rxbinding3.view.clicks
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
 import javax.inject.Inject
-import io.reactivex.rxkotlin.plusAssign
 
 class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     @Inject lateinit var sharedPreferences: SharedPreferences
@@ -35,7 +35,7 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
             .appComponent
-            .biometricComponent(BiometricModule(requireActivity()) { setupTrackList() })
+            .biometricComponent(BiometricModule(requireActivity()) { viewModel.fetchTracks() })
             .inject(this)
     }
 
@@ -74,17 +74,12 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupTrackList()
+
         if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
-            ivLock.isVisible = true
-            trackList.isVisible = false
-
-            authenticator.authenticate()
-
             subscriptions += ivLock.clicks()
                 .throttleFirst()
                 .subscribe { authenticator.authenticate() }
-        } else {
-            setupTrackList()
         }
     }
 
@@ -95,9 +90,11 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
         viewModel.emptyTrackListEvent.observe(viewLifecycleOwner) {
             emptyListTv.isVisible = true
             trackList.isVisible = false
+            ivLock.isVisible = false
         }
         viewModel.nonEmptyTrackListEvent.observe(viewLifecycleOwner) {
             emptyListTv.isVisible = false
+            ivLock.isVisible = false
             trackList.isVisible = true
             tracksAdapter.tracks = it.toMutableList()
         }
@@ -118,7 +115,7 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
         }
     }
 
-    private fun setupTrackList(){
+    private fun setupTrackList() {
         ivLock.isVisible = false
         trackList.isVisible = true
 
@@ -128,5 +125,15 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
         }
     }
 
-    override fun onResume() = super.onResume().also { viewModel.fetchTracks() }
+    override fun onResume() = super.onResume().also {
+        if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
+            ivLock.isVisible = true
+            trackList.isVisible = false
+            emptyListTv.isVisible = false
+
+            authenticator.authenticate()
+        } else {
+            viewModel.fetchTracks()
+        }
+    }
 }
