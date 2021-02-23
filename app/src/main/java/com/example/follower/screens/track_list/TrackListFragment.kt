@@ -15,6 +15,7 @@ import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.BiometricModule
+import com.example.follower.di.modules.BiometricScope
 import com.example.follower.ext.errorToast
 import com.example.follower.ext.throttleFirst
 import com.example.follower.screens.biometric.Authenticator
@@ -26,6 +27,7 @@ import javax.inject.Inject
 class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     @Inject lateinit var sharedPreferences: SharedPreferences
     @Inject lateinit var authenticator: Authenticator
+
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
     private val tracksAdapter = TrackListAdapter(::removeTrack, ::getTrackDisplayMode)
 
@@ -35,7 +37,7 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
             .appComponent
-            .biometricComponent(BiometricModule(requireActivity()) { viewModel.fetchTracks() })
+            .biometricComponent(BiometricModule(requireActivity(), onSuccessfulAuth =  { viewModel.fetchTracks() }))
             .inject(this)
     }
 

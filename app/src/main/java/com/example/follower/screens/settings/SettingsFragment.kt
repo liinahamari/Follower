@@ -1,37 +1,42 @@
 package com.example.follower.screens.settings
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.Dialog
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import androidx.preference.SwitchPreferenceCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.example.follower.FollowerApp
 import com.example.follower.R
+import com.example.follower.di.modules.BiometricModule
+import com.example.follower.di.modules.BiometricScope
 import com.example.follower.ext.errorToast
 import com.example.follower.ext.getBooleanOf
 import com.example.follower.ext.getStringOf
 import com.example.follower.ext.toast
-import com.example.follower.interactors.ID_AUTO_TRACKING_START
-import com.example.follower.interactors.ID_AUTO_TRACKING_STOP
-import com.example.follower.services.LocationTrackingService
+import com.example.follower.screens.biometric.Authenticator
 import java.util.*
 import javax.inject.Inject
 
+@BiometricScope
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     @Inject lateinit var alarmManager: AlarmManager
+    @Inject lateinit var authenticator: Authenticator
 
     private val viewModel by viewModels<SettingsViewModel> { viewModelFactory }
 
@@ -89,7 +94,17 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         viewModel.resetToDefaultsEvent.observe(viewLifecycleOwner, { requireActivity().recreate() })
     }
 
-    override fun onAttach(context: Context) = super.onAttach(context).also { (requireContext().applicationContext as FollowerApp).appComponent.inject(this) }
+    override fun onAttach(context: Context) = super.onAttach(context).also {
+        (requireContext().applicationContext as FollowerApp)
+            .appComponent
+            .biometricComponent(
+                BiometricModule(requireActivity(),
+                    onSuccessfulAuth =  { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false },
+                    onFailedAuth = { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true }
+                )
+            )
+            .inject(this)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState)
         .also { PreferenceManager.getDefaultSharedPreferences(requireContext()).registerOnSharedPreferenceChangeListener(this) }
@@ -98,11 +113,15 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) = setPreferencesFromResource(R.xml.preferences, rootKey)
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
-        if (preference?.key == getString(R.string.pref_reset_to_default) && isDetached.not()) {
-            MaterialDialog(requireActivity()).show {
-                title(R.string.title_reset_to_defaults)
-                negativeButton {}
-                positiveButton(R.string.title_continue) { viewModel.resetOptionsToDefaults() }
+        if (isDetached.not()) {
+            when (preference?.key) {
+                getString(R.string.pref_reset_to_default) -> {
+                    MaterialDialog(requireActivity()).show {
+                        title(R.string.title_reset_to_defaults)
+                        negativeButton {}
+                        positiveButton(R.string.title_continue) { viewModel.resetOptionsToDefaults() }
+                    }
+                }
             }
         }
         return super.onPreferenceTreeClick(preference)
@@ -125,12 +144,15 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 if (sharedPreferences.getBooleanOf(key)) {
                     viewModel.scheduleAutoTracking()
                 } else {
-                    alarmManager.cancel(PendingIntent.getService(requireContext().applicationContext, ID_AUTO_TRACKING_START, Intent(requireActivity(), LocationTrackingService::class.java),0))
-                    alarmManager.cancel(PendingIntent.getService(requireContext().applicationContext, ID_AUTO_TRACKING_STOP, Intent(requireActivity(), LocationTrackingService::class.java),0))
+//                    alarmManager.cancel(PendingIntent.getService(requireContext().applicationContext, ID_AUTO_TRACKING_START, Intent(requireActivity(), LocationTrackingService::class.java),0))
+//                    alarmManager.cancel(PendingIntent.getService(requireContext().applicationContext, ID_AUTO_TRACKING_STOP, Intent(requireActivity(), LocationTrackingService::class.java),0))
                 }
             }
-
-            
+            getString(R.string.pref_enable_biometric_protection) -> {
+                if (sharedPreferences.getBooleanOf(key).not()) {
+                    authenticator.authenticate()
+                }
+            }
         }
     }
 }

@@ -30,7 +30,6 @@ interface AppComponent {
     fun inject(app: FollowerApp)
     fun inject(service: LocationTrackingService)
     fun inject(activity: BaseActivity)
-    fun inject(fragment: SettingsFragment)
     fun inject(activity: MainActivity)
     fun inject(activity: LogsActivity)
 }
