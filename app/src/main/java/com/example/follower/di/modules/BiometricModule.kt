@@ -34,7 +34,7 @@ private const val BIOMETRIC_DIALOG_DESCRIPTION = "BIOMETRIC_DIALOG_DESCRIPTION"
 /*TODO investigate DaggerLazy*/
 @Module
 @TargetApi(Build.VERSION_CODES.M)
-class BiometricModule(private val activity: FragmentActivity, private val onSuccessfulAuth: () -> Unit) {
+class BiometricModule(private val activity: FragmentActivity, private val onSuccessfulAuth: () -> Unit, private val onFailedAuth: () -> Unit = {}) {
     @BiometricScope
     @Provides
     fun provideCipher(@Named(KEY_NAME) keyName: String, keyStore: KeyStore?): Cipher? = kotlin.runCatching {
@@ -181,11 +181,11 @@ class BiometricModule(private val activity: FragmentActivity, private val onSucc
         override fun onBiometricSensorMissing() = logger.i { "biometric auth: sensor missing" }
         override fun onBiometricAuthenticationNotAvailable() = logger.i { "biometric auth not available" }
         override fun onBiometricAuthenticationPermissionNotGranted() = logger.i { "biometric auth: permission not granted" }
-        override fun onAuthenticationFailed() = logger.i { "biometric auth failed" }
-        override fun onAuthenticationCancelled() = logger.i { "biometric auth cancelled" }
+        override fun onAuthenticationFailed() = onFailedAuth.invoke().also { logger.i { "biometric auth failed" } }
+        override fun onAuthenticationCancelled() = onFailedAuth.invoke().also { logger.i { "biometric auth cancelled" } }
         override fun onAuthenticationSuccessful() = onSuccessfulAuth.invoke().also { logger.i { "biometric auth succeed" } }
         override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence) = logger.i { "biometric auth: onAuthenticationHelp(). helpCode: $helpCode, helpString: $helpString" }
-        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) = logger.i { "biometric auth error. errorCode: $errorCode, errString: $errString" }
+        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) = onFailedAuth.invoke().also { logger.i { "biometric auth error. errorCode: $errorCode, errString: $errString" } }
     }
 }
 

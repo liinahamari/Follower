@@ -1,3 +1,5 @@
+@file:Suppress("USELESS_CAST")
+
 package com.example.follower.interactors
 
 import android.content.Context
