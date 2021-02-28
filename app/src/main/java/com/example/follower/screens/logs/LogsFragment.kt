@@ -2,33 +2,39 @@
 
 package com.example.follower.screens.logs
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.viewModels
+import android.view.View
 import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.follower.FollowerApp
 import com.example.follower.R
-import com.example.follower.base.BaseActivity
+import com.example.follower.base.BaseFragment
 import com.example.follower.ext.errorToast
 import com.example.follower.ext.throttleFirst
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
-import kotlinx.android.synthetic.main.activity_logs.*
+import kotlinx.android.synthetic.main.fragment_logs.*
 
 private const val MY_EMAIL = "l1bills@protonmail.com"
 private const val MESSAGE_TITLE = "Follower Logs"
 private const val TEXT_TYPE = "text/plain"
 
-class LogsActivity : BaseActivity(R.layout.activity_logs) {
-    private val viewModel by viewModels<LogsActivityViewModel> { viewModelFactory }
+class LogsFragment : BaseFragment(R.layout.fragment_logs) {
+    private val viewModel by viewModels<LogsFragmentViewModel> { viewModelFactory }
     private val logsAdapter = LogsAdapter()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        (application as FollowerApp).appComponent.inject(this)
-        super.onCreate(savedInstanceState)
+    override fun onAttach(context: Context) {
+        (requireActivity().application as FollowerApp).appComponent.inject(this)
+        super.onAttach(context)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         logsRv.apply {
-            layoutManager = LinearLayoutManager(this@LogsActivity)
+            layoutManager = LinearLayoutManager(requireActivity())
             adapter = logsAdapter
         }
     }

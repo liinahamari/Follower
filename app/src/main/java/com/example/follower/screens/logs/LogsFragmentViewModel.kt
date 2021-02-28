@@ -13,7 +13,7 @@ import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject
 
-class LogsActivityViewModel @Inject constructor(private val loggerInteractor: LoggerInteractor) : BaseViewModel() {
+class LogsFragmentViewModel @Inject constructor(private val loggerInteractor: LoggerInteractor) : BaseViewModel() {
     private val _clearLogsEvent = SingleLiveEvent<Any>()
     val clearLogsEvent: LiveData<Any> get() = _clearLogsEvent
 

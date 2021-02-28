@@ -1,7 +1,6 @@
 package com.example.follower.di.modules
 
 import android.Manifest
-import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -33,7 +32,6 @@ private const val BIOMETRIC_DIALOG_DESCRIPTION = "BIOMETRIC_DIALOG_DESCRIPTION"
 
 /*TODO investigate DaggerLazy*/
 @Module
-@TargetApi(Build.VERSION_CODES.M)
 class BiometricModule(private val activity: FragmentActivity, private val onSuccessfulAuth: () -> Unit, private val onFailedAuth: () -> Unit = {}) {
     @BiometricScope
     @Provides

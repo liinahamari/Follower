@@ -1,14 +1,21 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/tab_controls"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="1"
         android:icon="@drawable/ic_baseline_edit_location_alt_24"
         android:title="@string/title_tracking_controls" />
     <item
         android:id="@+id/tracklist_fragment"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="2"
         android:icon="@drawable/ic_baseline_list_alt_24"
         android:title="@string/title_tracks" />
     <item
         android:id="@+id/tab_settings"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="3"
         android:icon="@drawable/ic_baseline_settings_applications_24"
         android:title="@string/title_settings" />
 </menu>

@@ -6,7 +6,7 @@ import com.example.follower.base.BaseActivity
 import com.example.follower.di.ViewModelFactory
 import com.example.follower.di.ViewModelKey
 import com.example.follower.screens.address_trace.AddressTraceViewModel
-import com.example.follower.screens.logs.LogsActivityViewModel
+import com.example.follower.screens.logs.LogsFragmentViewModel
 import com.example.follower.screens.settings.SettingsViewModel
 import com.example.follower.screens.trace_map.TraceFragmentViewModel
 import com.example.follower.screens.track_list.TrackListViewModel
@@ -29,8 +29,8 @@ abstract class ViewModelBuilderModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(LogsActivityViewModel::class)
-    abstract fun logsViewModel(viewModel: LogsActivityViewModel): ViewModel
+    @ViewModelKey(LogsFragmentViewModel::class)
+    abstract fun logsViewModel(viewModel: LogsFragmentViewModel): ViewModel
 
     @Binds
     @IntoMap

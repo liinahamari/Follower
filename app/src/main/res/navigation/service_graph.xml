@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/service_graph"
+    app:startDestination="@id/follower_pager">
+
+    <fragment
+        android:id="@+id/follower_pager"
+        android:name="com.example.follower.screens.PagerContainerFragment"
+        android:label="Follower Pager">
+        <action
+            android:id="@+id/action_to_logs"
+            app:destination="@id/logs" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/logs"
+        android:name="com.example.follower.screens.logs.LogsFragment"
+        android:label="Logs">
+        <action
+            android:id="@+id/action_to_pager"
+            app:destination="@id/follower_pager" />
+    </fragment>
+</navigation>
