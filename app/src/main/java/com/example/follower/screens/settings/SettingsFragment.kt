@@ -1,17 +1,13 @@
 package com.example.follower.screens.settings
 
-import android.Manifest
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
-import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -46,27 +42,13 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupViewModelSubscriptions()
-        handleFingerprintAvailability()
+        viewModel.isBiometricValidationAvailable()
     }
 
-    /*TODO: to */
-    private fun handleFingerprintAvailability() {
-        val biometricPref = findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!
-        when {
-            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED -> {
-                biometricPref.isEnabled = false
-                biometricPref.summary = getString(R.string.summary_lack_of_fingerprint_permission)
-            }
-            FingerprintManagerCompat.from(requireContext()).isHardwareDetected.not() -> {
-                biometricPref.isEnabled = false
-                biometricPref.summary = getString(R.string.summary_lack_of_fingerprint_sensor)
-            }
-            FingerprintManagerCompat.from(requireContext()).hasEnrolledFingerprints().not() -> {
-                biometricPref.isEnabled = false
-                biometricPref.summary = getString(R.string.summary_you_dont_have_fingerprint_presented)
-            }
-        }
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState).also { prefs.registerOnSharedPreferenceChangeListener(this) }
+    override fun onDestroyView() = super.onDestroyView().also { prefs.unregisterOnSharedPreferenceChangeListener(this) }
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) = setPreferencesFromResource(R.xml.preferences, rootKey)
+    private fun resetToDefaults() = viewModel.resetOptionsToDefaults()
 
     override fun onDisplayPreferenceDialog(preference: Preference?) {
         if (preference is TimePickerPreference) {
@@ -83,6 +65,12 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             when {
                 loadingDialog.isShowing.not() && it -> loadingDialog.show()
                 loadingDialog.isShowing && it.not() -> loadingDialog.dismiss()
+            }
+        })
+        viewModel.biometricNotAvailable.observe(viewLifecycleOwner, {
+            findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.apply {
+                summary = getString(it)
+                isEnabled = false
             }
         })
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
@@ -102,14 +90,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             .settingsComponent(SettingsModule(activity = requireActivity(), resetToDefaults = ::resetToDefaults))
             .inject(this)
     }
-
-    private fun resetToDefaults() = viewModel.resetOptionsToDefaults()
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState)
-        .also { prefs.registerOnSharedPreferenceChangeListener(this) }
-
-    override fun onDestroyView() = super.onDestroyView().also { prefs.unregisterOnSharedPreferenceChangeListener(this) }
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) = setPreferencesFromResource(R.xml.preferences, rootKey)
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
         if (isDetached.not() && preference?.key == getString(R.string.pref_reset_to_default)) {

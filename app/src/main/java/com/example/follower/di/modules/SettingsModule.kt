@@ -11,6 +11,7 @@ import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.interactors.AutoTrackingSchedulingUseCase
 import com.example.follower.interactors.SettingsPrefsInteractor
+import com.example.follower.screens.settings.BiometricAvailabilityValidationUseCase
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.Module
 import dagger.Provides
@@ -34,6 +35,10 @@ class SettingsModule(private val activity: Activity, private val resetToDefaults
     @Provides
     @SettingsScope
     fun provideAutoTrackingSchedulingUseCase(prefs: SharedPreferences, ctx: Context, composers: BaseComposers, workManager: WorkManager): AutoTrackingSchedulingUseCase = AutoTrackingSchedulingUseCase(prefs, ctx, composers, workManager)
+
+    @Provides
+    @SettingsScope
+    fun provideBiometricAvailabilityValidator(context: Context, composers: BaseComposers): BiometricAvailabilityValidationUseCase = BiometricAvailabilityValidationUseCase(context, composers)
 
     @Provides
     @SettingsScope
