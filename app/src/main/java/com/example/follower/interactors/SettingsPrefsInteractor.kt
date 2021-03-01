@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 @SettingsScope
 class SettingsPrefsInteractor constructor(private val baseComposers: BaseComposers, private val sharedPreferences: SharedPreferences, private val context: Context) {
-    fun resetOptionsToDefaults(): Observable<ResetToDefaultsState> = Single.fromCallable {
+    fun resetOptionsToDefaults(): Observable<ResetToDefaultsState> = Observable.fromCallable {
         with(sharedPreferences) {
             writeStringOf(context.getString(R.string.pref_lang), context.resources.getStringArray(R.array.supported_locales).first())
             writeStringOf(context.getString(R.string.pref_min_distance), DEFAULT_LOCATION_UPDATE_INTERVAL.toString())
@@ -22,11 +22,11 @@ class SettingsPrefsInteractor constructor(private val baseComposers: BaseCompose
             writeStringOf(context.getString(R.string.pref_track_representing), context.resources.getStringArray(R.array.track_representing_values).first())
             writeStringOf(context.getString(R.string.pref_track_display_mode), context.resources.getStringArray(R.array.track_display_mode_values).first())
         }
-    }.toObservable()
-        .delaySubscription(750, TimeUnit.MILLISECONDS)
+    }
+        .delaySubscription(1, TimeUnit.SECONDS)
+        .compose(baseComposers.applyObservableSchedulers())
         .map<ResetToDefaultsState> { ResetToDefaultsState.Success }
         .onErrorReturn { ResetToDefaultsState.Failure }
-        .compose(baseComposers.applyObservableSchedulers())
         .startWith(ResetToDefaultsState.Loading)
 }
 

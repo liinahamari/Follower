@@ -15,10 +15,12 @@ import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import com.afollestad.materialdialogs.MaterialDialog
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.di.modules.BiometricModule
+import com.example.follower.di.modules.DIALOG_LOADING
+import com.example.follower.di.modules.DIALOG_RESET_TO_DEFAULTS
+import com.example.follower.di.modules.SettingsModule
 import com.example.follower.ext.errorToast
 import com.example.follower.ext.getBooleanOf
 import com.example.follower.ext.getStringOf
@@ -26,12 +28,20 @@ import com.example.follower.ext.toast
 import com.example.follower.screens.biometric.Authenticator
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Named
 
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
     @Inject lateinit var authenticator: Authenticator
-    @Inject lateinit var loadingDialog: Dialog
     @Inject lateinit var viewModel: SettingsViewModel
     @Inject lateinit var prefs: SharedPreferences
+
+    @Inject
+    @Named(DIALOG_LOADING)
+    lateinit var loadingDialog: Dialog
+
+    @Inject
+    @Named(DIALOG_RESET_TO_DEFAULTS)
+    lateinit var resetDialog: Dialog
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -89,9 +99,11 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     onFailedAuth = { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true }
                 )
             )
-            .settingsComponent()
+            .settingsComponent(SettingsModule(activity = requireActivity(), resetToDefaults = ::resetToDefaults))
             .inject(this)
     }
+
+    private fun resetToDefaults() = viewModel.resetOptionsToDefaults()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState)
         .also { prefs.registerOnSharedPreferenceChangeListener(this) }
@@ -100,16 +112,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) = setPreferencesFromResource(R.xml.preferences, rootKey)
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
-        if (isDetached.not()) {
-            when (preference?.key) {
-                getString(R.string.pref_reset_to_default) -> {
-                    MaterialDialog(requireActivity()).show {
-                        title(R.string.title_reset_to_defaults)
-                        negativeButton {}
-                        positiveButton(R.string.title_continue) { viewModel.resetOptionsToDefaults() }
-                    }
-                }
-            }
+        if (isDetached.not() && preference?.key == getString(R.string.pref_reset_to_default)) {
+            resetDialog.show()
         }
         return super.onPreferenceTreeClick(preference)
     }
