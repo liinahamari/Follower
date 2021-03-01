@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.work.*
 import com.example.follower.R
+import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.ext.isServiceRunning
 import com.example.follower.ext.isTimeBetweenTwoTimes
 import com.example.follower.ext.minutesFromMidnightToHourlyTime
@@ -18,9 +19,9 @@ import com.example.follower.workers.TAG_AUTO_STOP_WORKER
 import io.reactivex.Single
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-class AutoTrackingSchedulingUseCase @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val baseComposers: BaseComposers, private val workManager: WorkManager) {
+@SettingsScope
+class AutoTrackingSchedulingUseCase constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val baseComposers: BaseComposers, private val workManager: WorkManager) {
     fun setupStartAndStop(): Single<SchedulingStartStopResult> =
         Single.just(sharedPreferences.getInt(context.getString(R.string.pref_tracking_start_time), -1) to sharedPreferences.getInt(context.getString(R.string.pref_tracking_stop_time), -1))
             .doOnSuccess { require(it.first >= 0 && it.second >= 0) }

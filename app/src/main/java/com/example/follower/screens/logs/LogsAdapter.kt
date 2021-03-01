@@ -92,7 +92,7 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    class InfoLogViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+    private inner class InfoLogViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
         val binding: ItemInfoLogBinding? = DataBindingUtil.bind(containerView)
     }
 }

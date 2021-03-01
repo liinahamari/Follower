@@ -4,14 +4,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.follower.R
+import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.ext.writeStringOf
 import com.example.follower.helper.rx.BaseComposers
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-class SettingsPrefsInteractor @Inject constructor(private val baseComposers: BaseComposers, private val sharedPreferences: SharedPreferences, private val context: Context) {
+@SettingsScope
+class SettingsPrefsInteractor constructor(private val baseComposers: BaseComposers, private val sharedPreferences: SharedPreferences, private val context: Context) {
     fun resetOptionsToDefaults(): Observable<ResetToDefaultsState> = Single.fromCallable {
         with(sharedPreferences) {
             writeStringOf(context.getString(R.string.pref_lang), context.resources.getStringArray(R.array.supported_locales).first())

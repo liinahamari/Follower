@@ -24,11 +24,6 @@ abstract class ViewModelBuilderModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(SettingsViewModel::class)
-    abstract fun bindSettingsViewModel(viewModel: SettingsViewModel): ViewModel
-
-    @Binds
-    @IntoMap
     @ViewModelKey(LogsFragmentViewModel::class)
     abstract fun logsViewModel(viewModel: LogsFragmentViewModel): ViewModel
 

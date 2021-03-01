@@ -1,7 +1,6 @@
 package com.example.follower.screens.settings
 
 import android.Manifest
-import android.app.AlarmManager
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
@@ -13,17 +12,13 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.di.modules.BiometricModule
-import com.example.follower.di.modules.BiometricScope
 import com.example.follower.ext.errorToast
 import com.example.follower.ext.getBooleanOf
 import com.example.follower.ext.getStringOf
@@ -32,21 +27,11 @@ import com.example.follower.screens.biometric.Authenticator
 import java.util.*
 import javax.inject.Inject
 
-@BiometricScope
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    @Inject lateinit var alarmManager: AlarmManager
     @Inject lateinit var authenticator: Authenticator
-
-    private val viewModel by viewModels<SettingsViewModel> { viewModelFactory }
-
-    private val loadingDialog by lazy {
-        Dialog(requireContext(), R.style.DialogNoPaddingNoTitle).apply {
-            setContentView(R.layout.dialog_saving)
-            setCancelable(false)
-            setCanceledOnTouchOutside(false)
-        }
-    }
+    @Inject lateinit var loadingDialog: Dialog
+    @Inject lateinit var viewModel: SettingsViewModel
+    @Inject lateinit var prefs: SharedPreferences
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,6 +39,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         handleFingerprintAvailability()
     }
 
+    /*TODO: to */
     private fun handleFingerprintAvailability() {
         val biometricPref = findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!
         when {
@@ -99,17 +85,18 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             .appComponent
             .biometricComponent(
                 BiometricModule(requireActivity(),
-                    onSuccessfulAuth =  { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false },
+                    onSuccessfulAuth = { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false },
                     onFailedAuth = { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true }
                 )
             )
+            .settingsComponent()
             .inject(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState)
-        .also { PreferenceManager.getDefaultSharedPreferences(requireContext()).registerOnSharedPreferenceChangeListener(this) }
+        .also { prefs.registerOnSharedPreferenceChangeListener(this) }
 
-    override fun onDestroyView() = super.onDestroyView().also { PreferenceManager.getDefaultSharedPreferences(requireContext()).unregisterOnSharedPreferenceChangeListener(this) }
+    override fun onDestroyView() = super.onDestroyView().also { prefs.unregisterOnSharedPreferenceChangeListener(this) }
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) = setPreferencesFromResource(R.xml.preferences, rootKey)
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {

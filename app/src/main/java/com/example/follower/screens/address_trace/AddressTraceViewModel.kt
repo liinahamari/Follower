@@ -10,15 +10,15 @@ import com.example.follower.interactors.TrackInteractor
 import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject
 
-class AddressTraceViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val context: Context) : BaseViewModel() {
+class AddressTraceViewModel @Inject constructor(private val trackInteractor: TrackInteractor) : BaseViewModel() {
     private val _getAddressesEvent = SingleLiveEvent<List<MapPointer>>()
     val getAddressesEvent: LiveData<List<MapPointer>> get() = _getAddressesEvent
 
     private val _loadingEvent = SingleLiveEvent<Boolean>()
     val loadingEvent: LiveData<Boolean> get() = _loadingEvent
 
-    private val _errorEvent = SingleLiveEvent<String>()
-    val errorEvent: LiveData<String> get() = _errorEvent
+    private val _errorEvent = SingleLiveEvent<Int>()
+    val errorEvent: LiveData<Int> get() = _errorEvent
 
     fun getAddressTrace(id: Long) {
         disposable += trackInteractor.getAddressesList(id)
@@ -30,7 +30,7 @@ class AddressTraceViewModel @Inject constructor(private val trackInteractor: Tra
                     }
                     is GetAddressesResult.DatabaseCorruptionError -> {
                         _loadingEvent.value = false
-                        _errorEvent.value = context.getString(R.string.db_error)
+                        _errorEvent.value = R.string.db_error
                     }
                     is GetAddressesResult.Loading -> _loadingEvent.value = true
                 }
