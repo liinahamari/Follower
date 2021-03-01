@@ -10,12 +10,16 @@ import com.example.follower.helper.rx.BaseSchedulerProvider
 import com.example.follower.helper.rx.SchedulersProvider
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
 import javax.inject.Singleton
+
+const val APP_CONTEXT = "application_context"
 
 @Module
 class AppModule {
     @Provides
     @Singleton
+//    @Named(APP_CONTEXT) TODO
     fun bindContext(app: FollowerApp): Context = app.applicationContext
 
     @Provides

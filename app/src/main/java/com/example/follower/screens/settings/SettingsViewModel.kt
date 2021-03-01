@@ -3,6 +3,7 @@ package com.example.follower.screens.settings
 import androidx.lifecycle.LiveData
 import com.example.follower.R
 import com.example.follower.base.BaseViewModel
+import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.interactors.AutoTrackingSchedulingUseCase
 import com.example.follower.interactors.ResetToDefaultsState
@@ -12,7 +13,10 @@ import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject
 
-class SettingsViewModel @Inject constructor(private val prefInteractor: SettingsPrefsInteractor, private val autoTrackingSchedulingUseCase: AutoTrackingSchedulingUseCase /*todo dagger scope*/) : BaseViewModel() {
+@SettingsScope
+class SettingsViewModel @Inject constructor(private val prefInteractor: SettingsPrefsInteractor,
+                                            private val autoTrackingSchedulingUseCase: AutoTrackingSchedulingUseCase,
+                                            private val biometricValidationUseCase: BiometricAvailabilityValidationUseCase) : BaseViewModel() {
     private val _errorEvent = SingleLiveEvent<Int>()
     val errorEvent: LiveData<Int> get() = _errorEvent
 
@@ -24,6 +28,17 @@ class SettingsViewModel @Inject constructor(private val prefInteractor: Settings
 
     private val _loadingEvent = SingleLiveEvent<Boolean>()
     val loadingEvent: LiveData<Boolean> get() = _loadingEvent
+
+    private val _biometricNotAvailable = SingleLiveEvent<Int>()
+    val biometricNotAvailable: LiveData<Int> get() = _biometricNotAvailable
+
+    fun isBiometricValidationAvailable() {
+        disposable += biometricValidationUseCase.execute().subscribe(Consumer {
+            if (it is BiometricAvailabilityResult.NotAvailable) {
+                _biometricNotAvailable.value = it.explanation
+            }
+        })
+    }
 
     fun resetOptionsToDefaults() {
         disposable += prefInteractor.resetOptionsToDefaults().subscribe {
