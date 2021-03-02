@@ -21,6 +21,7 @@ interface AppComponent {
     }
 
     fun biometricComponent(module: BiometricModule): BiometricComponent
+    fun roadBuildingComponent(): RoadBuildingComponent
 
     fun inject(fragment: BaseFragment)
     fun inject(fragment: TrackingControlFragment)

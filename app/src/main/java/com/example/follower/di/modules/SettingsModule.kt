@@ -7,7 +7,7 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AlertDialog
 import androidx.work.WorkManager
 import com.example.follower.R
-import com.example.follower.di.scopes.SettingsScope
+import com.example.follower.screens.settings.SettingsScope
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.screens.settings.AutoTrackingSchedulingUseCase
 import com.example.follower.screens.settings.SettingsPrefsInteractor

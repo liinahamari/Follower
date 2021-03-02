@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import com.example.follower.R
-import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.helper.rx.BaseComposers
 import io.reactivex.Single
 

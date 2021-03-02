@@ -4,13 +4,10 @@ package com.example.follower.interactors
 
 import android.content.Context
 import android.location.Geocoder
-import com.example.follower.R
 import com.example.follower.db.entities.Track
-import com.example.follower.db.entities.TrackWithWayPoints
 import com.example.follower.db.entities.WayPoint
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.model.PersistedTrackResult
 import com.example.follower.model.PreferencesRepository
 import com.example.follower.model.TrackDao
 import com.example.follower.model.WayPointDao
@@ -20,20 +17,15 @@ import com.example.follower.screens.trace_map.Longitude
 import com.example.follower.screens.track_list.TrackUi
 import io.reactivex.Observable
 import io.reactivex.Single
-import org.osmdroid.bonuspack.routing.OSRMRoadManager
-import org.osmdroid.bonuspack.routing.Road
-import org.osmdroid.util.GeoPoint
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 class TrackInteractor @Inject constructor(
     private val context: Context,
     private val trackDao: TrackDao,
     private val wayPointDao: WayPointDao,
     private val logger: FlightRecorder,
-    private val baseComposers: BaseComposers,
-    private val prefRepo: PreferencesRepository
+    private val baseComposers: BaseComposers
 ) {
 
     fun saveTrack(track: Track, wayPoints: List<WayPoint>): Single<SaveTrackResult> = trackDao.insert(track)
@@ -67,31 +59,6 @@ class TrackInteractor @Inject constructor(
         .startWith(GetAddressesResult.Loading)
         .compose(baseComposers.applyObservableSchedulers())
 
-    fun getTrackById(taskId: Long): Single<GetTrackResult> = prefRepo.getPersistedTrackRepresentation()
-        .flatMap { lineOrMarkerSet ->
-            if (lineOrMarkerSet is PersistedTrackResult.Success) {
-                when (lineOrMarkerSet.value) {
-                    context.getString(R.string.pref_line) -> {
-                        trackDao.getTrackWithWayPoints(taskId)
-                            .flattenAsObservable { it.wayPoints }
-                            .map { GeoPoint(it.latitude, it.longitude, 0.0) }
-                            .toList()
-                            .map { OSRMRoadManager(context).getRoad(ArrayList(it)) }
-                            .map<GetTrackResult> { GetTrackResult.SuccessLine(it) }
-                            .onErrorReturn { GetTrackResult.SharedPrefsError }
-                    }
-                    context.getString(R.string.pref_marker_set) -> {
-                        trackDao.getTrackWithWayPoints(taskId)
-                            .map { it.wayPoints.map { wayPoint -> Pair(wayPoint.longitude, wayPoint.latitude) } }
-                            .map<GetTrackResult> { GetTrackResult.SuccessMarkerSet(it) }
-                            .onErrorReturn { GetTrackResult.DatabaseCorruptionError }
-                    }
-                    else -> throw IllegalStateException()
-                }
-            } else return@flatMap Single.just(GetTrackResult.SharedPrefsError)
-        }
-        .compose(baseComposers.applySingleSchedulers())
-
     fun removeTrack(taskId: Long): Single<RemoveTrackResult> = trackDao.delete(taskId)
         .andThen(wayPointDao.delete(taskId))
         .toSingleDefault<RemoveTrackResult>(RemoveTrackResult.Success)
@@ -114,13 +81,6 @@ sealed class GetAddressesResult {
     data class Success(val addresses: List<MapPointer>) : GetAddressesResult()
     object DatabaseCorruptionError : GetAddressesResult()
     object Loading : GetAddressesResult()
-}
-
-sealed class GetTrackResult {
-    data class SuccessLine(val road: Road) : GetTrackResult()
-    data class SuccessMarkerSet(val markerSet: List<Pair<Longitude, Latitude>>) : GetTrackResult()
-    object DatabaseCorruptionError : GetTrackResult()
-    object SharedPrefsError : GetTrackResult()
 }
 
 sealed class RemoveTrackResult {

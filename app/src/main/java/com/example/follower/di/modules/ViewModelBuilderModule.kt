@@ -42,10 +42,5 @@ abstract class ViewModelBuilderModule {
     abstract fun addressTraceViewModel(viewModel: AddressTraceViewModel): ViewModel
 
     @Binds
-    @IntoMap
-    @ViewModelKey(TraceFragmentViewModel::class)
-    abstract fun mapFragmentViewModel(viewModel: TraceFragmentViewModel): ViewModel
-
-    @Binds
     abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 }

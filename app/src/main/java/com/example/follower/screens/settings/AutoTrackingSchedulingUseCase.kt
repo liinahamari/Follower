@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.work.*
 import com.example.follower.R
-import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.ext.isServiceRunning
 import com.example.follower.ext.isTimeBetweenTwoTimes
 import com.example.follower.ext.minutesFromMidnightToHourlyTime

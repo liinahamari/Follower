@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.follower.R
-import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.ext.writeStringOf
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.services.DEFAULT_LOCATION_UPDATE_INTERVAL

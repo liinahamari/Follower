@@ -1,4 +1,4 @@
-package com.example.follower.di.scopes
+package com.example.follower.screens.settings
 
 import javax.inject.Scope
 

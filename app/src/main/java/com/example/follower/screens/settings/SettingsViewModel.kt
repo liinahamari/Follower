@@ -3,7 +3,6 @@ package com.example.follower.screens.settings
 import androidx.lifecycle.LiveData
 import com.example.follower.R
 import com.example.follower.base.BaseViewModel
-import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.helper.SingleLiveEvent
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
