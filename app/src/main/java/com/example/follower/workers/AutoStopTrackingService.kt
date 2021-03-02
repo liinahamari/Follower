@@ -12,8 +12,6 @@ const val TAG_AUTO_STOP_WORKER = "worker_auto_stop"
 
 class AutoStopTrackingWorker(private val context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
     override fun doWork(): Result {
-        Log.d("a", "abcabcabc stop auto")
-
         context.applicationContext.startService(
             Intent(context.applicationContext, LocationTrackingService::class.java)
             .apply {

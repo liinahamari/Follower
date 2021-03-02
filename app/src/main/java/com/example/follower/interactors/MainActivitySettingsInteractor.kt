@@ -12,7 +12,7 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import javax.inject.Inject
 
-class BaseActivitySettingsInteractor @Inject constructor(
+class MainActivitySettingsInteractor @Inject constructor(
     private val sharedPreferences: SharedPreferences,
     private val baseComposers: BaseComposers,
     private val logger: FlightRecorder,
