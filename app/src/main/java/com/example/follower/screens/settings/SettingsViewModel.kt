@@ -5,7 +5,6 @@ import com.example.follower.R
 import com.example.follower.base.BaseViewModel
 import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.helper.SingleLiveEvent
-import com.example.follower.interactors.*
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject

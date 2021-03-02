@@ -92,11 +92,6 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        gpsService = null
-    }
-
     override fun onStart() {
         super.onStart()
         requireActivity().bindService(Intent(requireActivity(), LocationTrackingService::class.java), serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
@@ -108,6 +103,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         try {
             requireActivity().unbindService(serviceConnection)
             isServiceBound = false
+            gpsService = null
         } catch (e: Throwable) {
             logger.e(label = "Unbinding unsuccessful...", stackTrace = e.stackTrace)
         }
@@ -131,8 +127,8 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     }
 
     override fun setupViewModelSubscriptions() {
-        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
-        viewModel.saveTrackEvent.observe(viewLifecycleOwner, { toast(it) })
+        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
+        viewModel.saveTrackEvent.observe(viewLifecycleOwner, { toast(getString(it)) })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

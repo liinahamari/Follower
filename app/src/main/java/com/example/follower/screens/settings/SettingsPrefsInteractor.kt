@@ -1,4 +1,4 @@
-package com.example.follower.interactors
+package com.example.follower.screens.settings
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,8 +7,9 @@ import com.example.follower.R
 import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.ext.writeStringOf
 import com.example.follower.helper.rx.BaseComposers
+import com.example.follower.services.DEFAULT_LOCATION_UPDATE_INTERVAL
+import com.example.follower.services.DEFAULT_TIME_UPDATE_INTERVAL
 import io.reactivex.Observable
-import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 
 @SettingsScope

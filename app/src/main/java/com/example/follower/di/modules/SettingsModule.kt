@@ -9,8 +9,8 @@ import androidx.work.WorkManager
 import com.example.follower.R
 import com.example.follower.di.scopes.SettingsScope
 import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.interactors.AutoTrackingSchedulingUseCase
-import com.example.follower.interactors.SettingsPrefsInteractor
+import com.example.follower.screens.settings.AutoTrackingSchedulingUseCase
+import com.example.follower.screens.settings.SettingsPrefsInteractor
 import com.example.follower.screens.settings.BiometricAvailabilityValidationUseCase
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.Module

@@ -1,4 +1,4 @@
-package com.example.follower.interactors
+package com.example.follower.screens.logs
 
 import android.content.Context
 import android.net.Uri
@@ -7,7 +7,6 @@ import com.example.follower.BuildConfig
 import com.example.follower.di.modules.DEBUG_LOGS_STORAGE_FILE
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.screens.logs.LogUi
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.io.File

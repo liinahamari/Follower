@@ -1,6 +1,5 @@
 package com.example.follower.screens.address_trace
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import com.example.follower.R
 import com.example.follower.base.BaseViewModel

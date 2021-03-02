@@ -52,6 +52,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     override fun onPause() = super.onPause().also { shakeDetector!!.stop() }
     override fun onSupportNavigateUp(): Boolean = findNavController(R.id.mainActivityFragmentContainer).navigateUp()
     override fun onDestroy() = super.onDestroy().also { shakeDetector = null }
+    override fun onRestart() = super.onRestart().also { viewModel.checkLocaleChanged(currentLocale) }
+    override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
 
     private fun setupViewModelSubscriptions(){
         viewModel.recreateEvent.observe(this, {
@@ -62,9 +64,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
             recreate()
         })
     }
-
-    override fun onRestart() = super.onRestart().also { viewModel.checkLocaleChanged(currentLocale) }
-    override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
 
     class MainActivityViewModel @Inject constructor(private val prefInteractor: MainActivitySettingsInteractor): BaseViewModel() {
         private val _setNightModeValueAndRecreateEvent = SingleLiveEvent<Int>()
