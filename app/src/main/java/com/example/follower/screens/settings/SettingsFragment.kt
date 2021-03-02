@@ -75,6 +75,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         })
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
         viewModel.successfulSchedulingEvent.observe(viewLifecycleOwner, { toast(getString(it)) })
+        viewModel.autoTrackingCancellingEvent.observe(viewLifecycleOwner, { toast(getString(it)) })
         viewModel.resetToDefaultsEvent.observe(viewLifecycleOwner, { requireActivity().recreate() })
     }
 
@@ -115,8 +116,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 if (sharedPreferences.getBooleanOf(key)) {
                     viewModel.scheduleAutoTracking()
                 } else {
-//                    alarmManager.cancel(PendingIntent.getService(requireContext().applicationContext, ID_AUTO_TRACKING_START, Intent(requireActivity(), LocationTrackingService::class.java),0))
-//                    alarmManager.cancel(PendingIntent.getService(requireContext().applicationContext, ID_AUTO_TRACKING_STOP, Intent(requireActivity(), LocationTrackingService::class.java),0))
+                    viewModel.cancelAutoTracking()
                 }
             }
             getString(R.string.pref_enable_biometric_protection) -> {

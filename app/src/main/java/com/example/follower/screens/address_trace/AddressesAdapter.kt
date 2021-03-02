@@ -26,6 +26,10 @@ class AddressesAdapter constructor(private val mapCallback: (coordinates: Pair<L
     override fun getItemCount() = addresses.size
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(ItemAddressBinding.inflate(LayoutInflater.from(parent.context), parent, false).root)
 
+    override fun onViewDetachedFromWindow(holder: ViewHolder) {
+        holder.binding = null
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding?.address = addresses[position]
         clicks += holder.itemView.clicks()
@@ -35,6 +39,6 @@ class AddressesAdapter constructor(private val mapCallback: (coordinates: Pair<L
     }
 
     class ViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-        val binding: ItemAddressBinding? = DataBindingUtil.bind(containerView)
+        var binding: ItemAddressBinding? = DataBindingUtil.bind(containerView)
     }
 }

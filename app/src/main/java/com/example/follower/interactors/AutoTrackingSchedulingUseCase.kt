@@ -17,11 +17,20 @@ import com.example.follower.workers.AutoStopTrackingWorker
 import com.example.follower.workers.TAG_AUTO_START_WORKER
 import com.example.follower.workers.TAG_AUTO_STOP_WORKER
 import io.reactivex.Single
+import io.reactivex.rxkotlin.toCompletable
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 @SettingsScope
 class AutoTrackingSchedulingUseCase constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val baseComposers: BaseComposers, private val workManager: WorkManager) {
+    fun cancelAutoTracking(): Single<CancelAutoTrackingResult> = Single.fromCallable {
+        workManager.cancelUniqueWork(TAG_AUTO_STOP_WORKER)
+        workManager.cancelUniqueWork(TAG_AUTO_START_WORKER)
+    }
+        .flatMapCompletable { it.result.toCompletable() }
+        .toSingleDefault<CancelAutoTrackingResult>(CancelAutoTrackingResult.Success)
+        .onErrorReturn { CancelAutoTrackingResult.Failure }
+
     fun setupStartAndStop(): Single<SchedulingStartStopResult> =
         Single.just(sharedPreferences.getInt(context.getString(R.string.pref_tracking_start_time), -1) to sharedPreferences.getInt(context.getString(R.string.pref_tracking_stop_time), -1))
             .doOnSuccess { require(it.first >= 0 && it.second >= 0) }
@@ -91,4 +100,9 @@ class AutoTrackingSchedulingUseCase constructor(private val sharedPreferences: S
 sealed class SchedulingStartStopResult {
     object Success : SchedulingStartStopResult()
     object Failure : SchedulingStartStopResult()
+}
+
+sealed class CancelAutoTrackingResult {
+    object Success : CancelAutoTrackingResult()
+    object Failure : CancelAutoTrackingResult()
 }
