@@ -27,7 +27,6 @@ class TrackInteractor @Inject constructor(
     private val logger: FlightRecorder,
     private val baseComposers: BaseComposers
 ) {
-
     fun saveTrack(track: Track, wayPoints: List<WayPoint>): Single<SaveTrackResult> = trackDao.insert(track)
         .doOnSuccess { trackId -> wayPoints.forEach { it.trackId = trackId } }
         .flatMapCompletable { wayPointDao.insertAll(wayPoints) }
