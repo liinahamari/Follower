@@ -92,4 +92,5 @@
     <string name="title_lock_records">Auto-lock records</string>
     <string name="summary_lock_explanation">Turn this feature on to auto-lock your records and use a fingerprint to unlock it.</string>
     <string name="error_cant_stop_auto_tacking">Unexpected error while cancelling auto tracking!</string>
+    <string name="address_unknown">Address unknown for (lon: %.6f, lat %.6f)</string>
 </resources>

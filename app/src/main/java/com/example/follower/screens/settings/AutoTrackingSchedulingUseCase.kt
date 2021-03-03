@@ -64,14 +64,14 @@ class AutoTrackingSchedulingUseCase constructor(private val sharedPreferences: S
             .map<SchedulingStartStopResult> { SchedulingStartStopResult.Success }
             .onErrorReturn { SchedulingStartStopResult.Failure }
 
-    /** @param time - Timestamp, implies hours (in 24-hour format) and minutes divided with separator ":". For example, 21:12
+    /** @param launchTime - Timestamp, implies hours (in 24-hour format) and minutes divided with separator ":". For example, 21:12
 
      *  @return - Timestamp in format of milliseconds, denoting time in future.
      * */
-    private fun getNextLaunchTime(time: String, calendar: Calendar = Calendar.getInstance()): Long { /*todo try to find something like this in JodaTime*/
+    private fun getNextLaunchTime(launchTime: String, calendar: Calendar = Calendar.getInstance()): Long { /*todo try to find something like this in JodaTime*/
         val today = calendar.get(Calendar.DAY_OF_WEEK)
-        val hours = time.split(":")[0].toInt()
-        val minutes = time.split(":")[1].toInt()
+        val hours = launchTime.split(":")[0].toInt()
+        val minutes = launchTime.split(":")[1].toInt()
         return calendar.apply {
             if (hours > calendar.get(Calendar.HOUR_OF_DAY) || hours == calendar.get(Calendar.HOUR_OF_DAY) && minutes > calendar.get(Calendar.MINUTE)) {
                 set(Calendar.DAY_OF_WEEK, today)

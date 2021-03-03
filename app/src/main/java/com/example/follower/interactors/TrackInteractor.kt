@@ -4,6 +4,7 @@ package com.example.follower.interactors
 
 import android.content.Context
 import android.location.Geocoder
+import com.example.follower.R
 import com.example.follower.db.entities.Track
 import com.example.follower.db.entities.WayPoint
 import com.example.follower.helper.FlightRecorder
@@ -43,13 +44,16 @@ class TrackInteractor @Inject constructor(
     fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
         .flattenAsObservable {
             logger.i { "getAddresses init size: ${it.wayPoints.size}" }
-            it.wayPoints.map { wayPoint ->  wayPoint.latitude as Latitude to wayPoint.longitude as Longitude } }
+            it.wayPoints.map { wayPoint ->  wayPoint.latitude as Latitude to wayPoint.longitude as Longitude }
+        }
         .distinctUntilChanged()
         .map {
             return@map with(Geocoder(context, Locale.getDefault())) {
-                MapPointer(getFromLocation(it.first, it.second, 1).first().getAddressLine(0), it.first, it.second)
+                val address = kotlin.runCatching { getFromLocation(it.first, it.second, 1).first().getAddressLine(0) }.getOrNull() ?: String.format(context.getString(R.string.address_unknown), it.second, it.first)
+                MapPointer(address, it.first, it.second)
             }
         }
+        .doOnError { it.printStackTrace() }
         .toList()
         .toObservable()
         .doOnNext { logger.i { "getAddresses trimmed size: ${it.size}" } }
