@@ -102,7 +102,9 @@ class LocationTrackingService : Service() {
         }
     }
 
-    /*FIXME: shitty thing. TODO: try Broadcasts instead*/
+    /*FIXME: LeakCanary concerns about $this.
+    * https://github.com/harshvardhanrastogi/leak-proof-service
+    * */
     inner class LocationServiceBinder : Binder() {
         fun getService(): LocationTrackingService = this@LocationTrackingService
     }
