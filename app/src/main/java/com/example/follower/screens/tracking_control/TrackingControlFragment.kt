@@ -70,7 +70,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                 logger.i { "ServiceConnection: connected" }
                 isServiceBound = true
 
-                gpsService = (service as LocationTrackingService.LocationServiceBinder).service
+                gpsService = (service as LocationTrackingService.LocationServiceBinder).getService()
 //                subscriptions.clear() /*TODO WTF?*/
                 gpsService?.let { gpsService ->
                     subscriptions += gpsService

@@ -2,6 +2,8 @@
 ###     [Drawing routes with OpenStreetMap osmdroid](articles/osmdroidSetup.md)
 ###     [Sharing file dedicated to internal usage](articles/sharingInternalFile.md)
 
+// todo articles: GC, Java memory model, memory leaks
+
 ## Screenshots:
 <div align="center">
 <img src="/screenshots/Screenshot_20210119-001507.png" width="360" height="640" border="10"/>

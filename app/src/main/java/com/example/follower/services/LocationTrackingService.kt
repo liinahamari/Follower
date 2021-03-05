@@ -21,8 +21,8 @@ const val ACTION_START_TRACKING = "BackgroundTracker.action_start_tracking"
 const val ACTION_STOP_TRACKING = "BackgroundTracker.action_stop_tracking"
 
 class LocationTrackingService : Service() {
-    @Volatile var wayPoints = mutableListOf<WayPoint>()
-    @Volatile var traceBeginningTime: Long? = null
+    val wayPoints = mutableListOf<WayPoint>()
+    var traceBeginningTime: Long? = null
 
     @Inject lateinit var prefInteractor: LocationPreferenceInteractor
     @Inject lateinit var logger: FlightRecorder
@@ -104,7 +104,6 @@ class LocationTrackingService : Service() {
 
     /*FIXME: shitty thing. TODO: try Broadcasts instead*/
     inner class LocationServiceBinder : Binder() {
-        val service: LocationTrackingService
-            get() = this@LocationTrackingService
+        fun getService(): LocationTrackingService = this@LocationTrackingService
     }
 }
