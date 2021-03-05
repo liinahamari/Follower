@@ -135,6 +135,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
+        /*Maybe someday... https://developer.android.com/training/permissions/requesting*/
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (isDetached.not() && requestCode == CODE_PERMISSION_LOCATION) {
             handleUsersReactionToPermission(
@@ -155,6 +156,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                     startTracking()
                 } else {
                     @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
+                    /*Maybe someday... https://developer.android.com/training/permissions/requesting*/
                     requestPermissions(arrayOf(PERMISSION_LOCATION), CODE_PERMISSION_LOCATION)
                 }
             }
