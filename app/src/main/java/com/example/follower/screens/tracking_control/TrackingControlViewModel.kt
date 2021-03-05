@@ -19,18 +19,24 @@ class TrackingControlViewModel @Inject constructor(private val trackInteractor: 
     private val _errorEvent = SingleLiveEvent<Int>()
     val errorEvent: LiveData<Int> get() = _errorEvent
 
+    private val _unbindServiceEvent = SingleLiveEvent<Any>()
+    val unbindServiceEvent: LiveData<Any> get() = _unbindServiceEvent
+
     fun saveTrack(time: Long, title: String, wayPoints: List<WayPoint>) {
         disposable += trackInteractor.saveTrack(Track(time, title), wayPoints)
             .subscribe(Consumer {
                 when (it) {
-                    is SaveTrackResult.Success -> _saveTrackEvent.value = R.string.toast_track_saved
+                    is SaveTrackResult.Success -> {
+                        _saveTrackEvent.value = R.string.toast_track_saved
+                    }
                     is SaveTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
                 }
+                _unbindServiceEvent.call()
             })
     }
 
     fun clearWaypoints(trackId: Long) {
         disposable += trackInteractor.clearWayPoints(trackId)
-            .subscribe()
+            .subscribe(Consumer { _unbindServiceEvent.call() })
     }
 }

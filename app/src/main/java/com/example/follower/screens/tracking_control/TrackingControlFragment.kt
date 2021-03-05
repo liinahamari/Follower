@@ -130,6 +130,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
         viewModel.saveTrackEvent.observe(viewLifecycleOwner, { toast(getString(it)) })
+        viewModel.unbindServiceEvent.observe(viewLifecycleOwner, { unbindService() })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -166,21 +167,26 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                         emptyWayPointsDialog.show()
                     } else {
                         MaterialDialog(requireContext()).show {
-                            onCancel { viewModel.clearWaypoints() }
-                            input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
-                                viewModel.saveTrack(gpsService!!.traceBeginningTime!!, text.toString(), gpsService!!.wayPoints)
+                            val nonSavedTrackId = gpsService!!.traceBeginningTime!!
+                            onCancel {
+                                viewModel.clearWaypoints(nonSavedTrackId)
+                            }
+                            input(prefill = nonSavedTrackId.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
+                                viewModel.saveTrack(nonSavedTrackId, text.toString(), gpsService!!.wayPoints)
                             }
                         }
-                        requireActivity().unbindService(serviceConnection)
-                        isServiceBound = false
-
-                        requireActivity().stopService(Intent(requireActivity(), LocationTrackingService::class.java))
                     }
                 } else {
                     logger.wtf { "problem with service binding... ${gpsService == null}" }
                     throw RuntimeException()
                 }
             }
+    }
+
+    private fun unbindService() {
+        requireActivity().unbindService(serviceConnection)
+        isServiceBound = false
+        requireActivity().stopService(Intent(requireActivity(), LocationTrackingService::class.java))
     }
 
     /*todo investigate why NPE happens here and why lifecycle fires twice*/

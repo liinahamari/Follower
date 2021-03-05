@@ -29,9 +29,11 @@ class TrackInteractor @Inject constructor(
     private val logger: FlightRecorder,
     private val baseComposers: BaseComposers
 ) {
-    fun clearWayPoints(trackId: Long): Completable = wayPointDao.delete(trackId)
+    fun clearWayPoints(trackId: Long): Single<ClearWayPointsResult> = wayPointDao.delete(trackId)
+        .toSingleDefault<ClearWayPointsResult> (ClearWayPointsResult.Success)
+        .onErrorReturn { ClearWayPointsResult.DatabaseCorruptionError }
         .doOnError { logger.e("wayPoints deleting", stackTrace = it.stackTrace) }
-        .compose(baseComposers.applyCompletableSchedulers())
+        .compose(baseComposers.applySingleSchedulers())
 
     fun saveTrack(track: Track, wayPoints: List<WayPoint>): Single<SaveTrackResult> = trackDao.insert(track)
         .doOnSuccess { trackId -> wayPoints.forEach { it.trackId = trackId } }
@@ -89,6 +91,11 @@ sealed class GetAddressesResult {
     data class Success(val addresses: List<MapPointer>) : GetAddressesResult()
     object DatabaseCorruptionError : GetAddressesResult()
     object Loading : GetAddressesResult()
+}
+
+sealed class ClearWayPointsResult {
+    object Success : ClearWayPointsResult()
+    object DatabaseCorruptionError : ClearWayPointsResult()
 }
 
 sealed class RemoveTrackResult {
