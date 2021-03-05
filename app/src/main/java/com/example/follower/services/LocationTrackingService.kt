@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.IBinder
 import com.example.follower.FollowerApp
 import com.example.follower.db.entities.WayPoint
+import com.example.follower.db.entities.toWayPoint
 import com.example.follower.helper.FlightRecorder
 import io.reactivex.subjects.BehaviorSubject
 import java.util.*
@@ -36,13 +37,13 @@ class LocationTrackingService : Service() {
 
     private inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
-            wayPoints.add(WayPoint(1L, location.provider, longitude = location.longitude, latitude = location.latitude, time = System.currentTimeMillis()))
+            wayPoints.add(location.toWayPoint(traceBeginningTime!!))
             logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
         }
 
-        override fun onProviderDisabled(provider: String) = logger.w { "onProviderDisabled: $provider" }
+        override fun onProviderDisabled(provider: String) = logger.w { "onProviderDisabled: $provider" } /*todo: handle user's geolocation permission revoking*/
         override fun onProviderEnabled(provider: String) = logger.w { "onProviderEnabled: $provider" }
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) = logger.w { "onStatusChanged: $status" }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) = Unit
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -93,9 +94,12 @@ class LocationTrackingService : Service() {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeUpdateInterval, distanceBetweenUpdates, locationListener)
             isTracking.onNext(true)
             traceBeginningTime = System.currentTimeMillis()
+            (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER))?.let { initLocation ->
+                wayPoints.add(initLocation.toWayPoint(traceBeginningTime!!))
+            }
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
-            logger.e(label = "Failed to request location update", stackTrace = ex.stackTrace)
+            logger.e(label = "Failed to request location updates", stackTrace = ex.stackTrace)
         } catch (ex: IllegalArgumentException) {
             isTracking.onNext(false)
             logger.e(label = "GPS provider does not exist (${ex.localizedMessage})", stackTrace = ex.stackTrace)

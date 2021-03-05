@@ -29,10 +29,10 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
     private val _removeTrackEvent = SingleLiveEvent<Long>()
     val removeTrackEvent: LiveData<Long> get() = _removeTrackEvent
 
-    fun removeTask(taskId: Long) {
-        disposable += trackInteractor.removeTrack(taskId).subscribe(Consumer {
+    fun removeTrack(trackId: Long) {
+        disposable += trackInteractor.removeTrack(trackId).subscribe(Consumer {
             when (it) {
-                is RemoveTrackResult.Success -> _removeTrackEvent.value = taskId
+                is RemoveTrackResult.Success -> _removeTrackEvent.value = trackId
                 is RemoveTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
             }
         })

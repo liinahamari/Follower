@@ -16,6 +16,7 @@ import com.example.follower.screens.address_trace.MapPointer
 import com.example.follower.screens.trace_map.Latitude
 import com.example.follower.screens.trace_map.Longitude
 import com.example.follower.screens.track_list.TrackUi
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.*
@@ -28,6 +29,10 @@ class TrackInteractor @Inject constructor(
     private val logger: FlightRecorder,
     private val baseComposers: BaseComposers
 ) {
+    fun clearWayPoints(trackId: Long): Completable = wayPointDao.delete(trackId)
+        .doOnError { logger.e("wayPoints deleting", stackTrace = it.stackTrace) }
+        .compose(baseComposers.applyCompletableSchedulers())
+
     fun saveTrack(track: Track, wayPoints: List<WayPoint>): Single<SaveTrackResult> = trackDao.insert(track)
         .doOnSuccess { trackId -> wayPoints.forEach { it.trackId = trackId } }
         .flatMapCompletable { wayPointDao.insertAll(wayPoints) }

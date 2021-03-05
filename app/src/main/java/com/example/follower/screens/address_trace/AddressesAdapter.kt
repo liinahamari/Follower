@@ -26,6 +26,7 @@ class AddressesAdapter constructor(private val mapCallback: (coordinates: Pair<L
     override fun getItemCount() = addresses.size
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(ItemAddressBinding.inflate(LayoutInflater.from(parent.context), parent, false).root)
 
+    /*FIXME doubtful, check lifecycle*/
     override fun onViewDetachedFromWindow(holder: ViewHolder) {
         holder.binding = null
     }

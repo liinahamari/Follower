@@ -28,4 +28,9 @@ class TrackingControlViewModel @Inject constructor(private val trackInteractor: 
                 }
             })
     }
+
+    fun clearWaypoints(trackId: Long) {
+        disposable += trackInteractor.clearWayPoints(trackId)
+            .subscribe()
+    }
 }

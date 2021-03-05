@@ -11,6 +11,7 @@ import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.callbacks.onCancel
 import com.afollestad.materialdialogs.input.input
 import com.example.follower.BuildConfig
 import com.example.follower.FollowerApp
@@ -132,6 +133,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (isDetached.not() && requestCode == CODE_PERMISSION_LOCATION) {
             handleUsersReactionToPermission(
@@ -151,6 +153,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                 if (hasPermission(PERMISSION_LOCATION)) {
                     startTracking()
                 } else {
+                    @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
                     requestPermissions(arrayOf(PERMISSION_LOCATION), CODE_PERMISSION_LOCATION)
                 }
             }
@@ -163,6 +166,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                         emptyWayPointsDialog.show()
                     } else {
                         MaterialDialog(requireContext()).show {
+                            onCancel { viewModel.clearWaypoints() }
                             input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
                                 viewModel.saveTrack(gpsService!!.traceBeginningTime!!, text.toString(), gpsService!!.wayPoints)
                             }

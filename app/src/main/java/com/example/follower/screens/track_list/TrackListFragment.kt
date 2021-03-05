@@ -15,7 +15,6 @@ import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.BiometricModule
-import com.example.follower.di.modules.BiometricScope
 import com.example.follower.ext.errorToast
 import com.example.follower.ext.throttleFirst
 import com.example.follower.screens.biometric.Authenticator
@@ -32,7 +31,7 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     private val tracksAdapter = TrackListAdapter(::removeTrack, ::getTrackDisplayMode)
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
-    private fun removeTrack(id: Long) = viewModel.removeTask(id)
+    private fun removeTrack(id: Long) = viewModel.removeTrack(id)
 
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
