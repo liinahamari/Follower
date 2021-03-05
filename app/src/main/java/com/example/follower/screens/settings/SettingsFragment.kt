@@ -17,10 +17,10 @@ import com.example.follower.di.modules.BiometricModule
 import com.example.follower.di.modules.DIALOG_LOADING
 import com.example.follower.di.modules.DIALOG_RESET_TO_DEFAULTS
 import com.example.follower.di.modules.SettingsModule
-import com.example.follower.ext.errorToast
 import com.example.follower.ext.getBooleanOf
 import com.example.follower.ext.getStringOf
-import com.example.follower.ext.toast
+import com.example.follower.helper.CustomToast.errorToast
+import com.example.follower.helper.CustomToast.infoToast
 import com.example.follower.screens.biometric.Authenticator
 import java.util.*
 import javax.inject.Inject
@@ -74,8 +74,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             }
         })
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
-        viewModel.successfulSchedulingEvent.observe(viewLifecycleOwner, { toast(getString(it)) })
-        viewModel.autoTrackingCancellingEvent.observe(viewLifecycleOwner, { toast(getString(it)) })
+        viewModel.successfulSchedulingEvent.observe(viewLifecycleOwner, { infoToast(getString(it)) })
+        viewModel.autoTrackingCancellingEvent.observe(viewLifecycleOwner, { infoToast(getString(it)) })
         viewModel.resetToDefaultsEvent.observe(viewLifecycleOwner, { requireActivity().recreate() })
     }
 

@@ -15,8 +15,8 @@ import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.BiometricModule
-import com.example.follower.ext.errorToast
 import com.example.follower.ext.throttleFirst
+import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.screens.biometric.Authenticator
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign

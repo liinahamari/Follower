@@ -18,6 +18,10 @@ import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.ext.*
+import com.example.follower.helper.CustomToast
+import com.example.follower.helper.CustomToast.errorToast
+import com.example.follower.helper.CustomToast.infoToast
+import com.example.follower.helper.CustomToast.successToast
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.services.ACTION_START_TRACKING
 import com.example.follower.services.LocationTrackingService
@@ -26,6 +30,7 @@ import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
+import kotlin.random.Random
 
 private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val CODE_PERMISSION_LOCATION = 101
@@ -129,7 +134,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
 
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
-        viewModel.saveTrackEvent.observe(viewLifecycleOwner, { toast(getString(it)) })
+        viewModel.saveTrackEvent.observe(viewLifecycleOwner, { infoToast(getString(it)) })
         viewModel.unbindServiceEvent.observe(viewLifecycleOwner, { unbindService() })
     }
 
@@ -155,8 +160,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                 if (hasPermission(PERMISSION_LOCATION)) {
                     startTracking()
                 } else {
-                    @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
-                    /*Maybe someday... https://developer.android.com/training/permissions/requesting*/
+                    @Suppress("DEPRECATION") // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( Maybe someday... https://developer.android.com/training/permissions/requesting
                     requestPermissions(arrayOf(PERMISSION_LOCATION), CODE_PERMISSION_LOCATION)
                 }
             }

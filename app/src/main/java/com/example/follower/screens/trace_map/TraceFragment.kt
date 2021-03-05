@@ -5,7 +5,7 @@ import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.MapFragment
 import com.example.follower.ext.createFollowerMarker
-import com.example.follower.ext.errorToast
+import com.example.follower.helper.CustomToast.errorToast
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.bonuspack.routing.RoadManager
 import javax.inject.Inject

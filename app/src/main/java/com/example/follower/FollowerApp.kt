@@ -12,7 +12,6 @@ import com.example.follower.helper.FlightRecorder
 import com.example.follower.model.PersistedLocaleResult
 import com.example.follower.model.PreferencesRepository
 import com.example.follower.services.CHANNEL_ID
-import es.dmoral.toasty.Toasty
 import io.reactivex.plugins.RxJavaPlugins
 import java.util.*
 import javax.inject.Inject
@@ -29,7 +28,6 @@ class FollowerApp: Application() {
         preferencesRepository.applyDefaultPreferences().blockingAwait()
 
         setupOsmdroid()
-        Toasty.Config.getInstance().apply()
 
         getSystemService(NotificationManager::class.java)
             .createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
