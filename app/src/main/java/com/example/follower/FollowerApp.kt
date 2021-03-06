@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Configuration
+import androidx.annotation.VisibleForTesting
 import com.example.follower.di.components.AppComponent
 import com.example.follower.di.components.DaggerAppComponent
 import com.example.follower.ext.provideUpdatedContextWithNewLocale
@@ -16,7 +17,7 @@ import io.reactivex.plugins.RxJavaPlugins
 import java.util.*
 import javax.inject.Inject
 
-class FollowerApp: Application() {
+class FollowerApp : Application() {
     @Inject lateinit var preferencesRepository: PreferencesRepository
     @Inject lateinit var logger: FlightRecorder
     lateinit var appComponent: AppComponent
@@ -55,10 +56,11 @@ class FollowerApp: Application() {
         super.onConfigurationChanged(newConfig)
     }
 
-    private fun setupDagger() {
-        appComponent = DaggerAppComponent.builder()
+    @VisibleForTesting
+    fun setupDagger(appComponent: AppComponent = DaggerAppComponent.builder()
             .application(this)
-            .build()
+            .build()) {
+        this.appComponent = appComponent
             .apply { inject(this@FollowerApp) }
     }
 }

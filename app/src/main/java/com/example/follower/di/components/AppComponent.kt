@@ -17,6 +17,7 @@ interface AppComponent {
     interface Builder {
         @BindsInstance
         fun application(app: FollowerApp): Builder
+        fun serviceModule(module: ServiceModule): Builder
         fun build(): AppComponent
     }
 
