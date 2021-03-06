@@ -27,15 +27,15 @@ class LocationTrackingService : Service() {
 
     @Inject lateinit var prefInteractor: LocationPreferenceInteractor
     @Inject lateinit var logger: FlightRecorder
+    @Inject lateinit var locationManager: LocationManager
 
     private lateinit var locationListener: LocationListener
-    private lateinit var locationManager: LocationManager
     private val binder = LocationServiceBinder()
     val isTracking = BehaviorSubject.createDefault(false)
 
     override fun onBind(intent: Intent): IBinder = binder
 
-    private inner class LocationListener : android.location.LocationListener {
+    inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
             wayPoints.add(location.toWayPoint(traceBeginningTime!!))
             logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
@@ -81,9 +81,7 @@ class LocationTrackingService : Service() {
     }
 
     private fun startTracking() {
-        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         locationListener = LocationListener()
-
         val timeUpdateInterval = (prefInteractor.getTimeIntervalBetweenUpdates()
             .blockingGet() as GetTimeIntervalResult.Success).timeInterval
 
@@ -94,6 +92,8 @@ class LocationTrackingService : Service() {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeUpdateInterval, distanceBetweenUpdates, locationListener)
             isTracking.onNext(true)
             traceBeginningTime = System.currentTimeMillis()
+
+            /*todo time calculation - is it not too old?*/
             (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER))?.let { initLocation ->
                 wayPoints.add(initLocation.toWayPoint(traceBeginningTime!!))
             }
