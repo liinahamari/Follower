@@ -37,7 +37,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.LocationTrackingService" />
+        <service android:name=".services.LocationTrackingService"
+            android:foregroundServiceType="location"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
