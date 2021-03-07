@@ -19,10 +19,9 @@ import java.util.*
 import javax.inject.Inject
 
 class FollowerApp : Application() {
-    @Inject
-    lateinit var preferencesRepository: PreferencesRepository
-    @Inject
-    lateinit var logger: FlightRecorder
+    @Inject lateinit var preferencesRepository: PreferencesRepository
+    @Inject lateinit var logger: FlightRecorder
+    @Inject lateinit var notificationManager: NotificationManager
     lateinit var appComponent: AppComponent
 
     override fun onCreate() {
@@ -33,8 +32,7 @@ class FollowerApp : Application() {
 
         setupOsmdroid()
 
-        getSystemService(NotificationManager::class.java)
-            .createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
+        notificationManager.createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
 
         RxJavaPlugins.setErrorHandler { logger.e(label = "GLOBAL", stackTrace = it.stackTrace) }
     }
