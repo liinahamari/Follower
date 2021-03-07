@@ -9,9 +9,19 @@ import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import com.example.follower.FollowerApp
+import com.example.follower.R
+import com.example.follower.db.entities.Track
 import com.example.follower.db.entities.WayPoint
 import com.example.follower.db.entities.toWayPoint
+import com.example.follower.ext.toReadableDate
+import com.example.follower.helper.CustomToast.errorToast
+import com.example.follower.helper.CustomToast.successToast
 import com.example.follower.helper.FlightRecorder
+import com.example.follower.interactors.SaveTrackResult
+import com.example.follower.interactors.TrackInteractor
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
+import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.subjects.BehaviorSubject
 import java.util.*
 import javax.inject.Inject
@@ -30,12 +40,14 @@ class LocationTrackingService : Service() {
             .build()
     }
 
+    private val disposable = CompositeDisposable()
     val wayPoints = mutableListOf<WayPoint>()
     var traceBeginningTime: Long? = null
 
     @Inject lateinit var prefInteractor: LocationPreferenceInteractor
     @Inject lateinit var logger: FlightRecorder
     @Inject lateinit var locationManager: LocationManager
+    @Inject lateinit var trackInteractor: TrackInteractor
 
     private val locationListener = LocationListener()
     private val binder = LocationServiceBinder()
@@ -56,7 +68,7 @@ class LocationTrackingService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         when (intent.action) {
-            ACTION_STOP_TRACKING -> stopTracking()
+            ACTION_STOP_TRACKING -> saveTrackAndStopTracking(intent.extras?.getCharSequence(ARG_AUTO_SAVE, null) ?: traceBeginningTime!!.toReadableDate())
             ACTION_START_TRACKING -> startTracking()
         }
         return START_STICKY
@@ -68,7 +80,11 @@ class LocationTrackingService : Service() {
         logger.i { "${javaClass.simpleName} onCreate()" }
     }
 
-    override fun onDestroy() = logger.d { "${javaClass.simpleName} onDestroy()" }.also { isTracking.onNext(false) }
+    override fun onDestroy() {
+        logger.d { "${javaClass.simpleName} onDestroy()" }
+        isTracking.onNext(false)
+        disposable.clear()
+    }
 
     private fun stopTracking() {
         stopForeground(true)/* ? */
@@ -78,10 +94,22 @@ class LocationTrackingService : Service() {
             } catch (ex: Exception) {
                 logger.e(label = "Failed to remove location listeners", stackTrace = ex.stackTrace)
             } finally {
-                isTracking.onNext(false)
+                isTracking.onNext(false) /* ? */
             }
         }
         stopSelf()
+    }
+
+    /*TODO handle interrupting in onDestroy*/
+    private fun saveTrackAndStopTracking(title: CharSequence) {
+        disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, title.toString()), wayPoints)
+            .subscribe(Consumer {
+                when (it) {
+                    is SaveTrackResult.Success -> successToast(getString(R.string.toast_track_saved)) /*todo check availability of toasts from service in latest versions*/
+                    is SaveTrackResult.DatabaseCorruptionError -> errorToast(getString(R.string.error_couldnt_save_track))
+                }
+                stopTracking()
+            })
     }
 
     private fun startTracking() {

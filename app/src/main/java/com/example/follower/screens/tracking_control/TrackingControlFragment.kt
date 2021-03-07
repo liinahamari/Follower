@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Bundle
 import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
@@ -16,10 +17,10 @@ import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.ext.*
 import com.example.follower.helper.CustomToast.errorToast
-import com.example.follower.helper.CustomToast.infoToast
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.services.ACTION_START_TRACKING
 import com.example.follower.services.ACTION_STOP_TRACKING
+import com.example.follower.services.ARG_AUTO_SAVE
 import com.example.follower.services.LocationTrackingService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
@@ -76,7 +77,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             if (name.className.endsWith(LocationTrackingService::class.java.simpleName)) {
                 logger.i { "ServiceConnection: disconnected" }
                 isServiceBound = false
-                toggleButtons(false)
+                toggleButtons(false)/*todo think about clearing database and stopping service*/
             }
         }
     }
@@ -98,13 +99,6 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         }
     }
 
-    private fun startTracking() {
-        with(requireActivity()) {
-            startService(Intent(this, LocationTrackingService::class.java)
-                .apply { action = ACTION_START_TRACKING })
-        }
-    }
-
     override fun onAttach(context: Context) {
         (context.applicationContext as FollowerApp).appComponent.inject(this)
         super.onAttach(context)
@@ -112,11 +106,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
 
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
-        viewModel.saveTrackEvent.observe(viewLifecycleOwner, { infoToast(getString(it)) })
-
-        viewModel.unbindServiceEvent.observe(viewLifecycleOwner, {
-            requireActivity().startService(Intent(requireActivity(), LocationTrackingService::class.java).apply { action = ACTION_STOP_TRACKING })
-        })
+        viewModel.stopServiceEvent.observe(viewLifecycleOwner, { stopService(LocationTrackingService::class.java) })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -127,7 +117,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             handleUsersReactionToPermission(
                 permissionToHandle = PERMISSION_LOCATION,
                 allPermissions = permissions,
-                doIfAllowed = { startTracking() },
+                doIfAllowed = { startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING) },
                 doIfDenied = { locationPermissionExplanationDialog.show() },
                 doIfNeverAskAgain = { locationPermissionExplanationDialog.show() }
             )
@@ -139,7 +129,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             .throttleFirst(750L)
             .subscribe {
                 if (hasPermission(PERMISSION_LOCATION)) {
-                    startTracking()
+                    startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
                 } else {
                     @Suppress("DEPRECATION")
                     // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :(
@@ -161,12 +151,16 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                                 viewModel.clearWaypoints(nonSavedTrackId)
                             }
                             input(prefill = nonSavedTrackId.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
-                                viewModel.saveTrack(nonSavedTrackId, text.toString(), gpsService!!.wayPoints)
+                                startService(LocationTrackingService::class.java,
+                                    action = ACTION_STOP_TRACKING,
+                                    bundle = Bundle().apply {
+                                        putCharSequence(ARG_AUTO_SAVE, text)
+                                    })
                             }
                         }
                     }
                 } else {
-                    logger.wtf { "problem with service binding... ${gpsService == null}" }
+                    logger.wtf { "problem with service binding... gpsService == null (${gpsService == null})" }
                     throw RuntimeException()
                 }
             }
