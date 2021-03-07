@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.viewModels
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onCancel
 import com.afollestad.materialdialogs.input.input
@@ -26,7 +25,6 @@ import com.example.follower.services.ACTION_START_TRACKING
 import com.example.follower.services.ACTION_STOP_TRACKING
 import com.example.follower.services.ARG_AUTO_SAVE
 import com.example.follower.services.LocationTrackingService
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
@@ -106,7 +104,10 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
 
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
-        viewModel.stopServiceEvent.observe(viewLifecycleOwner, { stopService(LocationTrackingService::class.java) })
+        viewModel.stopServiceEvent.observe(viewLifecycleOwner, {
+            gpsService!!.isTracking.onNext(false) /*FIXME rethink*/
+            stopService(LocationTrackingService::class.java)
+        })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

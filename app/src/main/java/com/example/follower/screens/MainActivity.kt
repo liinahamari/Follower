@@ -94,12 +94,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     }
 }
 
-class MainActivitySettingsInteractor @Inject constructor(
-    private val sharedPreferences: SharedPreferences,
-    private val baseComposers: BaseComposers,
-    private val logger: FlightRecorder,
-    private val context: Context
-) {
+class MainActivitySettingsInteractor @Inject constructor(private val sharedPreferences: SharedPreferences, private val baseComposers: BaseComposers, private val logger: FlightRecorder, private val context: Context) {
     fun handleThemeChanges(toBeCompared: Int): Maybe<NightModeChangesResult> = Single.fromCallable {
         kotlin.runCatching { sharedPreferences.getStringOf(context.getString(R.string.pref_theme)) }.getOrThrow()
     }

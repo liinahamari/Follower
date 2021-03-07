@@ -29,6 +29,7 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
     private val _removeTrackEvent = SingleLiveEvent<Long>()
     val removeTrackEvent: LiveData<Long> get() = _removeTrackEvent
 
+    /*todo: test cascade*/
     fun removeTrack(trackId: Long) {
         disposable += trackInteractor.removeTrack(trackId).subscribe(Consumer {
             when (it) {
