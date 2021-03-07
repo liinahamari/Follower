@@ -4,7 +4,6 @@ import com.example.follower.FollowerApp
 import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.*
 import com.example.follower.screens.MainActivity
-import com.example.follower.screens.tracking_control.TrackingControlFragment
 import com.example.follower.services.LocationTrackingService
 import dagger.BindsInstance
 import dagger.Component
@@ -23,9 +22,9 @@ interface AppComponent {
 
     fun biometricComponent(module: BiometricModule): BiometricComponent
     fun roadBuildingComponent(): RoadBuildingComponent
+    fun trackingControlComponent(module: TrackingControlModule): TrackingControlComponent
 
     fun inject(fragment: BaseFragment)
-    fun inject(fragment: TrackingControlFragment)
     fun inject(app: FollowerApp)
     fun inject(service: LocationTrackingService)
     fun inject(activity: MainActivity)

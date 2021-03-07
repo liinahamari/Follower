@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.afollestad.materialdialogs.MaterialDialog
@@ -15,6 +16,9 @@ import com.afollestad.materialdialogs.input.input
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
+import com.example.follower.di.modules.DIALOG_EMPTY_WAYPOINTS
+import com.example.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
+import com.example.follower.di.modules.TrackingControlModule
 import com.example.follower.ext.*
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.FlightRecorder
@@ -27,36 +31,26 @@ import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
+import javax.inject.Named
 
 private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val CODE_PERMISSION_LOCATION = 101
 
+@TrackingControlScope
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
+    @Inject lateinit var viewModel: TrackingControlViewModel
     @Inject lateinit var logger: FlightRecorder
-    private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
+
+    @Inject
+    @Named(DIALOG_PERMISSION_EXPLANATION)
+    lateinit var locationPermissionExplanationDialog: AlertDialog
+
+    @Inject
+    @Named(DIALOG_EMPTY_WAYPOINTS)
+    lateinit var emptyWayPointsDialog: AlertDialog
+
     private var isServiceBound = false
     private var gpsService: LocationTrackingService? = null
-
-    private val locationPermissionExplanationDialog by lazy {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.app_name))
-            .setMessage(R.string.location_permission_dialog_explanation)
-            .setPositiveButton(getString(android.R.string.ok), null)
-            .setNegativeButton(getString(R.string.title_settings)) { dialog, _ ->
-                dialog.dismiss()
-                requireActivity().openAppSettings()
-            }
-            .create()
-    }
-
-    private val emptyWayPointsDialog by lazy {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.app_name))
-            .setMessage(R.string.message_you_have_no_waypoints)
-            .setPositiveButton(getString(R.string.title_stop_tracking)) { _, _ -> viewModel.clearWaypoints(gpsService!!.traceBeginningTime!!) }
-            .setNegativeButton(getString(R.string.title_continue), null)
-            .create()
-    }
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -100,7 +94,13 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     }
 
     override fun onAttach(context: Context) {
-        (context.applicationContext as FollowerApp).appComponent.inject(this)
+        (context.applicationContext as FollowerApp)
+            .appComponent
+            .trackingControlComponent(TrackingControlModule(
+                activity = requireActivity(),
+                onStopTrackingClick = { viewModel.clearWaypoints(gpsService!!.traceBeginningTime!!) })
+            )
+            .inject(this)
         super.onAttach(context)
     }
 

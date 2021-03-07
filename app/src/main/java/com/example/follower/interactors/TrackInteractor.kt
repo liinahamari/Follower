@@ -29,12 +29,6 @@ class TrackInteractor @Inject constructor(
     private val logger: FlightRecorder,
     private val baseComposers: BaseComposers
 ) {
-    fun clearWayPoints(trackId: Long): Single<ClearWayPointsResult> = wayPointDao.delete(trackId)
-        .toSingleDefault<ClearWayPointsResult> (ClearWayPointsResult.Success)
-        .onErrorReturn { ClearWayPointsResult.DatabaseCorruptionError }
-        .doOnError { logger.e("wayPoints deleting", stackTrace = it.stackTrace) }
-        .compose(baseComposers.applySingleSchedulers())
-
     fun saveTrack(track: Track, wayPoints: List<WayPoint>): Single<SaveTrackResult> = trackDao.insert(track)
         .doOnSuccess { trackId -> wayPoints.forEach { it.trackId = trackId } }
         .flatMapCompletable { wayPointDao.insertAll(wayPoints) }

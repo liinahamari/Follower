@@ -2,14 +2,12 @@
 
 package com.example.follower.screens.logs
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.ext.throttleFirst
@@ -25,11 +23,6 @@ private const val TEXT_TYPE = "text/plain"
 class LogsFragment : BaseFragment(R.layout.fragment_logs) {
     private val viewModel by viewModels<LogsFragmentViewModel> { viewModelFactory }
     private val logsAdapter = LogsAdapter()
-
-    override fun onAttach(context: Context) {
-        (requireActivity().application as FollowerApp).appComponent.inject(this)
-        super.onAttach(context)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

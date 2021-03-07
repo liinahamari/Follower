@@ -28,11 +28,6 @@ abstract class ViewModelBuilderModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(TrackingControlViewModel::class)
-    abstract fun trackingControlViewModel(viewModel: TrackingControlViewModel): ViewModel
-
-    @Binds
-    @IntoMap
     @ViewModelKey(TrackListViewModel::class)
     abstract fun trackListViewModel(viewModel: TrackListViewModel): ViewModel
 
