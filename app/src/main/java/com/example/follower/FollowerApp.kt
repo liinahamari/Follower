@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import androidx.annotation.VisibleForTesting
 import com.example.follower.di.components.AppComponent
 import com.example.follower.di.components.DaggerAppComponent
+import com.example.follower.di.modules.ServiceModule
 import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.model.PersistedLocaleResult
@@ -18,8 +19,10 @@ import java.util.*
 import javax.inject.Inject
 
 class FollowerApp : Application() {
-    @Inject lateinit var preferencesRepository: PreferencesRepository
-    @Inject lateinit var logger: FlightRecorder
+    @Inject
+    lateinit var preferencesRepository: PreferencesRepository
+    @Inject
+    lateinit var logger: FlightRecorder
     lateinit var appComponent: AppComponent
 
     override fun onCreate() {
@@ -57,9 +60,11 @@ class FollowerApp : Application() {
     }
 
     @VisibleForTesting
-    fun setupDagger(appComponent: AppComponent = DaggerAppComponent.builder()
+    fun setupDagger(
+        appComponent: AppComponent = DaggerAppComponent.builder()
             .application(this)
-            .build()) {
+            .build()
+    ) {
         this.appComponent = appComponent
             .apply { inject(this@FollowerApp) }
     }

@@ -2,9 +2,15 @@ package com.example.follower.ext
 
 import android.app.ActivityManager
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.net.Uri
+import android.provider.Settings
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
+import com.example.follower.BuildConfig
 import com.example.follower.R
 import java.util.*
 
@@ -28,3 +34,5 @@ private fun Context.saveAppLocale(newLocale: String) = getDefaultSharedPreferenc
 @Suppress("DEPRECATION"
     /** """this method is no longer available to third party applications""" -- but we don't care tracking our application's services*/)
 fun Context.isServiceRunning(serviceClass: Class<*>) = (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningServices(Int.MAX_VALUE).any { serviceClass.name == it.service.className }
+
+fun FragmentActivity.openAppSettings() = startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${BuildConfig.APPLICATION_ID}")))

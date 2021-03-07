@@ -20,8 +20,16 @@ const val CHANNEL_ID = "GPS_CHANNEL"
 private const val FOREGROUND_SERVICE_ID = 123
 const val ACTION_START_TRACKING = "BackgroundTracker.action_start_tracking"
 const val ACTION_STOP_TRACKING = "BackgroundTracker.action_stop_tracking"
+const val ARG_AUTO_SAVE = "BackgroundTracker.arg_auto_save"
 
 class LocationTrackingService : Service() {
+    private val notification by lazy {
+        Notification.Builder(applicationContext, CHANNEL_ID)
+            .setContentText("tracking..." /*todo*/)
+            .setAutoCancel(false)
+            .build()
+    }
+
     val wayPoints = mutableListOf<WayPoint>()
     var traceBeginningTime: Long? = null
 
@@ -29,7 +37,7 @@ class LocationTrackingService : Service() {
     @Inject lateinit var logger: FlightRecorder
     @Inject lateinit var locationManager: LocationManager
 
-    private lateinit var locationListener: LocationListener
+    private val locationListener = LocationListener()
     private val binder = LocationServiceBinder()
     val isTracking = BehaviorSubject.createDefault(false)
 
@@ -48,7 +56,7 @@ class LocationTrackingService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         when (intent.action) {
-            ACTION_STOP_TRACKING -> stopSelf()
+            ACTION_STOP_TRACKING -> stopTracking()
             ACTION_START_TRACKING -> startTracking()
         }
         return START_STICKY
@@ -58,17 +66,12 @@ class LocationTrackingService : Service() {
         (application as FollowerApp).appComponent.inject(this)
 
         logger.i { "${javaClass.simpleName} onCreate()" }
-        startForeground(
-            FOREGROUND_SERVICE_ID, Notification.Builder(applicationContext, CHANNEL_ID)
-                .setContentText("tracking...")
-                .setAutoCancel(false)
-                .build()
-        )
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        logger.d { "${javaClass.simpleName} onDestroy()" }
+    override fun onDestroy() = logger.d { "${javaClass.simpleName} onDestroy()" }.also { isTracking.onNext(false) }
+
+    private fun stopTracking() {
+        stopForeground(true)/* ? */
         if (::locationManager.isInitialized) {
             try {
                 locationManager.removeUpdates(locationListener)
@@ -78,10 +81,12 @@ class LocationTrackingService : Service() {
                 isTracking.onNext(false)
             }
         }
+        stopSelf()
     }
 
     private fun startTracking() {
-        locationListener = LocationListener()
+        startForeground(FOREGROUND_SERVICE_ID, notification)
+
         val timeUpdateInterval = (prefInteractor.getTimeIntervalBetweenUpdates()
             .blockingGet() as GetTimeIntervalResult.Success).timeInterval
 
@@ -99,8 +104,12 @@ class LocationTrackingService : Service() {
             }
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
+            stopSelf()
+            stopForeground(true)
             logger.e(label = "Failed to request location updates", stackTrace = ex.stackTrace)
         } catch (ex: IllegalArgumentException) {
+            stopSelf()
+            stopForeground(true)
             isTracking.onNext(false)
             logger.e(label = "GPS provider does not exist (${ex.localizedMessage})", stackTrace = ex.stackTrace)
         }

@@ -5,26 +5,21 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.Uri
 import android.os.IBinder
-import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.viewModels
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onCancel
 import com.afollestad.materialdialogs.input.input
-import com.example.follower.BuildConfig
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
-import com.example.follower.ext.handleUsersReactionToPermission
-import com.example.follower.ext.hasPermission
-import com.example.follower.ext.throttleFirst
-import com.example.follower.ext.toReadableDate
+import com.example.follower.ext.*
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.CustomToast.infoToast
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.services.ACTION_START_TRACKING
+import com.example.follower.services.ACTION_STOP_TRACKING
 import com.example.follower.services.LocationTrackingService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
@@ -48,9 +43,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             .setPositiveButton(getString(android.R.string.ok), null)
             .setNegativeButton(getString(R.string.title_settings)) { dialog, _ ->
                 dialog.dismiss()
-                requireActivity().startActivity(
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${BuildConfig.APPLICATION_ID}"))
-                )
+                requireActivity().openAppSettings()
             }
             .create()
     }
@@ -59,13 +52,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.app_name))
             .setMessage(R.string.message_you_have_no_waypoints)
-            .setPositiveButton(getString(R.string.title_stop_tracking)) { _, _ ->
-                if (isServiceBound) {
-                    requireActivity().unbindService(serviceConnection)
-                    isServiceBound = false
-                }
-                requireActivity().stopService(Intent(requireActivity(), LocationTrackingService::class.java))
-            }
+            .setPositiveButton(getString(R.string.title_stop_tracking)) { _, _ -> viewModel.clearWaypoints(gpsService!!.traceBeginningTime!!) }
             .setNegativeButton(getString(R.string.title_continue), null)
             .create()
     }
@@ -77,14 +64,10 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                 isServiceBound = true
 
                 gpsService = (service as LocationTrackingService.LocationServiceBinder).getService()
-//                subscriptions.clear() /*TODO WTF?*/
-                gpsService?.let { gpsService ->
-                    subscriptions += gpsService
-                        .isTracking
-                        .subscribe {
-                            toggleButtons(it)
-                        }
-                }
+//                subscriptions.clear() /*FIXME WTF?!!!!?!??!???!!?*/
+                subscriptions += gpsService!!
+                    .isTracking
+                    .subscribe { toggleButtons(it) }
             }
         }
 
@@ -117,13 +100,8 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
 
     private fun startTracking() {
         with(requireActivity()) {
-            val intent = Intent(this, LocationTrackingService::class.java)
-                .apply {
-                    action = ACTION_START_TRACKING
-                }
-            startService(intent)
-            bindService(intent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
-                .also { logger.i { "service bound ($it) from startTracking()" } }
+            startService(Intent(this, LocationTrackingService::class.java)
+                .apply { action = ACTION_START_TRACKING })
         }
     }
 
@@ -135,7 +113,10 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
         viewModel.saveTrackEvent.observe(viewLifecycleOwner, { infoToast(getString(it)) })
-        viewModel.unbindServiceEvent.observe(viewLifecycleOwner, { unbindService() })
+
+        viewModel.unbindServiceEvent.observe(viewLifecycleOwner, {
+            requireActivity().startService(Intent(requireActivity(), LocationTrackingService::class.java).apply { action = ACTION_STOP_TRACKING })
+        })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -160,7 +141,9 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                 if (hasPermission(PERMISSION_LOCATION)) {
                     startTracking()
                 } else {
-                    @Suppress("DEPRECATION") // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( Maybe someday... https://developer.android.com/training/permissions/requesting
+                    @Suppress("DEPRECATION")
+                    // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :(
+                    // Maybe someday... https://developer.android.com/training/permissions/requesting
                     requestPermissions(arrayOf(PERMISSION_LOCATION), CODE_PERMISSION_LOCATION)
                 }
             }
@@ -187,12 +170,6 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                     throw RuntimeException()
                 }
             }
-    }
-
-    private fun unbindService() {
-        requireActivity().unbindService(serviceConnection)
-        isServiceBound = false
-        requireActivity().stopService(Intent(requireActivity(), LocationTrackingService::class.java))
     }
 
     /*todo investigate why NPE happens here and why lifecycle fires twice*/
