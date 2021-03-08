@@ -38,6 +38,7 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
     override fun onAttach(context: Context) {
         (context.applicationContext as FollowerApp).appComponent.inject(this)
         super.onAttach(context)
+        viewModel.fetchLogs()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,8 +48,6 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
             adapter = logsAdapter
         }
     }
-
-    override fun onResume() = super.onResume().also { viewModel.fetchLogs() }
 
     override fun setupViewModelSubscriptions() {
         super.setupViewModelSubscriptions()
@@ -77,11 +76,14 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
             .clicks()
             .throttleFirst()
             .subscribe { viewModel.requestLogFilePath() }
+
         subscriptions += logsToolbar.menu.findItem(R.id.clearLogs)
             .clicks()
             .throttleFirst()
             .subscribe { viewModel.clearLogs() }
-        subscriptions += logsToolbar.navigationClicks()
+
+        subscriptions += logsToolbar
+            .navigationClicks()
             .throttleFirst()
             .subscribe { Navigation.findNavController(requireView()).popBackStack() }
     }
