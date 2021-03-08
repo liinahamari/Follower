@@ -96,4 +96,5 @@
     <string name="address_unknown">Address unknown for (lon: %.6f, lat %.6f)</string>
     <string name="error_couldnt_save_track">Couldn\'t save track!</string>
     <string name="error_no_connection">No Internet connection!</string>
+    <string name="title_logs">Logs</string>
 </resources>

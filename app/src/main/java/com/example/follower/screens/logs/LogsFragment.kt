@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.follower.FollowerApp
 import com.example.follower.R
@@ -15,6 +16,7 @@ import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.UID
 import com.example.follower.ext.throttleFirst
 import com.example.follower.helper.CustomToast.errorToast
+import com.jakewharton.rxbinding3.appcompat.navigationClicks
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_logs.*
@@ -62,7 +64,7 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
         viewModel.logFilePathEvent.observe(this, {
             Intent(Intent.ACTION_SEND).apply {
                 putExtra(Intent.EXTRA_EMAIL, arrayOf(MY_EMAIL))
-                putExtra(Intent.EXTRA_SUBJECT, MESSAGE_TITLE+userId)
+                putExtra(Intent.EXTRA_SUBJECT, MESSAGE_TITLE + userId)
                 putExtra(Intent.EXTRA_STREAM, it)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 type = TEXT_TYPE
@@ -71,14 +73,16 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
     }
 
     override fun setupClicks() {
-        subscriptions += eraseLogButton
-            .clicks()
-            .throttleFirst()
-            .subscribe { viewModel.clearLogs() }
-
-        subscriptions += sendLogsButton
+        subscriptions += logsToolbar.menu.findItem(R.id.sendLogs)
             .clicks()
             .throttleFirst()
             .subscribe { viewModel.requestLogFilePath() }
+        subscriptions += logsToolbar.menu.findItem(R.id.clearLogs)
+            .clicks()
+            .throttleFirst()
+            .subscribe { viewModel.clearLogs() }
+        subscriptions += logsToolbar.navigationClicks()
+            .throttleFirst()
+            .subscribe { Navigation.findNavController(requireView()).popBackStack() }
     }
 }
