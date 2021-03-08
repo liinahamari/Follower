@@ -36,13 +36,13 @@ class ServerServiceInteractor constructor(private val service: ServerService, pr
 }
 
 class TrackLocalToTrackRemoteMapper @Inject constructor() {
-    fun transform(track: TrackWithWayPoints) = TrackRequest(
+    fun transform(track: TrackWithWayPoints) = ServerTrack(
         time = track.track.time,
         title = track.track.title,
         wayPoints = track.wayPoints.map { Pair(it.longitude, it.latitude) }.toTypedArray()
     )
 
-    fun transform(track: TrackRequest) = TrackWithWayPoints(
+    fun transform(track: ServerTrack) = TrackWithWayPoints(
         track = Track(track.time, track.title),
         wayPoints = track.wayPoints.map { WayPoint(trackId = track.time, longitude = it.first, latitude = it.second, provider = "TODO", time = 1L /*TODO*/) }
     )

@@ -11,21 +11,21 @@ interface ServerService {
     fun delete(@Path("time") id: String): Single<Response<Unit>>
 
     @GET("tracks")
-    fun getAll(): Single<List<TrackRequest>>
+    fun getAll(): Single<List<ServerTrack>>
 
     @PUT("tracks/{time}")
-    fun replace(@Body request: TrackRequest, @Path("time") trackId: Long): Single<Response<Unit>>
+    fun replace(@Body request: ServerTrack, @Path("time") trackId: Long): Single<Response<Unit>>
 
     @POST("tracks")
-    fun put(@Body request: TrackRequest): Single<Response<Unit>>
+    fun put(@Body request: ServerTrack): Single<Response<Unit>>
 }
 
-data class TrackRequest(var time: Long, var title: String, var wayPoints: Array<Pair<Longitude, Latitude>>) {
+data class ServerTrack(var time: Long, var title: String, var wayPoints: Array<Pair<Longitude, Latitude>>) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as TrackRequest
+        other as ServerTrack
 
         if (time != other.time) return false
         if (title != other.title) return false
