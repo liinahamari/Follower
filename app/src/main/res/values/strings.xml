@@ -2,9 +2,9 @@
     <string name="app_name" translatable="false">Follower</string>
 
     <!--arguments-->
-    <string translatable="false" name="arg_addressFragment_trackId">com.example.follower.AddressTraceFragment.EXTRA_TRACK_ID</string>
-    <string translatable="false" name="arg_toSinglePointerMap_Longitude">com.example.follower.SinglePointerMapFragment.LONGITUDE</string>
-    <string translatable="false" name="arg_toSinglePointerMap_Latitude">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
+    <string name="arg_addressFragment_trackId" translatable="false">com.example.follower.AddressTraceFragment.EXTRA_TRACK_ID</string>
+    <string name="arg_toSinglePointerMap_Longitude" translatable="false">com.example.follower.SinglePointerMapFragment.LONGITUDE</string>
+    <string name="arg_toSinglePointerMap_Latitude" translatable="false">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
 
     <!--prefs-->
     <string name="pref_tracking_start_time" translatable="false">pref_tracking_start_time</string>
@@ -94,4 +94,5 @@
     <string name="error_cant_stop_auto_tacking">Unexpected error while cancelling auto tracking!</string>
     <string name="address_unknown">Address unknown for (lon: %.6f, lat %.6f)</string>
     <string name="error_couldnt_save_track">Couldn\'t save track!</string>
+    <string name="error_no_connection">No Internet connection!</string>
 </resources>

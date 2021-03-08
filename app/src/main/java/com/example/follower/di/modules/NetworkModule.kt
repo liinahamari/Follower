@@ -1,20 +1,16 @@
 package com.example.follower.di.modules
 
+import com.example.follower.networking.ServerService
 import dagger.Module
 import dagger.Provides
-import io.reactivex.Single
 import okhttp3.OkHttpClient
 import okhttp3.internal.platform.Platform
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.CallAdapter
 import retrofit2.Converter
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.Path
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -65,7 +61,4 @@ class NetworkModule {
         .client(okHttpClient)
         .build()
         .create(ServerService::class.java)
-}
-
-interface ServerService {
 }

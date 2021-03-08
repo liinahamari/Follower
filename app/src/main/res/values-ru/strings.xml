@@ -64,4 +64,5 @@
     <string name="error_cant_stop_auto_tacking">Непредвиденная ошибка при отмене авто-трекинга!</string>
     <string name="address_unknown">Адресс неизвестен</string>
     <string name="error_couldnt_save_track">Не удалось сохранить маршрут!</string>
+    <string name="error_no_connection">Нет соединения с Интернетом!</string>
 </resources>
