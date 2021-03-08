@@ -28,7 +28,7 @@ class FollowerApp : Application() {
         setupDagger()
         super.onCreate()
 
-        preferencesRepository.applyDefaultPreferences().blockingAwait()
+        preferencesRepository.applyDefaultPreferences().blockingAwait() /*todo: to splash screen?*/
 
         setupOsmdroid()
 

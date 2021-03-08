@@ -20,6 +20,8 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
             if (sharedPreferences.getBoolean(context.getString(R.string.pref_is_first_launch), false).not()) {
                 sharedPreferences.writeBooleanOf(context.getString(R.string.pref_is_first_launch), true)
 
+                sharedPreferences.writeStringOf(context.getString(R.string.pref_uid), UUID.randomUUID().toString())
+
                 PreferenceManager.setDefaultValues(context, R.xml.preferences, false)
                 sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_start_time), hourlyTimeToMinutesFromMidnight(DEFAULT_AUTO_TRACKING_START_TIME))
                 sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_stop_time), hourlyTimeToMinutesFromMidnight(DEFAULT_AUTO_TRACKING_END_TIME))

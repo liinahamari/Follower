@@ -7,6 +7,7 @@
     <string name="arg_toSinglePointerMap_Latitude" translatable="false">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
 
     <!--prefs-->
+    <string name="pref_uid" translatable="false">pref_uid</string>
     <string name="pref_tracking_start_time" translatable="false">pref_tracking_start_time</string>
     <string name="pref_tracking_stop_time" translatable="false">pref_tracking_end_time</string>
     <string name="pref_theme" translatable="false">pref_theme</string>
