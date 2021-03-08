@@ -43,7 +43,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as FollowerApp).appComponent.inject(this)
         shakeDetector = ShakeDetector(this)
-
         super.onCreate(savedInstanceState)
 
         setupViewModelSubscriptions()
@@ -51,7 +50,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
         viewModel.checkNightModeState(AppCompatDelegate.getDefaultNightMode())
     }
 
-    override fun hearShake() = mainActivityFragmentContainer.findNavController().navigate(R.id.action_to_logs)
+    override fun hearShake() {
+        shakeDetector!!.stop()
+        mainActivityFragmentContainer.findNavController().navigate(R.id.action_to_logs)
+        shakeDetector!!.start(sensorManager)
+    }
+
     override fun onResume() = super.onResume().also { shakeDetector!!.start(sensorManager) }
     override fun onPause() = super.onPause().also { shakeDetector!!.stop() }
     override fun onSupportNavigateUp(): Boolean = findNavController(R.id.mainActivityFragmentContainer).navigateUp()
