@@ -6,6 +6,7 @@ import android.hardware.SensorManager
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
@@ -21,21 +22,29 @@ import com.example.follower.ext.getLocalesLanguage
 import com.example.follower.ext.getStringOf
 import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import com.example.follower.ext.writeStringOf
+import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.helper.rx.BaseComposers
 import com.squareup.seismic.ShakeDetector
 import io.reactivex.Maybe
+import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.follower_pager.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Listener {
     @Inject lateinit var sensorManager: SensorManager
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel by viewModels<MainActivityViewModel> { viewModelFactory }
+
+    private val clicks = CompositeDisposable()
+    private var navigated = false
 
     private var shakeDetector: ShakeDetector? = null
     private lateinit var currentLocale: String
@@ -50,16 +59,27 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
         viewModel.checkNightModeState(AppCompatDelegate.getDefaultNightMode())
     }
 
+    @MainThread
     override fun hearShake() {
-        shakeDetector!!.stop()
-        mainActivityFragmentContainer.findNavController().navigate(R.id.action_to_logs)
-        shakeDetector!!.start(sensorManager)
+        if (navigated.not()) {
+            navigated = true
+            mainActivityFragmentContainer.findNavController().navigate(R.id.action_to_logs)
+
+            clicks += Observable.timer(2, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { navigated = false }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        shakeDetector = null
+        clicks.clear()
     }
 
     override fun onResume() = super.onResume().also { shakeDetector!!.start(sensorManager) }
     override fun onPause() = super.onPause().also { shakeDetector!!.stop() }
     override fun onSupportNavigateUp(): Boolean = findNavController(R.id.mainActivityFragmentContainer).navigateUp()
-    override fun onDestroy() = super.onDestroy().also { shakeDetector = null }
     override fun onRestart() = super.onRestart().also { viewModel.checkLocaleChanged(currentLocale) }
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
 
