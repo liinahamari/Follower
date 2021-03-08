@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 /** Refers to <provider>'s authority in AndroidManifest.xml*/
-private const val FILE_PROVIDER_META = ".fileprovider"
+const val FILE_PROVIDER_META = ".fileprovider"
 
 class LoggerInteractor @Inject constructor(
     private val context: Context,

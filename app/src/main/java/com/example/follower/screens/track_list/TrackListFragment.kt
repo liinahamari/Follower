@@ -1,6 +1,7 @@
 package com.example.follower.screens.track_list
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
@@ -18,6 +19,7 @@ import com.example.follower.di.modules.BiometricModule
 import com.example.follower.ext.throttleFirst
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.screens.biometric.Authenticator
+import com.example.follower.screens.logs.TEXT_TYPE
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
@@ -32,11 +34,15 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
     private fun removeTrack(id: Long) = viewModel.removeTrack(id)
+    private fun shareTrack(id: Long) = viewModel.createSharedJsonFileForTrack(id)
 
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
             .appComponent
-            .biometricComponent(BiometricModule(requireActivity(), onSuccessfulAuth =  { viewModel.fetchTracks() }))
+            .biometricComponent(BiometricModule(
+                activity = requireActivity(),
+                onSuccessfulAuth = { viewModel.fetchTracks() })
+            )
             .inject(this)
     }
 
@@ -113,6 +119,14 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
                 }
                 getString(R.string.pref_value_track_display_mode_none) -> showDialogMapOrAddresses(trackAndDisplayMode.second)
             }
+        }
+        viewModel.shareJsonEvent.observe(viewLifecycleOwner) { trackJsonAndName ->
+            Intent(Intent.ACTION_SEND).apply {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = TEXT_TYPE
+                putExtra(Intent.EXTRA_SUBJECT, String.format(getString(R.string.title_sharing_track), trackJsonAndName.second))
+                putExtra(Intent.EXTRA_STREAM, trackJsonAndName.first)
+            }.also { startActivity(it) }
         }
     }
 

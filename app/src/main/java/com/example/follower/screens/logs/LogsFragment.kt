@@ -25,7 +25,7 @@ import javax.inject.Named
 
 private const val MY_EMAIL = "l1bills@protonmail.com"
 private const val MESSAGE_TITLE = "Follower Logs of "
-private const val TEXT_TYPE = "text/plain"
+const val TEXT_TYPE = "text/plain"
 
 class LogsFragment : BaseFragment(R.layout.fragment_logs) {
     @Inject

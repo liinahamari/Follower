@@ -10,11 +10,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
 import com.example.follower.BuildConfig
 import com.example.follower.R
+import com.example.follower.screens.logs.FILE_PROVIDER_META
+import java.io.File
 import java.util.*
 
 fun Configuration.getLocalesLanguage(): String = locales[0].language
@@ -46,3 +49,17 @@ fun Fragment.startService(serviceClass: Class<out Service>, bundle: Bundle? = nu
 })
 
 fun Fragment.stopService(serviceClass: Class<out Service>) = requireActivity().application.stopService(Intent(requireActivity().applicationContext, serviceClass))
+
+private fun Context.createDirIfNotExist(dirName: String) = File(filesDir, dirName).apply {
+    if (exists().not()) {
+        mkdir()
+    }
+}
+
+fun Context.createFileIfNotExist(fileName: String, dirName: String) = File(createDirIfNotExist(dirName), fileName).apply {
+    if(exists().not()) {
+        createNewFile()
+    }
+}
+
+fun Context.getUriForInternalFile(file: File): Uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + FILE_PROVIDER_META, file)
