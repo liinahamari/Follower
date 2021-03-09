@@ -98,4 +98,9 @@
     <string name="error_no_connection">No Internet connection!</string>
     <string name="title_logs">Logs</string>
     <string name="title_sharing_track">"Sharing Follower track (%s)"</string>
+    <string name="share">Share</string>
+    <string name="delete">Delete</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="yes">Yes</string>
+    <string name="as_a_file">As a file…</string>
 </resources>

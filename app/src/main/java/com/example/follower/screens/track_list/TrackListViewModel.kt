@@ -69,8 +69,8 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
         })
     }
 
-    fun createSharedJsonFileForTrack(trackId: Long) {
-        disposable += trackInteractor.getTrackJsonFile(trackId).subscribe(Consumer {
+    fun createSharedJsonFileForTrack(trackId: Long, fileExtension: String) {
+        disposable += trackInteractor.getTrackJsonFile(trackId, fileExtension).subscribe(Consumer {
             when (it) {
                 is SharedTrackResult.Success -> _shareJsonEvent.value = it.trackJsonAndTitle
                 is SharedTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
