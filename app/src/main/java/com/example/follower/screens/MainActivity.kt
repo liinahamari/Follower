@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -22,7 +23,6 @@ import com.example.follower.ext.getLocalesLanguage
 import com.example.follower.ext.getStringOf
 import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import com.example.follower.ext.writeStringOf
-import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.SingleLiveEvent
 import com.example.follower.helper.rx.BaseComposers
@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     override fun onRestart() = super.onRestart().also { viewModel.checkLocaleChanged(currentLocale) }
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
 
-    private fun setupViewModelSubscriptions(){
+    private fun setupViewModelSubscriptions() {
         viewModel.recreateEvent.observe(this, {
             recreate()
         })
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
         })
     }
 
-    class MainActivityViewModel @Inject constructor(private val prefInteractor: MainActivitySettingsInteractor): BaseViewModel() {
+    class MainActivityViewModel @Inject constructor(private val prefInteractor: MainActivitySettingsInteractor) : BaseViewModel() {
         private val _setNightModeValueAndRecreateEvent = SingleLiveEvent<Int>()
         val nightModeChangedEvent: LiveData<Int> get() = _setNightModeValueAndRecreateEvent
 
@@ -124,11 +124,17 @@ class MainActivitySettingsInteractor @Inject constructor(private val sharedPrefe
     }
         .map { it.toInt() }
         .filter { it != toBeCompared }
-        .map<NightModeChangesResult> { if (it == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM || it == AppCompatDelegate.MODE_NIGHT_NO || it == AppCompatDelegate.MODE_NIGHT_YES) NightModeChangesResult.Success(it) else NightModeChangesResult.Success(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) }
+        .map<NightModeChangesResult> {
+            if (it == MODE_NIGHT_FOLLOW_SYSTEM || it == MODE_NIGHT_NO || it == MODE_NIGHT_YES) {
+                sharedPreferences.writeStringOf(context.getString(R.string.pref_theme), toBeCompared.toString())
+                NightModeChangesResult.Success(toBeCompared)
+            } else NightModeChangesResult.Success(MODE_NIGHT_FOLLOW_SYSTEM)
+        }
         .onErrorReturn {
-            if (it is NullPointerException) { /**pref_theme contains null: doing initial setup... */
+            if (it is NullPointerException) {
+                /**pref_theme contains null: doing initial setup... */
                 try {
-                    with (AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                    with(MODE_NIGHT_FOLLOW_SYSTEM) {
                         sharedPreferences.writeStringOf(context.getString(R.string.pref_theme), this.toString())
                         NightModeChangesResult.Success(this)
                     }
