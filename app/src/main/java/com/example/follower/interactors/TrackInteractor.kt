@@ -43,6 +43,7 @@ class TrackInteractor @Inject constructor(
                 .toSingleDefault(SaveTrackResult.DatabaseCorruptionError)
         }
         .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
+        .doOnError { it.printStackTrace() }
         .compose(baseComposers.applySingleSchedulers())
         .doOnSuccess { logger.i { "Track saved with ${wayPoints.size} wayPoints" } }
 
@@ -71,21 +72,23 @@ class TrackInteractor @Inject constructor(
         .andThen(wayPointDao.delete(taskId))
         .toSingleDefault<RemoveTrackResult>(RemoveTrackResult.Success)
         .onErrorReturn { RemoveTrackResult.DatabaseCorruptionError }
+        .doOnError { it.printStackTrace() }
         .compose(baseComposers.applySingleSchedulers())
 
     fun fetchTracks(): Single<FetchTracksResult> = trackDao.getAllTracksWithWayPoints()
         .map { it.map { track -> TrackUi(id = track.track.time, title = track.track.title) } }
         .map { if (it.isEmpty()) FetchTracksResult.SuccessEmpty else FetchTracksResult.Success(it) }
         .onErrorReturn { FetchTracksResult.DatabaseCorruptionError }
+        .doOnError { it.printStackTrace() }
         .compose(baseComposers.applySingleSchedulers())
 
     /*todo: caching list of fetched tracks as a field?*/
     /*TODO: rethink!*/
-    fun getTrackJsonFile(trackId: Long): Single<SharedTrackResult> = trackDao.getTrackWithWayPoints(trackId)
+    fun getTrackJsonFile(trackId: Long, fileExtension: String): Single<SharedTrackResult> = trackDao.getTrackWithWayPoints(trackId)
         .map {
             context.getUriForInternalFile(
                 context.createFileIfNotExist(
-                    fileName = "${it.track.title}.json",
+                    fileName = it.track.title+fileExtension,
                     dirName = "TempTracksToShare"
                 )
                     .apply {
@@ -96,6 +99,7 @@ class TrackInteractor @Inject constructor(
         .map<SharedTrackResult> { SharedTrackResult.Success(it) }
         .onErrorReturn { SharedTrackResult.DatabaseCorruptionError }
         .compose(baseComposers.applySingleSchedulers())
+        .doOnError { it.printStackTrace() }
 }
 
 sealed class SaveTrackResult {

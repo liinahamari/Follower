@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.SubMenu
 import android.view.View
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.NavHostFragment
@@ -23,18 +25,22 @@ import com.example.follower.screens.logs.TEXT_TYPE
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
+import me.saket.cascade.CascadePopupMenu
+import me.saket.cascade.allChildren
 import javax.inject.Inject
+
+const val EXT_JSON = ".json"
+const val EXT_TXT = ".txt"
 
 class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     @Inject lateinit var sharedPreferences: SharedPreferences
     @Inject lateinit var authenticator: Authenticator
 
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
-    private val tracksAdapter = TrackListAdapter(::removeTrack, ::getTrackDisplayMode)
+    private val tracksAdapter = TrackListAdapter(::showMenu, ::getTrackDisplayMode)
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
-    private fun removeTrack(id: Long) = viewModel.removeTrack(id)
-    private fun shareTrack(id: Long) = viewModel.createSharedJsonFileForTrack(id)
+    private fun showMenu(id: Long) = showCascadeMenu(id)
 
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
@@ -150,5 +156,48 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
         } else {
             viewModel.fetchTracks()
         }
+    }
+
+    private fun showCascadeMenu(trackId: Long) {
+        val popupMenu = CascadePopupMenu(requireContext(), requireView())
+        popupMenu.menu.apply {
+            MenuCompat.setGroupDividerEnabled(this, true)
+
+            addSubMenu(getString(R.string.share)).also {
+                val addShareTargets = { sub: SubMenu ->
+                    sub.add(EXT_JSON)
+                        .setOnMenuItemClickListener {
+                            viewModel.createSharedJsonFileForTrack(trackId, EXT_JSON)
+                            true
+                        }
+                    sub.add(EXT_TXT)
+                        .setOnMenuItemClickListener {
+                            viewModel.createSharedJsonFileForTrack(trackId, EXT_TXT)
+                            true
+                        }
+                }
+                it.setIcon(R.drawable.ic_share)
+                addShareTargets(it.addSubMenu(R.string.as_a_file))
+            }
+            addSubMenu(getString(R.string.delete)).also {
+                it.setIcon(R.drawable.ic_delete)
+                it.setHeaderTitle(getString(R.string.are_you_sure))
+
+                it.add(R.string.yes)
+                    .setIcon(R.drawable.ic_toast_success)
+                    .setOnMenuItemClickListener {
+                        viewModel.removeTrack(trackId)
+                        true
+                    }
+
+                it.add(getString(android.R.string.cancel))
+                    .setIcon(R.drawable.ic_close_24)
+                    .setOnMenuItemClickListener {
+                        popupMenu.navigateBack()
+                        true
+                    }
+            }
+        }
+        popupMenu.show()
     }
 }

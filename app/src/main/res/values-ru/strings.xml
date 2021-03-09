@@ -67,4 +67,9 @@
     <string name="error_no_connection">Нет соединения с Интернетом!</string>
     <string name="title_logs">Логи</string>
     <string name="title_sharing_track">"Обмен маршрутом от Follower (%s)"</string>
+    <string name="share">Поделиться</string>
+    <string name="delete">Удалить</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="yes">Да</string>
+    <string name="as_a_file">Как файл...</string>
 </resources>
