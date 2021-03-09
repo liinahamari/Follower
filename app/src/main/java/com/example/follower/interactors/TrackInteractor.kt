@@ -55,8 +55,9 @@ class TrackInteractor @Inject constructor(
         .distinctUntilChanged()
         .map {
             return@map with(Geocoder(context, Locale.getDefault())) {
-                val address = kotlin.runCatching { getFromLocation(it.first, it.second, 1).first().getAddressLine(0) }.getOrNull() ?: String.format(context.getString(R.string.address_unknown), it.second, it.first)
-                MapPointer(address, it.first, it.second)
+                val address = kotlin.runCatching { getFromLocation(it.first, it.second, 1).first().getAddressLine(0) }.getOrNull()
+                    ?: String.format(context.getString(R.string.address_unknown), it.second, it.first)
+                return@with MapPointer(address, it.first, it.second)
             }
         }
         .doOnError { it.printStackTrace() }

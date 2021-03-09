@@ -14,9 +14,9 @@
     <string name="pref_lang" translatable="false">pref_lang</string>
     <string name="pref_min_distance" translatable="false">pref_min_distance</string>
     <string name="pref_min_location_update_interval" translatable="false">pref_min_location_update_interval</string>
-    <string name="pref_track_representing" translatable="false">pref_track_representing</string>
+    <string name="pref_track_representation" translatable="false">pref_track_representation</string>
     <string name="pref_marker_set" translatable="false">pref_set</string>
-    <string name="pref_line" translatable="false">pref_road</string>
+    <string name="pref_line" translatable="false">pref_line</string>
     <string name="pref_track_display_mode" translatable="false">pref_track_display_mode</string>
     <string name="pref_value_track_display_mode_none" translatable="false">pref_value_track_display_mode_none</string>
     <string name="pref_value_track_display_mode_map" translatable="false">pref_value_track_display_mode_map</string>

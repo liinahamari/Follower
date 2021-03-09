@@ -19,7 +19,7 @@ class SettingsPrefsInteractor constructor(private val baseComposers: BaseCompose
             writeStringOf(context.getString(R.string.pref_min_distance), DEFAULT_LOCATION_UPDATE_INTERVAL.toString())
             writeStringOf(context.getString(R.string.pref_min_location_update_interval), DEFAULT_TIME_UPDATE_INTERVAL.toString())
             writeStringOf(context.getString(R.string.pref_theme), AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString())
-            writeStringOf(context.getString(R.string.pref_track_representing), context.resources.getStringArray(R.array.track_representing_values).first())
+            writeStringOf(context.getString(R.string.pref_track_representation), context.resources.getStringArray(R.array.track_representing_values).first())
             writeStringOf(context.getString(R.string.pref_track_display_mode), context.resources.getStringArray(R.array.track_display_mode_values).first())
         }
     }

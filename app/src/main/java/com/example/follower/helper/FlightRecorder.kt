@@ -62,8 +62,6 @@ class FlightRecorder(private val logStorage: File) {
         logStorage.readText()
     }
 
-    fun clear(): Boolean = kotlin.runCatching { logStorage.writeText("") }.isSuccess
-
     private fun clearBeginningIfNeeded(meta: String, what: () -> String, timestamp: String) {
         val newDataSize = "$meta $timestamp ${what.invoke()}\n\n".toByteArray().size
         if ((logStorage.length() + newDataSize.toLong()) > TAPE_VOLUME) {

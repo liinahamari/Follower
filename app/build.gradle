@@ -13,6 +13,11 @@ android {
     dataBinding {
         enabled = true
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -129,6 +134,8 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:3.6.28'
     androidTestImplementation 'org.mockito:mockito-android:3.5.2'
     testImplementation 'org.mockito:mockito-inline:3.5.2'
+
+    testImplementation 'org.robolectric:robolectric:4.4'
 
     /* RETROFIT & NETWORK */
     implementation "com.squareup.retrofit2:retrofit:2.9.0"

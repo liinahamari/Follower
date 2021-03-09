@@ -26,7 +26,6 @@ import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
 import me.saket.cascade.CascadePopupMenu
-import me.saket.cascade.allChildren
 import javax.inject.Inject
 
 const val EXT_JSON = ".json"

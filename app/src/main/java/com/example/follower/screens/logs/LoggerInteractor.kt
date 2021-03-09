@@ -42,10 +42,12 @@ class LoggerInteractor @Inject constructor(
         .onErrorReturn { GetRecordResult.IOError }
         .startWith(GetRecordResult.InProgress)
 
-    fun clearEntireRecord(): Observable<ClearRecordResult> = Observable.fromCallable { logger.clear() }
+    fun clearEntireRecord(): Observable<ClearRecordResult> = Observable.fromCallable {
+        kotlin.runCatching { logFile.writeText("") }.isSuccess
+    }
         .delaySubscription(1, TimeUnit.SECONDS)
         .compose(baseComposers.applyObservableSchedulers())
-        .map<ClearRecordResult> { ClearRecordResult.Success }
+        .map { if(it) ClearRecordResult.Success else ClearRecordResult.IOError }
         .onErrorReturn { ClearRecordResult.IOError }
         .startWith(ClearRecordResult.InProgress)
 
