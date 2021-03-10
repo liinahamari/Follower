@@ -8,7 +8,6 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -56,7 +55,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
 
         setupViewModelSubscriptions()
         currentLocale = resources.configuration.getLocalesLanguage()
-        viewModel.checkNightModeState(AppCompatDelegate.getDefaultNightMode())
+        viewModel.checkNightModeState(getDefaultNightMode())
     }
 
     @MainThread
@@ -80,7 +79,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     override fun onResume() = super.onResume().also { shakeDetector!!.start(sensorManager) }
     override fun onPause() = super.onPause().also { shakeDetector!!.stop() }
     override fun onSupportNavigateUp(): Boolean = findNavController(R.id.mainActivityFragmentContainer).navigateUp()
-    override fun onRestart() = super.onRestart().also { viewModel.checkLocaleChanged(currentLocale) }
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
 
     private fun setupViewModelSubscriptions() {
@@ -88,7 +86,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
             recreate()
         })
         viewModel.nightModeChangedEvent.observe(this, {
-            AppCompatDelegate.setDefaultNightMode(it)
+            setDefaultNightMode(it)
             recreate()
         })
     }
@@ -104,14 +102,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
             disposable += prefInteractor.handleThemeChanges(toBeCompared).subscribe {
                 if (it is NightModeChangesResult.Success) {
                     _setNightModeValueAndRecreateEvent.value = it.code
-                }
-            }
-        }
-
-        fun checkLocaleChanged(currentLocale: String) {
-            disposable += prefInteractor.checkLocaleChanged(currentLocale).subscribe {
-                if (it is LocaleChangedResult.Success) {
-                    _recreateEvent.call()
                 }
             }
         }

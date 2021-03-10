@@ -70,7 +70,7 @@ class RoadBuildingInteractorTest {
     }
 
     @Test
-    fun `if Track Representation setting is pref_set, then return SuccessMarkerSet with markerSet field containing the same amount wayPoints as tied to exact Track`() {
+    fun `if Track Representation setting is pref_set, then return SuccessMarkerSet`() {
         sharedPrefs.writeStringOf(prefTrackRepresentationId, context.getString(R.string.pref_marker_set))
         assert(trackDao.getCount() == 1)
         assert(wayPointDao.getCount() == 1)

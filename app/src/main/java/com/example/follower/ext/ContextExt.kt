@@ -9,7 +9,6 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -22,6 +21,8 @@ import java.util.*
 
 fun Configuration.getLocalesLanguage(): String = locales[0].language
 
+/** On first launch getSavedAppLocale() returns null, and then app seek corresponding to device provided locale to apply the corresponding translations.
+ * If device has unsupported locale (such as German), application applies English locale */
 fun Context.provideUpdatedContextWithNewLocale(
     persistedLanguage: String? = kotlin.runCatching { getSavedAppLocale() }.getOrNull(),
     defaultLocale: String? = null
@@ -37,8 +38,10 @@ fun Context.getDefaultSharedPreferences(): SharedPreferences = PreferenceManager
 private fun Context.getSavedAppLocale(): String = getDefaultSharedPreferences().getStringOf(getString(R.string.pref_lang))!!
 private fun Context.saveAppLocale(newLocale: String) = getDefaultSharedPreferences().writeStringOf(getString(R.string.pref_lang), newLocale)
 
-@Suppress("DEPRECATION"
-    /** """this method is no longer available to third party applications""" -- but we don't care tracking our application's services*/)
+@Suppress(
+    "DEPRECATION"
+    /** """this method is no longer available to third party applications""" -- but we do care only about tracking our application's services*/
+)
 fun Context.isServiceRunning(serviceClass: Class<*>) = (getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningServices(Int.MAX_VALUE).any { serviceClass.name == it.service.className }
 
 fun FragmentActivity.openAppSettings() = startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${BuildConfig.APPLICATION_ID}")))
@@ -57,7 +60,7 @@ private fun Context.createDirIfNotExist(dirName: String) = File(filesDir, dirNam
 }
 
 fun Context.createFileIfNotExist(fileName: String, dirName: String) = File(createDirIfNotExist(dirName), fileName).apply {
-    if(exists().not()) {
+    if (exists().not()) {
         createNewFile()
     }
 }
