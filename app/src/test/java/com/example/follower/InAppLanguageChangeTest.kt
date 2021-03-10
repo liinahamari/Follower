@@ -1,19 +1,15 @@
 package com.example.follower
 
-import android.content.SharedPreferences
 import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
-import com.example.follower.ext.*
-import com.example.follower.helper.FlightRecorder
-import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.helper.rx.TestSchedulers
-import com.example.follower.screens.LocaleChangedResult
-import com.example.follower.screens.MainActivitySettingsInteractor
+import com.example.follower.ext.getDefaultSharedPreferences
+import com.example.follower.ext.getLocalesLanguage
+import com.example.follower.ext.getStringOf
+import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -34,38 +30,10 @@ class InAppLanguageChangeTest {
     private var context = InstrumentationRegistry.getInstrumentation().context
     private var sharedPrefs = context.getDefaultSharedPreferences()
     private val langPrefId = context.getString(R.string.pref_lang)
-    private val logger = FlightRecorder(createTempFile())
-    private val nightModePreferenceInteractor = MainActivitySettingsInteractor(sharedPrefs, BaseComposers(TestSchedulers(), logger), logger, context)
 
     @Before
     fun setUp() {
         sharedPrefs.edit().putString(langPrefId, null).commit()
-    }
-
-    @Test
-    fun `if something is wrong with SharedPreferences, return LocaleChangedResult # SharedPreferencesCorruptionError`() {
-        val sharedPrefMock = Mockito.mock(SharedPreferences::class.java)
-        Mockito.`when`(sharedPrefMock.getStringOf(langPrefId)).thenThrow(RuntimeException::class.java)
-        val nightModePreferenceInteractor = MainActivitySettingsInteractor(sharedPrefMock, BaseComposers(TestSchedulers(), logger), logger, context)
-
-        nightModePreferenceInteractor.checkLocaleChanged(LANGUAGE_ID_ENGLISH)
-            .test()
-            .assertNoErrors()
-            .assertComplete()
-            .assertResult(LocaleChangedResult.SharedPreferencesCorruptionError)
-    }
-
-    @Test
-    fun `if the same value persisted, return no result`() {
-        sharedPrefs.writeStringOf(langPrefId, LANGUAGE_ID_ENGLISH)
-        assert(sharedPrefs.getStringOf(langPrefId) == LANGUAGE_ID_ENGLISH)
-
-        nightModePreferenceInteractor.checkLocaleChanged(LANGUAGE_ID_ENGLISH)
-            .test()
-            .assertNoErrors()
-            .assertComplete()
-            .assertNoValues()
-        assert(sharedPrefs.getStringOf(langPrefId) == LANGUAGE_ID_ENGLISH)
     }
 
     @Test

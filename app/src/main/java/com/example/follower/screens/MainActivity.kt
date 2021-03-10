@@ -18,7 +18,6 @@ import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.base.BaseViewModel
-import com.example.follower.ext.getLocalesLanguage
 import com.example.follower.ext.getStringOf
 import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import com.example.follower.ext.writeStringOf
@@ -46,7 +45,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     private var navigated = false
 
     private var shakeDetector: ShakeDetector? = null
-    private lateinit var currentLocale: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as FollowerApp).appComponent.inject(this)
@@ -54,7 +52,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
         super.onCreate(savedInstanceState)
 
         setupViewModelSubscriptions()
-        currentLocale = resources.configuration.getLocalesLanguage()
         viewModel.checkNightModeState(getDefaultNightMode())
     }
 
@@ -82,21 +79,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
 
     private fun setupViewModelSubscriptions() {
-        viewModel.recreateEvent.observe(this, {
-            recreate()
-        })
         viewModel.nightModeChangedEvent.observe(this, {
             setDefaultNightMode(it)
             recreate()
         })
     }
 
-    class MainActivityViewModel @Inject constructor(private val prefInteractor: MainActivitySettingsInteractor) : BaseViewModel() {
+    class MainActivityViewModel @Inject constructor(private val prefInteractor: DarkThemeInteractor) : BaseViewModel() {
         private val _setNightModeValueAndRecreateEvent = SingleLiveEvent<Int>()
         val nightModeChangedEvent: LiveData<Int> get() = _setNightModeValueAndRecreateEvent
-
-        private val _recreateEvent = SingleLiveEvent<Any>()
-        val recreateEvent: LiveData<Any> get() = _recreateEvent
 
         fun checkNightModeState(toBeCompared: Int) {
             disposable += prefInteractor.handleThemeChanges(toBeCompared).subscribe {
@@ -108,7 +99,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     }
 }
 
-class MainActivitySettingsInteractor @Inject constructor(private val sharedPreferences: SharedPreferences, private val baseComposers: BaseComposers, private val logger: FlightRecorder, private val context: Context) {
+class DarkThemeInteractor @Inject constructor(private val sharedPreferences: SharedPreferences, private val baseComposers: BaseComposers, private val logger: FlightRecorder, private val context: Context) {
     fun handleThemeChanges(toBeCompared: Int): Maybe<NightModeChangesResult> = Single.fromCallable {
         kotlin.runCatching { sharedPreferences.getStringOf(context.getString(R.string.pref_theme)) }.getOrThrow()
     }
@@ -137,25 +128,12 @@ class MainActivitySettingsInteractor @Inject constructor(private val sharedPrefe
         }.onErrorReturn { NightModeChangesResult.SharedChangesCorruptionError }
         .doOnError { logger.e(label = "Problem with changing theme!", stackTrace = it.stackTrace) }
         .compose(baseComposers.applyMaybeSchedulers())
-
-    fun checkLocaleChanged(currentLocale: String): Maybe<LocaleChangedResult> = Single.just(currentLocale)
-        .filter { sharedPreferences.getStringOf(context.getString(R.string.pref_lang)).equals(it).not() }
-        .map<LocaleChangedResult> { LocaleChangedResult.Success }
-        .onErrorReturn { LocaleChangedResult.SharedPreferencesCorruptionError }
-        .doOnError { logger.e(label = "locale change", stackTrace = it.stackTrace) }
-        .compose(baseComposers.applyMaybeSchedulers())
 }
 
 sealed class NightModeChangesResult {
     data class Success(val code: Int) : NightModeChangesResult()
     object SharedChangesCorruptionError : NightModeChangesResult()
 }
-
-sealed class LocaleChangedResult {
-    object Success : LocaleChangedResult()
-    object SharedPreferencesCorruptionError : LocaleChangedResult()
-}
-
 
 class PagerContainerFragment : BaseFragment(R.layout.follower_pager) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) = super.onViewCreated(view, savedInstanceState)
