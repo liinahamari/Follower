@@ -22,6 +22,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:usesCleartextTraffic="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Follower">
@@ -37,7 +38,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.LocationTrackingService" />
+        <service android:name=".services.LocationTrackingService"
+            android:foregroundServiceType="location"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -49,3 +53,5 @@
         </provider>
     </application>
 </manifest>
+
+<!--todo REMOVE usesClearTextTraffic-->

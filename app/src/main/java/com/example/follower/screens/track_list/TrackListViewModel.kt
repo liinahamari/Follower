@@ -1,17 +1,21 @@
 package com.example.follower.screens.track_list
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.example.follower.R
 import com.example.follower.base.BaseViewModel
 import com.example.follower.helper.SingleLiveEvent
+import com.example.follower.interactors.SharedTrackResult
 import com.example.follower.interactors.FetchTracksResult
 import com.example.follower.interactors.RemoveTrackResult
 import com.example.follower.interactors.TrackInteractor
 import com.example.follower.model.PreferencesRepository
 import com.example.follower.model.TrackDisplayModeResult
 import io.reactivex.functions.Consumer
-import javax.inject.Inject
 import io.reactivex.rxkotlin.plusAssign
+import javax.inject.Inject
+
+typealias TrackTitle = String
 
 class TrackListViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val preferencesRepository: PreferencesRepository) : BaseViewModel() {
     private val _errorEvent = SingleLiveEvent<Int>()
@@ -26,9 +30,13 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
     private val _trackDisplayModeEvent = SingleLiveEvent<Pair<String, Long>>()
     val trackDisplayModeEvent: LiveData<Pair<String, Long>> get() = _trackDisplayModeEvent
 
+    private val _shareJsonEvent = SingleLiveEvent<Pair<Uri, TrackTitle>>()
+    val shareJsonEvent: LiveData<Pair<Uri, TrackTitle>> get() = _shareJsonEvent
+
     private val _removeTrackEvent = SingleLiveEvent<Long>()
     val removeTrackEvent: LiveData<Long> get() = _removeTrackEvent
 
+    /*todo: test cascade*/
     fun removeTrack(trackId: Long) {
         disposable += trackInteractor.removeTrack(trackId).subscribe(Consumer {
             when (it) {
@@ -57,6 +65,15 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
             when (it) {
                 is TrackDisplayModeResult.Success -> _trackDisplayModeEvent.value = it.displayMode to trackId
                 is TrackDisplayModeResult.Failure -> _errorEvent.value = R.string.error_couldnt_save_preference
+            }
+        })
+    }
+
+    fun createSharedJsonFileForTrack(trackId: Long, fileExtension: String) {
+        disposable += trackInteractor.getTrackJsonFile(trackId, fileExtension).subscribe(Consumer {
+            when (it) {
+                is SharedTrackResult.Success -> _shareJsonEvent.value = it.trackJsonAndTitle
+                is SharedTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
             }
         })
     }

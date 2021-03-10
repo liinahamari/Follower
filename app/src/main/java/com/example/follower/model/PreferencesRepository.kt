@@ -20,6 +20,8 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
             if (sharedPreferences.getBoolean(context.getString(R.string.pref_is_first_launch), false).not()) {
                 sharedPreferences.writeBooleanOf(context.getString(R.string.pref_is_first_launch), true)
 
+                sharedPreferences.writeStringOf(context.getString(R.string.pref_uid), UUID.randomUUID().toString())
+
                 PreferenceManager.setDefaultValues(context, R.xml.preferences, false)
                 sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_start_time), hourlyTimeToMinutesFromMidnight(DEFAULT_AUTO_TRACKING_START_TIME))
                 sharedPreferences.writeIntOf(context.getString(R.string.pref_tracking_stop_time), hourlyTimeToMinutesFromMidnight(DEFAULT_AUTO_TRACKING_END_TIME))
@@ -40,16 +42,16 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
         .map<PersistedLocaleResult> { PersistedLocaleResult.Success(it) }
         .onErrorReturn { PersistedLocaleResult.Failure }
 
-    fun getPersistedTrackRepresentation(): Single<PersistedTrackResult> = Single.just(context.getString(R.string.pref_track_representing))
+    fun getPersistedTrackRepresentation(): Single<PersistedTrackResult> = Single.just(context.getString(R.string.pref_track_representation))
         .map { sharedPreferences.getStringOf(it) }
-        .onErrorResumeNext { Single.fromCallable { sharedPreferences.writeStringOf(context.getString(R.string.pref_track_representing), context.getString(R.string.pref_line)) }
-            .map { sharedPreferences.getStringOf(context.getString(R.string.pref_track_representing)) } }
+        .onErrorResumeNext { Single.fromCallable { sharedPreferences.writeStringOf(context.getString(R.string.pref_track_representation), context.getString(R.string.pref_line)) }
+            .map { sharedPreferences.getStringOf(context.getString(R.string.pref_track_representation)) } }
         .map<PersistedTrackResult> {
             when (it) {
                 context.getString(R.string.pref_marker_set) -> PersistedTrackResult.Success(context.getString(R.string.pref_marker_set))
                 context.getString(R.string.pref_line) -> PersistedTrackResult.Success(context.getString(R.string.pref_line))
                 else -> PersistedTrackResult.Success(context.getString(R.string.pref_line)).also {
-                    sharedPreferences.writeStringOf(context.getString(R.string.pref_track_representing), context.getString(R.string.pref_line))
+                    sharedPreferences.writeStringOf(context.getString(R.string.pref_track_representation), context.getString(R.string.pref_line))
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.example.follower.model
 
+import androidx.annotation.VisibleForTesting
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -13,4 +14,8 @@ interface WayPointDao {
 
     @Query("DELETE FROM waypoint WHERE trackId = :trackId")
     fun delete(trackId: Long): Completable
+
+    @VisibleForTesting
+    @Query("SELECT COUNT(time) FROM waypoint")
+    fun getCount(): Int
 }

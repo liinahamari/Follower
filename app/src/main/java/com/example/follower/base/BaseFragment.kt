@@ -26,5 +26,8 @@ open class BaseFragment(@LayoutRes layout: Int): Fragment(layout) {
     protected open fun setupViewModelSubscriptions() = Unit
     protected open fun setupClicks() = Unit
 
-    override fun onAttach(context: Context) = super.onAttach(context).also { (context.applicationContext as FollowerApp).appComponent.inject(this) }
+    override fun onAttach(context: Context) {
+        (context.applicationContext as FollowerApp).appComponent.inject(this)
+        super.onAttach(context)
+    }
 }

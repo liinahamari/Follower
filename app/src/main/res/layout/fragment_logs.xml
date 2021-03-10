@@ -1,29 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/logsToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/eraseLogButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/title_erase_logs"
-            tools:ignore="MissingConstraints" />
-
-        <Button
-            android:id="@+id/sendLogsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/title_send_logs"
-            tools:ignore="MissingConstraints" />
-    </LinearLayout>
+        android:background="@color/purple_500"
+        app:title="@string/title_logs"
+        android:elevation="4dp"
+        app:menu="@menu/logs_menu"
+        app:titleTextColor="@color/white"
+        app:navigationIcon="@drawable/ic_close_24" />
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -5,70 +5,50 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.Uri
+import android.os.Bundle
 import android.os.IBinder
-import android.provider.Settings
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.viewModels
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onCancel
 import com.afollestad.materialdialogs.input.input
-import com.example.follower.BuildConfig
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
+import com.example.follower.di.modules.DIALOG_EMPTY_WAYPOINTS
+import com.example.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
+import com.example.follower.di.modules.TrackingControlModule
 import com.example.follower.ext.*
-import com.example.follower.helper.CustomToast
 import com.example.follower.helper.CustomToast.errorToast
-import com.example.follower.helper.CustomToast.infoToast
-import com.example.follower.helper.CustomToast.successToast
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.services.ACTION_START_TRACKING
+import com.example.follower.services.ACTION_STOP_TRACKING
+import com.example.follower.services.ARG_AUTO_SAVE
 import com.example.follower.services.LocationTrackingService
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
-import kotlin.random.Random
+import javax.inject.Named
 
 private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val CODE_PERMISSION_LOCATION = 101
 
+@TrackingControlScope
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
+    @Inject lateinit var viewModel: TrackingControlViewModel
     @Inject lateinit var logger: FlightRecorder
-    private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
+
+    @Inject
+    @Named(DIALOG_PERMISSION_EXPLANATION)
+    lateinit var locationPermissionExplanationDialog: AlertDialog
+
+    @Inject
+    @Named(DIALOG_EMPTY_WAYPOINTS)
+    lateinit var emptyWayPointsDialog: AlertDialog
+
     private var isServiceBound = false
     private var gpsService: LocationTrackingService? = null
-
-    private val locationPermissionExplanationDialog by lazy {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.app_name))
-            .setMessage(R.string.location_permission_dialog_explanation)
-            .setPositiveButton(getString(android.R.string.ok), null)
-            .setNegativeButton(getString(R.string.title_settings)) { dialog, _ ->
-                dialog.dismiss()
-                requireActivity().startActivity(
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${BuildConfig.APPLICATION_ID}"))
-                )
-            }
-            .create()
-    }
-
-    private val emptyWayPointsDialog by lazy {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.app_name))
-            .setMessage(R.string.message_you_have_no_waypoints)
-            .setPositiveButton(getString(R.string.title_stop_tracking)) { _, _ ->
-                if (isServiceBound) {
-                    requireActivity().unbindService(serviceConnection)
-                    isServiceBound = false
-                }
-                requireActivity().stopService(Intent(requireActivity(), LocationTrackingService::class.java))
-            }
-            .setNegativeButton(getString(R.string.title_continue), null)
-            .create()
-    }
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -77,14 +57,10 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                 isServiceBound = true
 
                 gpsService = (service as LocationTrackingService.LocationServiceBinder).getService()
-//                subscriptions.clear() /*TODO WTF?*/
-                gpsService?.let { gpsService ->
-                    subscriptions += gpsService
-                        .isTracking
-                        .subscribe {
-                            toggleButtons(it)
-                        }
-                }
+//                subscriptions.clear() /*FIXME WTF?!!!!?!??!???!!?*/
+                subscriptions += gpsService!!
+                    .isTracking
+                    .subscribe { toggleButtons(it) }
             }
         }
 
@@ -93,7 +69,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             if (name.className.endsWith(LocationTrackingService::class.java.simpleName)) {
                 logger.i { "ServiceConnection: disconnected" }
                 isServiceBound = false
-                toggleButtons(false)
+                toggleButtons(false)/*todo think about clearing database and stopping service*/
             }
         }
     }
@@ -115,27 +91,23 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         }
     }
 
-    private fun startTracking() {
-        with(requireActivity()) {
-            val intent = Intent(this, LocationTrackingService::class.java)
-                .apply {
-                    action = ACTION_START_TRACKING
-                }
-            startService(intent)
-            bindService(intent, serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
-                .also { logger.i { "service bound ($it) from startTracking()" } }
-        }
-    }
-
     override fun onAttach(context: Context) {
-        (context.applicationContext as FollowerApp).appComponent.inject(this)
+        (context.applicationContext as FollowerApp)
+            .appComponent
+            .trackingControlComponent(TrackingControlModule(
+                activity = requireActivity(),
+                onStopTrackingClick = { viewModel.clearWaypoints(gpsService!!.traceBeginningTime!!) })
+            )
+            .inject(this)
         super.onAttach(context)
     }
 
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
-        viewModel.saveTrackEvent.observe(viewLifecycleOwner, { infoToast(getString(it)) })
-        viewModel.unbindServiceEvent.observe(viewLifecycleOwner, { unbindService() })
+        viewModel.stopServiceEvent.observe(viewLifecycleOwner, {
+            gpsService!!.isTracking.onNext(false) /*FIXME rethink*/
+            stopService(LocationTrackingService::class.java)
+        })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -146,7 +118,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             handleUsersReactionToPermission(
                 permissionToHandle = PERMISSION_LOCATION,
                 allPermissions = permissions,
-                doIfAllowed = { startTracking() },
+                doIfAllowed = { startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING) },
                 doIfDenied = { locationPermissionExplanationDialog.show() },
                 doIfNeverAskAgain = { locationPermissionExplanationDialog.show() }
             )
@@ -158,9 +130,11 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             .throttleFirst(750L)
             .subscribe {
                 if (hasPermission(PERMISSION_LOCATION)) {
-                    startTracking()
+                    startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
                 } else {
-                    @Suppress("DEPRECATION") // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( Maybe someday... https://developer.android.com/training/permissions/requesting
+                    @Suppress("DEPRECATION")
+                    // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :(
+                    // Maybe someday... https://developer.android.com/training/permissions/requesting
                     requestPermissions(arrayOf(PERMISSION_LOCATION), CODE_PERMISSION_LOCATION)
                 }
             }
@@ -178,21 +152,19 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                                 viewModel.clearWaypoints(nonSavedTrackId)
                             }
                             input(prefill = nonSavedTrackId.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
-                                viewModel.saveTrack(nonSavedTrackId, text.toString(), gpsService!!.wayPoints)
+                                startService(LocationTrackingService::class.java,
+                                    action = ACTION_STOP_TRACKING,
+                                    bundle = Bundle().apply {
+                                        putCharSequence(ARG_AUTO_SAVE, text)
+                                    })
                             }
                         }
                     }
                 } else {
-                    logger.wtf { "problem with service binding... ${gpsService == null}" }
+                    logger.wtf { "problem with service binding... gpsService == null (${gpsService == null})" }
                     throw RuntimeException()
                 }
             }
-    }
-
-    private fun unbindService() {
-        requireActivity().unbindService(serviceConnection)
-        isServiceBound = false
-        requireActivity().stopService(Intent(requireActivity(), LocationTrackingService::class.java))
     }
 
     /*todo investigate why NPE happens here and why lifecycle fires twice*/

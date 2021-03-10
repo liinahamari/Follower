@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 /** Refers to <provider>'s authority in AndroidManifest.xml*/
-private const val FILE_PROVIDER_META = ".fileprovider"
+const val FILE_PROVIDER_META = ".fileprovider"
 
 class LoggerInteractor @Inject constructor(
     private val context: Context,
@@ -42,10 +42,12 @@ class LoggerInteractor @Inject constructor(
         .onErrorReturn { GetRecordResult.IOError }
         .startWith(GetRecordResult.InProgress)
 
-    fun clearEntireRecord(): Observable<ClearRecordResult> = Observable.fromCallable { logger.clear() }
+    fun clearEntireRecord(): Observable<ClearRecordResult> = Observable.fromCallable {
+        kotlin.runCatching { logFile.writeText("") }.isSuccess
+    }
         .delaySubscription(1, TimeUnit.SECONDS)
         .compose(baseComposers.applyObservableSchedulers())
-        .map<ClearRecordResult> { ClearRecordResult.Success }
+        .map { if(it) ClearRecordResult.Success else ClearRecordResult.IOError }
         .onErrorReturn { ClearRecordResult.IOError }
         .startWith(ClearRecordResult.InProgress)
 

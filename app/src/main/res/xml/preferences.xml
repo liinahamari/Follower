@@ -70,7 +70,7 @@
         android:entries="@array/track_representing"
         android:entryValues="@array/track_representing_values"
         android:defaultValue="@string/pref_line"
-        android:key="@string/pref_track_representing"
+        android:key="@string/pref_track_representation"
         android:title="@string/title_track_representing"
         android:summary="@string/title_track_representing_summary"
         app:iconSpaceReserved="false" />

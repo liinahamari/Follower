@@ -5,8 +5,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.res.Configuration
+import androidx.annotation.VisibleForTesting
 import com.example.follower.di.components.AppComponent
 import com.example.follower.di.components.DaggerAppComponent
+import com.example.follower.di.modules.ServiceModule
 import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.model.PersistedLocaleResult
@@ -16,21 +18,21 @@ import io.reactivex.plugins.RxJavaPlugins
 import java.util.*
 import javax.inject.Inject
 
-class FollowerApp: Application() {
+class FollowerApp : Application() {
     @Inject lateinit var preferencesRepository: PreferencesRepository
     @Inject lateinit var logger: FlightRecorder
+    @Inject lateinit var notificationManager: NotificationManager
     lateinit var appComponent: AppComponent
 
     override fun onCreate() {
         setupDagger()
         super.onCreate()
 
-        preferencesRepository.applyDefaultPreferences().blockingAwait()
+        preferencesRepository.applyDefaultPreferences().blockingAwait() /*todo: to splash screen?*/
 
         setupOsmdroid()
 
-        getSystemService(NotificationManager::class.java)
-            .createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
+        notificationManager.createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
 
         RxJavaPlugins.setErrorHandler { logger.e(label = "GLOBAL", stackTrace = it.stackTrace) }
     }
@@ -55,10 +57,13 @@ class FollowerApp: Application() {
         super.onConfigurationChanged(newConfig)
     }
 
-    private fun setupDagger() {
-        appComponent = DaggerAppComponent.builder()
+    @VisibleForTesting
+    fun setupDagger(
+        appComponent: AppComponent = DaggerAppComponent.builder()
             .application(this)
             .build()
+    ) {
+        this.appComponent = appComponent
             .apply { inject(this@FollowerApp) }
     }
 }
