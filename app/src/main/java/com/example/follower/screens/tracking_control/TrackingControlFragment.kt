@@ -34,6 +34,8 @@ import javax.inject.Named
 private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
 private const val CODE_PERMISSION_LOCATION = 101
 
+/*todo, add distance, points*/
+
 @TrackingControlScope
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
     @Inject lateinit var viewModel: TrackingControlViewModel

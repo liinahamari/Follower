@@ -57,6 +57,7 @@
         android:entryValues="@array/theme_values"
         android:key="@string/pref_theme"
         android:title="@string/title_themes"
+        app:defaultValue="-1"
         app:iconSpaceReserved="false" />
 
     <ListPreference

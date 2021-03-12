@@ -5,11 +5,9 @@ import android.content.SharedPreferences
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.view.View
-import androidx.activity.viewModels
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate.*
-import androidx.lifecycle.LiveData
+import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -17,17 +15,9 @@ import androidx.navigation.ui.NavigationUI
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
-import com.example.follower.base.BaseViewModel
-import com.example.follower.ext.getStringOf
 import com.example.follower.ext.provideUpdatedContextWithNewLocale
-import com.example.follower.ext.writeStringOf
-import com.example.follower.helper.FlightRecorder
-import com.example.follower.helper.SingleLiveEvent
-import com.example.follower.helper.rx.BaseComposers
 import com.squareup.seismic.ShakeDetector
-import io.reactivex.Maybe
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -38,8 +28,7 @@ import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Listener {
     @Inject lateinit var sensorManager: SensorManager
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val viewModel by viewModels<MainActivityViewModel> { viewModelFactory }
+    @Inject lateinit var prefs: SharedPreferences
 
     private val clicks = CompositeDisposable()
     private var navigated = false
@@ -51,8 +40,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
         shakeDetector = ShakeDetector(this)
         super.onCreate(savedInstanceState)
 
-        setupViewModelSubscriptions()
-        viewModel.checkNightModeState(getDefaultNightMode())
+        setDefaultNightMode(prefs.getString(getString(R.string.pref_theme), null)!!.toInt()) /*NPE can be caused by lack of defaultValue in preferences.xml of android:key="@string/pref_theme" */
     }
 
     @MainThread
@@ -77,62 +65,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     override fun onPause() = super.onPause().also { shakeDetector!!.stop() }
     override fun onSupportNavigateUp(): Boolean = findNavController(R.id.mainActivityFragmentContainer).navigateUp()
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
-
-    private fun setupViewModelSubscriptions() {
-        viewModel.nightModeChangedEvent.observe(this, {
-            setDefaultNightMode(it)
-            recreate()
-        })
-    }
-
-    class MainActivityViewModel @Inject constructor(private val prefInteractor: DarkThemeInteractor) : BaseViewModel() {
-        private val _setNightModeValueAndRecreateEvent = SingleLiveEvent<Int>()
-        val nightModeChangedEvent: LiveData<Int> get() = _setNightModeValueAndRecreateEvent
-
-        fun checkNightModeState(toBeCompared: Int) {
-            disposable += prefInteractor.handleThemeChanges(toBeCompared).subscribe {
-                if (it is NightModeChangesResult.Success) {
-                    _setNightModeValueAndRecreateEvent.value = it.code
-                }
-            }
-        }
-    }
-}
-
-class DarkThemeInteractor @Inject constructor(private val sharedPreferences: SharedPreferences, private val baseComposers: BaseComposers, private val logger: FlightRecorder, private val context: Context) {
-    fun handleThemeChanges(toBeCompared: Int): Maybe<NightModeChangesResult> = Single.fromCallable {
-        kotlin.runCatching { sharedPreferences.getStringOf(context.getString(R.string.pref_theme)) }.getOrThrow()
-    }
-        .map { it.toInt() }
-        .filter { it != toBeCompared }
-        .map<NightModeChangesResult> {
-            if (toBeCompared == MODE_NIGHT_FOLLOW_SYSTEM || toBeCompared == MODE_NIGHT_NO || toBeCompared == MODE_NIGHT_YES) {
-                sharedPreferences.writeStringOf(context.getString(R.string.pref_theme), toBeCompared.toString())
-                NightModeChangesResult.Success(toBeCompared)
-            } else NightModeChangesResult.Success(MODE_NIGHT_FOLLOW_SYSTEM)
-        }
-        .onErrorReturn {
-            if (it is NullPointerException) {
-                /**pref_theme contains null: doing initial setup... */
-                try {
-                    with(MODE_NIGHT_FOLLOW_SYSTEM) {
-                        sharedPreferences.writeStringOf(context.getString(R.string.pref_theme), this.toString())
-                        NightModeChangesResult.Success(this)
-                    }
-                } catch (e: Throwable) {
-                    NightModeChangesResult.SharedChangesCorruptionError
-                }
-            } else {
-                NightModeChangesResult.SharedChangesCorruptionError
-            }
-        }.onErrorReturn { NightModeChangesResult.SharedChangesCorruptionError }
-        .doOnError { logger.e(label = "Problem with changing theme!", stackTrace = it.stackTrace) }
-        .compose(baseComposers.applyMaybeSchedulers())
-}
-
-sealed class NightModeChangesResult {
-    data class Success(val code: Int) : NightModeChangesResult()
-    object SharedChangesCorruptionError : NightModeChangesResult()
 }
 
 class PagerContainerFragment : BaseFragment(R.layout.follower_pager) {

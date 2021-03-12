@@ -8,12 +8,12 @@ import android.content.res.Configuration
 import androidx.annotation.VisibleForTesting
 import com.example.follower.di.components.AppComponent
 import com.example.follower.di.components.DaggerAppComponent
-import com.example.follower.di.modules.ServiceModule
 import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.model.PersistedLocaleResult
 import com.example.follower.model.PreferencesRepository
 import com.example.follower.services.CHANNEL_ID
+import io.reactivex.internal.functions.Functions
 import io.reactivex.plugins.RxJavaPlugins
 import java.util.*
 import javax.inject.Inject
@@ -34,7 +34,7 @@ class FollowerApp : Application() {
 
         notificationManager.createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
 
-        RxJavaPlugins.setErrorHandler { logger.e(label = "GLOBAL", stackTrace = it.stackTrace) }
+        RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
     }
 
     private fun setupOsmdroid() {
