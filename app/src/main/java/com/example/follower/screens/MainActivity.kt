@@ -106,7 +106,7 @@ class DarkThemeInteractor @Inject constructor(private val sharedPreferences: Sha
         .map { it.toInt() }
         .filter { it != toBeCompared }
         .map<NightModeChangesResult> {
-            if (it == MODE_NIGHT_FOLLOW_SYSTEM || it == MODE_NIGHT_NO || it == MODE_NIGHT_YES) {
+            if (toBeCompared == MODE_NIGHT_FOLLOW_SYSTEM || toBeCompared == MODE_NIGHT_NO || toBeCompared == MODE_NIGHT_YES) {
                 sharedPreferences.writeStringOf(context.getString(R.string.pref_theme), toBeCompared.toString())
                 NightModeChangesResult.Success(toBeCompared)
             } else NightModeChangesResult.Success(MODE_NIGHT_FOLLOW_SYSTEM)
