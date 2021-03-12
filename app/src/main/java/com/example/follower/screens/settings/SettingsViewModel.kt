@@ -11,7 +11,7 @@ import javax.inject.Inject
 @SettingsScope
 class SettingsViewModel @Inject constructor(private val prefInteractor: SettingsPrefsInteractor,
                                             private val autoTrackingSchedulingUseCase: AutoTrackingSchedulingUseCase,
-                                            private val settingsValidationUseCase: SettingsPropertiesValidationUseCase) : BaseViewModel() {
+                                            private val biometricValidationUseCase: BiometricAvailabilityValidationUseCase) : BaseViewModel() {
     private val _errorEvent = SingleLiveEvent<Int>()
     val errorEvent: LiveData<Int> get() = _errorEvent
 
@@ -30,11 +30,8 @@ class SettingsViewModel @Inject constructor(private val prefInteractor: Settings
     private val _biometricNotAvailable = SingleLiveEvent<Int>()
     val biometricNotAvailable: LiveData<Int> get() = _biometricNotAvailable
 
-    private val _matchSystemThemeAvailable = SingleLiveEvent<Boolean>()
-    val matchSystemThemeAvailable: LiveData<Boolean> get() = _matchSystemThemeAvailable
-
     fun isBiometricValidationAvailable() {
-        disposable += settingsValidationUseCase.isBiometricAvailable().subscribe(Consumer {
+        disposable += biometricValidationUseCase.execute().subscribe(Consumer {
             if (it is BiometricAvailabilityResult.NotAvailable) {
                 _biometricNotAvailable.value = it.explanation
             }
@@ -73,13 +70,5 @@ class SettingsViewModel @Inject constructor(private val prefInteractor: Settings
                 is CancelAutoTrackingResult.Failure -> _errorEvent.value = R.string.error_cant_stop_auto_tacking
             }
         })
-    }
-
-    fun isMatchingSystemThemeAvailable() {
-        disposable += settingsValidationUseCase.isMatchingSystemThemeAvailable().subscribe {
-            if (it is MatchSystemThemeResult.Available) {
-                _matchSystemThemeAvailable.value = it.isEnabled
-            }
-        }
     }
 }

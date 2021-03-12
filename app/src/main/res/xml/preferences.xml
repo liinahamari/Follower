@@ -52,16 +52,7 @@
             android:data="https://github.com/liinahamari/Follower/issues" />
     </Preference>
 
-    <SwitchPreferenceCompat
-        app:disableDependentsState="true"
-        android:iconSpaceReserved="false"
-        app:isPreferenceVisible="false"
-        android:key="@string/pref_match_system_theme"
-        android:title="@string/app_name"
-        android:defaultValue="false" />
-
     <ListPreference
-        android:dependency="@string/pref_match_system_theme"
         android:entries="@array/themes"
         android:entryValues="@array/theme_values"
         android:key="@string/pref_theme"
