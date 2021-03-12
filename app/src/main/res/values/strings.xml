@@ -103,4 +103,5 @@
     <string name="are_you_sure">Are you sure?</string>
     <string name="yes">Yes</string>
     <string name="as_a_file">As a file…</string>
+    <string name="pref_match_system_theme">pref_match_system_theme</string>
 </resources>

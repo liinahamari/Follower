@@ -3,6 +3,7 @@ package com.example.follower.screens.settings
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,7 +44,9 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         super.onViewCreated(view, savedInstanceState)
         setupViewModelSubscriptions()
         viewModel.isBiometricValidationAvailable()
+        viewModel.isMatchingSystemThemeAvailable()
     }
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState).also { prefs.registerOnSharedPreferenceChangeListener(this) }
     override fun onDestroyView() = super.onDestroyView().also { prefs.unregisterOnSharedPreferenceChangeListener(this) }
@@ -61,6 +64,12 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     }
 
     private fun setupViewModelSubscriptions() {
+        viewModel.matchSystemThemeAvailable.observe(viewLifecycleOwner, { isMatchingSystemThemeAvailable ->
+            findPreference<SwitchPreferenceCompat>(getString(R.string.pref_match_system_theme))!!.apply {
+                isVisible = true
+                isChecked = isMatchingSystemThemeAvailable
+            }
+        })
         viewModel.loadingEvent.observe(viewLifecycleOwner, {
             when {
                 loadingDialog.isShowing.not() && it -> loadingDialog.show()
