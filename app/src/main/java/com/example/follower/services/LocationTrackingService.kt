@@ -82,12 +82,12 @@ class LocationTrackingService : Service() {
 
     override fun onDestroy() {
         logger.d { "${javaClass.simpleName} onDestroy()" }
+        stopForeground(true)
         isTracking.onNext(false)
         disposable.clear()
     }
 
     private fun stopTracking() {
-        stopForeground(true)/* ? */
         if (::locationManager.isInitialized) {
             try {
                 locationManager.removeUpdates(locationListener)
@@ -133,11 +133,9 @@ class LocationTrackingService : Service() {
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
             stopSelf()
-            stopForeground(true)
             logger.e(label = "Failed to request location updates", stackTrace = ex.stackTrace)
         } catch (ex: IllegalArgumentException) {
             stopSelf()
-            stopForeground(true)
             isTracking.onNext(false)
             logger.e(label = "GPS provider does not exist (${ex.localizedMessage})", stackTrace = ex.stackTrace)
         }

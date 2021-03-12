@@ -39,7 +39,9 @@ class FollowerApp : Application() {
 
     private fun setupOsmdroid() {
         with(org.osmdroid.config.Configuration.getInstance()) {
+            /*set user agent to prevent getting banned from the OSM servers*/
             userAgentValue = BuildConfig.APPLICATION_ID
+            /*set the path for osmdroid's files (for example, tile cache)*/
             osmdroidBasePath = getExternalFilesDir(null)
         }
     }
