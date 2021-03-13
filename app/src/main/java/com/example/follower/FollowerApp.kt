@@ -13,6 +13,7 @@ import com.example.follower.helper.FlightRecorder
 import com.example.follower.model.PersistedLocaleResult
 import com.example.follower.model.PreferencesRepository
 import com.example.follower.services.CHANNEL_ID
+import com.github.anrwatchdog.ANRWatchDog
 import io.reactivex.internal.functions.Functions
 import io.reactivex.plugins.RxJavaPlugins
 import java.util.*
@@ -23,10 +24,13 @@ class FollowerApp : Application() {
     @Inject lateinit var logger: FlightRecorder
     @Inject lateinit var notificationManager: NotificationManager
     lateinit var appComponent: AppComponent
+    private val anrWatchDog = ANRWatchDog(2000)
 
     override fun onCreate() {
         setupDagger()
         super.onCreate()
+
+        setupAnrWatchDog()
 
         preferencesRepository.applyDefaultPreferences().blockingAwait() /*todo: to splash screen?*/
 
@@ -36,6 +40,14 @@ class FollowerApp : Application() {
 
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
     }
+
+    private fun setupAnrWatchDog() = anrWatchDog
+        .setANRListener { error ->
+            logger.wtf { "ANR: $error" }
+            logger.e("ANR", stackTrace = error.cause?.stackTrace ?: emptyArray())
+        }.also {
+            it.start()
+        }
 
     private fun setupOsmdroid() {
         with(org.osmdroid.config.Configuration.getInstance()) {
