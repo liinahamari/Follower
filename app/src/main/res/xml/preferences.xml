@@ -79,12 +79,14 @@
         app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
+            android:icon="@drawable/ic_baseline_lock"
             android:key="@string/pref_enable_biometric_protection"
-            app:iconSpaceReserved="false"
             android:title="@string/title_lock_records"
             android:summary="@string/summary_lock_explanation"/>
 
-        <SwitchPreferenceCompat android:key="acra.enable"
+        <SwitchPreferenceCompat
+            android:icon="@drawable/ic_report"
+            android:key="@string/pref_acra_enable"
             android:title="@string/title_send_crash_reports"
             android:summary="@string/summary_crash_reports_sending"
             android:defaultValue="false"
@@ -93,17 +95,18 @@
         <SwitchPreferenceCompat android:key="acra.syslog.enable"
             android:summaryOn="@string/title_attach_system_logs"
             android:defaultValue="true"
-            android:dependency="acra.enable"
+            android:dependency="@string/pref_acra_enable"
             />
         <SwitchPreferenceCompat android:key="acra.deviceid.enable"
             android:title="@string/title_use_device_id"
             android:defaultValue="true"
-            android:dependency="acra.enable"
+            android:dependency="@string/pref_acra_enable"
             />
 <!--        <CheckBoxPreference android:key="acra.alwaysaccept"-->
 <!--            android:title="@string/auto"-->
 <!--            android:summaryOn="@string/pref_acra_alwaysaccept_enabled"-->
-<!--            android:summaryOff="@string/pref_acra_alwaysaccept_disabled"-->
+<!--        android:dependency="@string/pref_acra_enable"-->
+        <!--            android:summaryOff="@string/pref_acra_alwaysaccept_disabled"-->
 <!--            android:defaultValue="false"/>-->
     </PreferenceCategory>
 
@@ -112,6 +115,7 @@
         app:iconSpaceReserved="false">
 
         <Preference
+            android:key="@string/pref_report_bug"
             android:icon="@drawable/ic_bug_report"
             android:title="@string/title_report_bug">
             <intent

@@ -7,6 +7,7 @@
     <string name="arg_toSinglePointerMap_Latitude" translatable="false">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
 
     <!--prefs-->
+    <string name="pref_report_bug" translatable="false">pref_report_bug</string>
     <string name="pref_acra_enable" translatable="false">pref_acra_enable</string>
     <string name="pref_acra_disable" translatable="false">acra.disable</string> <!--do not change - library listens exact value in SharedPreferences-->
     <string name="pref_uid" translatable="false">pref_uid</string>

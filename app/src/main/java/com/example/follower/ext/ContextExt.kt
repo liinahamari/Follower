@@ -1,17 +1,21 @@
 package com.example.follower.ext
 
+import android.app.Activity
 import android.app.ActivityManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import com.example.follower.BuildConfig
 import com.example.follower.R
@@ -66,3 +70,9 @@ fun Context.createFileIfNotExist(fileName: String, dirName: String) = File(creat
 }
 
 fun Context.getUriForInternalFile(file: File): Uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + FILE_PROVIDER_META, file)
+
+fun Context.deviceHasDarkThemeEnabled() = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+fun Fragment.deviceHasDarkThemeEnabled() = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+fun Activity.deviceHasDarkThemeEnabled() = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+
+fun Preference.setColorDependantOnNightMode(isNightMode: Boolean) = DrawableCompat.setTint(DrawableCompat.wrap(icon), if (isNightMode) Color.WHITE else Color.BLACK)
