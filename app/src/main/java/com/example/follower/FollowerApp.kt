@@ -1,10 +1,13 @@
+@file:Suppress("NonConstantResourceId")
 package com.example.follower
 
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.job.JobInfo
 import android.content.Context
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import com.example.follower.di.components.AppComponent
 import com.example.follower.di.components.DaggerAppComponent
@@ -12,13 +15,28 @@ import com.example.follower.ext.provideUpdatedContextWithNewLocale
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.model.PersistedLocaleResult
 import com.example.follower.model.PreferencesRepository
+import com.example.follower.screens.logs.MY_EMAIL
 import com.example.follower.services.CHANNEL_ID
 import com.github.anrwatchdog.ANRWatchDog
 import io.reactivex.internal.functions.Functions
 import io.reactivex.plugins.RxJavaPlugins
+import org.acra.*
+import org.acra.annotation.*
+import org.acra.data.StringFormat
 import java.util.*
 import javax.inject.Inject
 
+/*TODO: test PROD with R8 enabled*/
+@AcraCore(buildConfigClass = BuildConfig::class, reportFormat = StringFormat.JSON)
+/*
+@AcraHttpSender(uri = "http://yourserver.com/yourscript",
+    basicAuthLogin = "yourlogin", // optional
+    basicAuthPassword = "y0uRpa$\$w0rd", // optional
+    httpMethod = HttpSender.Method.POST)
+*/
+@AcraToast(resText=R.string.acra_toast_text, length = Toast.LENGTH_LONG)
+@AcraScheduler(requiresNetworkType = JobInfo.NETWORK_TYPE_ANY/*fixme: debug/prod distinction*/, requiresBatteryNotLow = true)
+@AcraMailSender(mailTo = MY_EMAIL) /*FIXME: temporary solution*/
 class FollowerApp : Application() {
     @Inject lateinit var preferencesRepository: PreferencesRepository
     @Inject lateinit var logger: FlightRecorder
@@ -58,7 +76,10 @@ class FollowerApp : Application() {
         }
     }
 
-    override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale(defaultLocale = Locale.getDefault().language))
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base.provideUpdatedContextWithNewLocale(defaultLocale = Locale.getDefault().language))
+        ACRA.init(this)
+    }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         preferencesRepository.getPersistedLocale()

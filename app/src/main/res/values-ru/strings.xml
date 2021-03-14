@@ -71,5 +71,14 @@
     <string name="delete">Удалить</string>
     <string name="are_you_sure">Вы уверены?</string>
     <string name="yes">Да</string>
-    <string name="as_a_file">Как файл...</string>
+    <string name="as_a_file">Как файл…</string>
+    <string name="title_privacy">Конфеденциальность</string>
+    <string name="title_send_crash_reports">Отправлять отчёты о сбоях</string>
+    <string name="summary_crash_reports_sending">Разрешить автоматически отправлять отчёты о сбоях в приложении стороннему сервису (ACRA, имеющему открытый исходный код как клиента, так и сервера) чтобы мы могли исправить ошибку быстрее и проще.</string>
+    <string name="title_attach_system_logs">Присоединять системные логи к отчету о сбоях</string>
+    <string name="title_use_device_id">Использовать DeviceID для локализации проблемы</string>
+    <string name="title_look_and_feel">Внешний вид</string>
+    <string name="title_tracking_adjustment">Настройки трекинга</string>
+    <string name="title_other">Другое</string>
+    <string name="acra_toast_text">Приложение некорректно завершило свою работу. Отчет будет доставлен разработчикам.</string>
 </resources>

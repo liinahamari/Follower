@@ -7,6 +7,8 @@
     <string name="arg_toSinglePointerMap_Latitude" translatable="false">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
 
     <!--prefs-->
+    <string name="pref_acra_enable" translatable="false">pref_acra_enable</string>
+    <string name="pref_acra_disable" translatable="false">acra.disable</string> <!--do not change - library listens exact value in SharedPreferences-->
     <string name="pref_uid" translatable="false">pref_uid</string>
     <string name="pref_tracking_start_time" translatable="false">pref_tracking_start_time</string>
     <string name="pref_tracking_stop_time" translatable="false">pref_tracking_end_time</string>
@@ -103,4 +105,14 @@
     <string name="are_you_sure">Are you sure?</string>
     <string name="yes">Yes</string>
     <string name="as_a_file">As a file…</string>
+    <string name="pref_acra_general" translatable="false">pref_acra_general</string>
+    <string name="title_privacy">Privacy</string>
+    <string name="title_send_crash_reports">Send crash reports</string>
+    <string name="summary_crash_reports_sending">Allow the app to send crash reports to a third-party service provider (ACRA, open-sourced both client and server) automatically so that we can review your crash and fix the bug faster and more easily.</string>
+    <string name="title_attach_system_logs">Attach system logs to a report</string>
+    <string name="title_use_device_id">Use DeviceID in reports to track problem</string>
+    <string name="title_look_and_feel">Look and feel</string>
+    <string name="title_tracking_adjustment">Tracking adjustment</string>
+    <string name="title_other">Other</string>
+    <string name="acra_toast_text">Sorry, the application crashed. A report will be sent to developers.</string>
 </resources>

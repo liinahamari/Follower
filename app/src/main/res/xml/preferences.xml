@@ -1,87 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <SwitchPreferenceCompat
-        android:key="@string/pref_enable_biometric_protection"
-        app:iconSpaceReserved="false"
-        android:title="@string/title_lock_records"
-        android:summary="@string/summary_lock_explanation"/>
-
-    <SwitchPreferenceCompat
-        android:key="@string/pref_enable_auto_tracking"
-        app:iconSpaceReserved="false"
-        android:title="@string/title_automatic_tracking_setting"
-        android:summary="@string/title_automatic_tracking_setting_summary"/>
-
-    <com.example.follower.screens.settings.TimePickerPreference
-        android:defaultValue="540"
-        app:iconSpaceReserved="false"
-        android:dependency="@string/pref_enable_auto_tracking"
-        android:key="@string/pref_tracking_start_time"
-        android:title="@string/title_auto_tracking_start_time" />
-
-    <com.example.follower.screens.settings.TimePickerPreference
-        app:defaultValue="1080"
-        app:iconSpaceReserved="false"
-        android:dependency="@string/pref_enable_auto_tracking"
-        android:key="@string/pref_tracking_stop_time"
-        android:title="@string/title_auto_tracking_stop_time" />
-
-    <EditTextPreference
-        android:defaultValue="10"
-        android:key="@string/pref_min_distance"
-        android:title="@string/title_min_distance"
-        app:iconSpaceReserved="false" />
-
-    <EditTextPreference
-        android:defaultValue="5"
-        android:key="@string/pref_min_location_update_interval"
-        android:title="@string/title_min_location_update_interval"
-        app:iconSpaceReserved="false" />
-
-    <Preference
-        android:key="@string/pref_reset_to_default"
-        android:title="@string/title_reset_to_defaults"
-        app:iconSpaceReserved="false" />
-
-    <Preference
-        android:title="@string/title_report_bug"
+    <PreferenceCategory
+        android:title="@string/title_look_and_feel"
         app:iconSpaceReserved="false">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:data="https://github.com/liinahamari/Follower/issues" />
-    </Preference>
 
-    <ListPreference
-        android:entries="@array/themes"
-        android:entryValues="@array/theme_values"
-        android:key="@string/pref_theme"
-        android:title="@string/title_themes"
-        app:defaultValue="-1"
-        app:iconSpaceReserved="false" />
+        <ListPreference
+            android:entries="@array/themes"
+            android:entryValues="@array/theme_values"
+            android:icon="@drawable/ic_theme"
+            android:key="@string/pref_theme"
+            android:title="@string/title_themes"
+            app:defaultValue="-1" />
 
-    <ListPreference
-        android:entries="@array/supported_languages"
-        android:entryValues="@array/supported_locales"
-        android:key="@string/pref_lang"
-        android:title="@string/title_language"
-        app:iconSpaceReserved="false" />
+        <ListPreference
+            android:entries="@array/supported_languages"
+            android:entryValues="@array/supported_locales"
+            android:icon="@drawable/ic_language"
+            android:key="@string/pref_lang"
+            android:title="@string/title_language" />
 
-    <ListPreference
-        android:entries="@array/track_representing"
-        android:entryValues="@array/track_representing_values"
-        android:defaultValue="@string/pref_line"
-        android:key="@string/pref_track_representation"
-        android:title="@string/title_track_representing"
-        android:summary="@string/title_track_representing_summary"
-        app:iconSpaceReserved="false" />
+        <ListPreference
+            android:defaultValue="@string/pref_line"
+            android:entries="@array/track_representing"
+            android:entryValues="@array/track_representing_values"
+            android:key="@string/pref_track_representation"
+            android:summary="@string/title_track_representing_summary"
+            android:title="@string/title_track_representing" />
 
-    <ListPreference
-        android:entries="@array/track_display_mode"
-        android:entryValues="@array/track_display_mode_values"
-        android:key="@string/pref_track_display_mode"
-        android:defaultValue="@string/pref_value_track_display_mode_none"
-        android:summary="@string/title_map_display_model"
-        android:title="@string/title_track_display_mode"
-        app:iconSpaceReserved="false" />
+        <ListPreference
+            android:defaultValue="@string/pref_value_track_display_mode_none"
+            android:entries="@array/track_display_mode"
+            android:entryValues="@array/track_display_mode_values"
+            android:key="@string/pref_track_display_mode"
+            android:summary="@string/title_map_display_model"
+            android:title="@string/title_track_display_mode" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/title_tracking_adjustment"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:key="@string/pref_enable_auto_tracking"
+            android:summary="@string/title_automatic_tracking_setting_summary"
+            android:title="@string/title_automatic_tracking_setting"
+            app:iconSpaceReserved="false" />
+
+        <com.example.follower.screens.settings.TimePickerPreference
+            android:defaultValue="540"
+            android:dependency="@string/pref_enable_auto_tracking"
+            android:key="@string/pref_tracking_start_time"
+            android:title="@string/title_auto_tracking_start_time"
+            app:iconSpaceReserved="false" />
+
+        <com.example.follower.screens.settings.TimePickerPreference
+            android:dependency="@string/pref_enable_auto_tracking"
+            android:key="@string/pref_tracking_stop_time"
+            android:title="@string/title_auto_tracking_stop_time"
+            app:defaultValue="1080"
+            app:iconSpaceReserved="false" />
+
+        <EditTextPreference
+            android:defaultValue="10"
+            android:key="@string/pref_min_distance"
+            android:title="@string/title_min_distance"
+            app:iconSpaceReserved="false" />
+
+        <EditTextPreference
+            android:defaultValue="5"
+            android:key="@string/pref_min_location_update_interval"
+            android:title="@string/title_min_location_update_interval"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/title_privacy"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:key="@string/pref_enable_biometric_protection"
+            app:iconSpaceReserved="false"
+            android:title="@string/title_lock_records"
+            android:summary="@string/summary_lock_explanation"/>
+
+        <SwitchPreferenceCompat android:key="acra.enable"
+            android:title="@string/title_send_crash_reports"
+            android:summary="@string/summary_crash_reports_sending"
+            android:defaultValue="false"
+            />
+
+        <SwitchPreferenceCompat android:key="acra.syslog.enable"
+            android:summaryOn="@string/title_attach_system_logs"
+            android:defaultValue="true"
+            android:dependency="acra.enable"
+            />
+        <SwitchPreferenceCompat android:key="acra.deviceid.enable"
+            android:title="@string/title_use_device_id"
+            android:defaultValue="true"
+            android:dependency="acra.enable"
+            />
+<!--        <CheckBoxPreference android:key="acra.alwaysaccept"-->
+<!--            android:title="@string/auto"-->
+<!--            android:summaryOn="@string/pref_acra_alwaysaccept_enabled"-->
+<!--            android:summaryOff="@string/pref_acra_alwaysaccept_disabled"-->
+<!--            android:defaultValue="false"/>-->
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/title_other"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:icon="@drawable/ic_bug_report"
+            android:title="@string/title_report_bug">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/liinahamari/Follower/issues" />
+        </Preference>
+
+        <Preference
+            android:key="@string/pref_reset_to_default"
+            android:title="@string/title_reset_to_defaults" />
+    </PreferenceCategory>
 </PreferenceScreen>

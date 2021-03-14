@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.fragment_logs.*
 import javax.inject.Inject
 import javax.inject.Named
 
-private const val MY_EMAIL = "l1bills@protonmail.com"
+const val MY_EMAIL = "l1bills@protonmail.com"
 private const val MESSAGE_TITLE = "Follower Logs of "
 const val TEXT_TYPE = "text/plain"
 
