@@ -23,7 +23,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.ReplaySubject
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 const val CHANNEL_ID = "GPS_CHANNEL"
@@ -52,13 +55,15 @@ class LocationTrackingService : Service() {
     private val locationListener = LocationListener()
     private val binder = LocationServiceBinder()
     val isTracking = BehaviorSubject.createDefault(false)
+    val wayPointsCounter = PublishSubject.create<Int>()
 
     override fun onBind(intent: Intent): IBinder = binder
 
     inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
             wayPoints.add(location.toWayPoint(traceBeginningTime!!))
-            logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, long:${location.longitude}" }
+            wayPointsCounter.onNext(wayPoints.size)
+            logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
         }
 
         override fun onProviderDisabled(provider: String) = logger.w { "onProviderDisabled: $provider" } /*todo: handle user's geolocation permission revoking*/
@@ -95,6 +100,7 @@ class LocationTrackingService : Service() {
                 logger.e(label = "Failed to remove location listeners", stackTrace = ex.stackTrace)
             } finally {
                 isTracking.onNext(false) /* ? */
+                wayPointsCounter.onNext(0)
             }
         }
         stopSelf()
@@ -130,6 +136,7 @@ class LocationTrackingService : Service() {
             (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER))?.let { initLocation ->
                 wayPoints.add(initLocation.toWayPoint(traceBeginningTime!!))
             }
+            wayPointsCounter.onNext(wayPoints.size)
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
             stopSelf()

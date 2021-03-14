@@ -81,4 +81,5 @@
     <string name="title_tracking_adjustment">Настройки трекинга</string>
     <string name="title_other">Другое</string>
     <string name="acra_toast_text">Приложение некорректно завершило свою работу. Отчет будет доставлен разработчикам.</string>
+    <string name="title_way_points_collected">%d геолокационных точек собрано</string>
 </resources>

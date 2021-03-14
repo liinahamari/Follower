@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onCancel
 import com.afollestad.materialdialogs.input.input
@@ -63,6 +64,10 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                 subscriptions += gpsService!!
                     .isTracking
                     .subscribe { toggleButtons(it) }
+
+                subscriptions += gpsService!!
+                    .wayPointsCounter
+                    .subscribe { way_points_counter.text = String.format(getString(R.string.title_way_points_collected), it) }
             }
         }
 
@@ -174,5 +179,6 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         btn_start_tracking?.isEnabled = isTracking.not()
         btn_stop_tracking?.isEnabled = isTracking
         txt_status?.text = getString(if (isTracking) R.string.title_tracking else R.string.title_gps_ready)
+        way_points_counter.isVisible = isTracking
     }
 }
