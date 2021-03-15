@@ -9,6 +9,7 @@ import android.location.LocationManager
 import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
+import dagger.Reusable
 import javax.inject.Singleton
 
 @Module
@@ -30,6 +31,6 @@ open class ServiceModule {
     fun provideAlarmManager(context: Context): AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     @Provides
-    @Singleton
+    @Reusable
     fun provideWorkManager(context: Context): WorkManager = WorkManager.getInstance(context)
 }

@@ -19,14 +19,16 @@ import com.example.follower.helper.CustomToast.successToast
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.interactors.SaveTrackResult
 import com.example.follower.interactors.TrackInteractor
+import com.example.follower.screens.tracking_control.UploadTrackInteractor
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.ReplaySubject
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 const val CHANNEL_ID = "GPS_CHANNEL"
@@ -44,6 +46,7 @@ class LocationTrackingService : Service() {
     }
 
     private val disposable = CompositeDisposable()
+    private val syncDisposable = CompositeDisposable()
     val wayPoints = mutableListOf<WayPoint>()
     var traceBeginningTime: Long? = null
 
@@ -51,6 +54,7 @@ class LocationTrackingService : Service() {
     @Inject lateinit var logger: FlightRecorder
     @Inject lateinit var locationManager: LocationManager
     @Inject lateinit var trackInteractor: TrackInteractor
+    @Inject lateinit var uploadTrackInteractor: UploadTrackInteractor
 
     private val locationListener = LocationListener()
     private val binder = LocationServiceBinder()
@@ -90,6 +94,7 @@ class LocationTrackingService : Service() {
         stopForeground(true)
         isTracking.onNext(false)
         disposable.clear()
+        syncDisposable.clear()
     }
 
     private fun stopTracking() {
@@ -101,6 +106,7 @@ class LocationTrackingService : Service() {
             } finally {
                 isTracking.onNext(false) /* ? */
                 wayPointsCounter.onNext(0)
+                syncDisposable.clear()
             }
         }
         stopSelf()
@@ -109,11 +115,12 @@ class LocationTrackingService : Service() {
     /*TODO handle interrupting in onDestroy*/
     private fun saveTrackAndStopTracking(title: CharSequence) {
         disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, title.toString()), wayPoints)
-            .subscribe(Consumer {
+            .subscribe(Consumer{
                 when (it) {
                     is SaveTrackResult.Success -> successToast(getString(R.string.toast_track_saved)) /*todo check availability of toasts from service in latest versions*/
                     is SaveTrackResult.DatabaseCorruptionError -> errorToast(getString(R.string.error_couldnt_save_track))
                 }
+                uploadTrackInteractor.uploadTrack(traceBeginningTime!!)
                 stopTracking()
             })
     }
@@ -137,6 +144,12 @@ class LocationTrackingService : Service() {
                 wayPoints.add(initLocation.toWayPoint(traceBeginningTime!!))
             }
             wayPointsCounter.onNext(wayPoints.size)
+
+            syncDisposable += Observable.interval(30, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    uploadTrackInteractor.uploadTrack(traceBeginningTime!!)
+                }
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
             stopSelf()

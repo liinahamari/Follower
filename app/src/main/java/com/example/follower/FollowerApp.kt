@@ -7,8 +7,11 @@ import android.app.NotificationManager
 import android.app.job.JobInfo
 import android.content.Context
 import android.content.res.Configuration
+import android.util.Log.INFO
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
+import androidx.work.WorkManager
+import androidx.work.WorkerFactory
 import com.example.follower.di.components.AppComponent
 import com.example.follower.di.components.DaggerAppComponent
 import com.example.follower.ext.provideUpdatedContextWithNewLocale
@@ -24,6 +27,7 @@ import org.acra.*
 import org.acra.annotation.*
 import org.acra.data.StringFormat
 import java.util.*
+import java.util.concurrent.Executors
 import javax.inject.Inject
 
 /*TODO: test PROD with R8 enabled*/
@@ -39,6 +43,7 @@ import javax.inject.Inject
 @AcraMailSender(mailTo = MY_EMAIL) /*FIXME: temporary solution*/
 class FollowerApp : Application() {
     @Inject lateinit var preferencesRepository: PreferencesRepository
+    @Inject lateinit var workerFactory: WorkerFactory
     @Inject lateinit var logger: FlightRecorder
     @Inject lateinit var notificationManager: NotificationManager
     lateinit var appComponent: AppComponent
@@ -47,17 +52,21 @@ class FollowerApp : Application() {
     override fun onCreate() {
         setupDagger()
         super.onCreate()
-
+        setupWorkManager()
         setupAnrWatchDog()
-
         preferencesRepository.applyDefaultPreferences().blockingAwait() /*todo: to splash screen?*/
-
         setupOsmdroid()
-
         notificationManager.createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
-
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
     }
+
+    private fun setupWorkManager() = WorkManager.initialize(applicationContext,
+            androidx.work.Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .setMinimumLoggingLevel(INFO)
+                .setExecutor(Executors.newSingleThreadExecutor())
+                .build()
+        )
 
     private fun setupAnrWatchDog() = anrWatchDog
         .setANRListener { error ->
