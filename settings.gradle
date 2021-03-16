@@ -1,2 +1,3 @@
+include ':fakegps'
 include ':app'
 rootProject.name = "Follower"
