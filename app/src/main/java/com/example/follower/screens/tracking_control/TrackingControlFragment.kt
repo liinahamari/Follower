@@ -22,10 +22,7 @@ import com.example.follower.di.modules.TrackingControlModule
 import com.example.follower.ext.*
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.FlightRecorder
-import com.example.follower.services.ACTION_START_TRACKING
-import com.example.follower.services.ACTION_STOP_TRACKING
-import com.example.follower.services.ARG_AUTO_SAVE
-import com.example.follower.services.LocationTrackingService
+import com.example.follower.services.*
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
@@ -39,7 +36,6 @@ private const val CODE_PERMISSION_LOCATION = 101
 
 @TrackingControlScope
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
-    @Inject lateinit var viewModel: TrackingControlViewModel
     @Inject lateinit var logger: FlightRecorder
 
     @Inject
@@ -101,21 +97,12 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     override fun onAttach(context: Context) {
         (context.applicationContext as FollowerApp)
             .appComponent
-            .trackingControlComponent(TrackingControlModule(
-                activity = requireActivity(),
-                onStopTrackingClick = { viewModel.clearWaypoints(gpsService!!.traceBeginningTime!!) })
-            )
+            .trackingControlComponent(TrackingControlModule(activity = requireActivity()))
             .inject(this)
         super.onAttach(context)
     }
 
-    override fun setupViewModelSubscriptions() {
-        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
-        viewModel.stopServiceEvent.observe(viewLifecycleOwner, {
-            gpsService!!.isTracking.onNext(false) /*FIXME rethink*/
-            stopService(LocationTrackingService::class.java)
-        })
-    }
+    override fun setupViewModelSubscriptions() = Unit
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
@@ -150,17 +137,16 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             .throttleFirst(750L)
             .subscribe {
                 if (isServiceBound && gpsService != null) {
-                    if (gpsService!!.wayPoints.isEmpty()) {
+                    if (gpsService!!.isTrackEmpty) {
                         emptyWayPointsDialog.show()
                     } else {
                         MaterialDialog(requireContext()).show {
-                            val nonSavedTrackId = gpsService!!.traceBeginningTime!!
-                            onCancel {
-                                viewModel.clearWaypoints(nonSavedTrackId)
+                            onCancel { /*todo add button DISCARD and make unskippable*/
+                                startService(LocationTrackingService::class.java, action = ACTION_DISCARD_TRACK)
                             }
-                            input(prefill = nonSavedTrackId.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
+                            input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
                                 startService(LocationTrackingService::class.java,
-                                    action = ACTION_STOP_TRACKING,
+                                    action = ACTION_RENAME_TRACK_AND_STOP_TRACKING,
                                     bundle = Bundle().apply {
                                         putCharSequence(ARG_AUTO_SAVE, text)
                                     })

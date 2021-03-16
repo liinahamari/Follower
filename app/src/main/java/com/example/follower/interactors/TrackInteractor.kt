@@ -20,6 +20,7 @@ import com.example.follower.screens.trace_map.Longitude
 import com.example.follower.screens.track_list.TrackTitle
 import com.example.follower.screens.track_list.TrackUi
 import com.google.gson.Gson
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.*
@@ -33,19 +34,26 @@ class TrackInteractor @Inject constructor(
     private val baseComposers: BaseComposers,
     private val gson: Gson
 ) {
-    fun saveTrack(track: Track, wayPoints: List<WayPoint>): Single<SaveTrackResult> = trackDao.insert(track)
-        .doOnSuccess { trackId -> wayPoints.forEach { it.trackId = trackId } }
-        .flatMapCompletable { wayPointDao.insertAll(wayPoints) }
+    fun deleteTrack(trackId: Long): Single<DeleteTrackResult> = wayPointDao.delete(trackId) /*todo in transaction?!*/
+        .andThen(trackDao.delete(trackId))
+        .toSingleDefault<DeleteTrackResult> (DeleteTrackResult.Success)
+        .onErrorReturn { DeleteTrackResult.DatabaseCorruptionError }
+        .doOnError { logger.e("track|wayPoints deleting", stackTrace = it.stackTrace) }
+        .compose(baseComposers.applySingleSchedulers())
+
+    fun saveWayPoint(wp: WayPoint): Completable = wayPointDao.insert(wp)
+        .compose(baseComposers.applyCompletableSchedulers())
+
+    fun renameTrack(track: Track): Single<SaveTrackResult> = trackDao.update(track)
         .toSingleDefault<SaveTrackResult>(SaveTrackResult.Success)
-        .onErrorResumeNext {
-            trackDao.delete(track.time)
-                .andThen { logger.wtf { "Can't save Track..." } }
-                .toSingleDefault(SaveTrackResult.DatabaseCorruptionError)
-        }
+        .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
+        .compose(baseComposers.applySingleSchedulers())
+
+    fun saveTrack(track: Track): Single<SaveTrackResult> = trackDao.insert(track)
+        .map<SaveTrackResult> { SaveTrackResult.Success }
         .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
         .doOnError { it.printStackTrace() }
         .compose(baseComposers.applySingleSchedulers())
-        .doOnSuccess { logger.i { "Track saved with ${wayPoints.size} wayPoints" } }
 
     fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
         .flattenAsObservable {
@@ -114,9 +122,9 @@ sealed class GetAddressesResult {
     object Loading : GetAddressesResult()
 }
 
-sealed class ClearWayPointsResult {
-    object Success : ClearWayPointsResult()
-    object DatabaseCorruptionError : ClearWayPointsResult()
+sealed class DeleteTrackResult {
+    object Success : DeleteTrackResult()
+    object DatabaseCorruptionError : DeleteTrackResult()
 }
 
 sealed class RemoveTrackResult {

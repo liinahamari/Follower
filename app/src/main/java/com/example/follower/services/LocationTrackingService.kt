@@ -11,9 +11,7 @@ import android.os.IBinder
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.db.entities.Track
-import com.example.follower.db.entities.WayPoint
 import com.example.follower.db.entities.toWayPoint
-import com.example.follower.ext.toReadableDate
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.CustomToast.successToast
 import com.example.follower.helper.FlightRecorder
@@ -26,7 +24,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -34,7 +31,8 @@ import javax.inject.Inject
 const val CHANNEL_ID = "GPS_CHANNEL"
 private const val FOREGROUND_SERVICE_ID = 123
 const val ACTION_START_TRACKING = "BackgroundTracker.action_start_tracking"
-const val ACTION_STOP_TRACKING = "BackgroundTracker.action_stop_tracking"
+const val ACTION_DISCARD_TRACK = "BackgroundTracker.action_discard_track"
+const val ACTION_RENAME_TRACK_AND_STOP_TRACKING = "BackgroundTracker.action_rename_track"
 const val ARG_AUTO_SAVE = "BackgroundTracker.arg_auto_save"
 
 class LocationTrackingService : Service() {
@@ -47,8 +45,8 @@ class LocationTrackingService : Service() {
 
     private val disposable = CompositeDisposable()
     private val syncDisposable = CompositeDisposable()
-    val wayPoints = mutableListOf<WayPoint>()
     var traceBeginningTime: Long? = null
+    var isTrackEmpty = true
 
     @Inject lateinit var prefInteractor: LocationPreferenceInteractor
     @Inject lateinit var logger: FlightRecorder
@@ -59,33 +57,41 @@ class LocationTrackingService : Service() {
     private val locationListener = LocationListener()
     private val binder = LocationServiceBinder()
     val isTracking = BehaviorSubject.createDefault(false)
-    val wayPointsCounter = PublishSubject.create<Int>()
+    val wayPointsCounter = BehaviorSubject.createDefault(0)
 
     override fun onBind(intent: Intent): IBinder = binder
 
     inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
-            wayPoints.add(location.toWayPoint(traceBeginningTime!!))
-            wayPointsCounter.onNext(wayPoints.size)
             logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
+            disposable += trackInteractor.saveWayPoint(location.toWayPoint(traceBeginningTime!!)).subscribe {
+                wayPointsCounter.onNext(wayPointsCounter.value!!.inc())
+                if (isTrackEmpty) {
+                    isTrackEmpty = false
+                }
+            }
         }
 
         override fun onProviderDisabled(provider: String) = logger.w { "onProviderDisabled: $provider" } /*todo: handle user's geolocation permission revoking*/
         override fun onProviderEnabled(provider: String) = logger.w { "onProviderEnabled: $provider" }
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) = Unit
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) = Unit /* Cause DEPRECATED */
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         when (intent.action) {
-            ACTION_STOP_TRACKING -> saveTrackAndStopTracking(intent.extras?.getCharSequence(ARG_AUTO_SAVE, null) ?: traceBeginningTime!!.toReadableDate())
+            ACTION_RENAME_TRACK_AND_STOP_TRACKING -> intent.extras?.getCharSequence(ARG_AUTO_SAVE, null)?.let { renameTrackAndStopTracking(it) } /*if no argument provided, do nothing, track already save with readable date as title*/
             ACTION_START_TRACKING -> startTracking()
+            ACTION_DISCARD_TRACK -> discardTrack()
         }
         return START_STICKY
     }
 
+    private fun discardTrack() {
+        disposable += trackInteractor.deleteTrack(traceBeginningTime!!).subscribe({ stopTracking() }, { stopTracking() })
+    }
+
     override fun onCreate() {
         (application as FollowerApp).appComponent.inject(this)
-
         logger.i { "${javaClass.simpleName} onCreate()" }
     }
 
@@ -105,22 +111,21 @@ class LocationTrackingService : Service() {
                 logger.e(label = "Failed to remove location listeners", stackTrace = ex.stackTrace)
             } finally {
                 isTracking.onNext(false) /* ? */
-                wayPointsCounter.onNext(0)
                 syncDisposable.clear()
+                wayPointsCounter.onNext(0)
             }
         }
         stopSelf()
     }
 
-    /*TODO handle interrupting in onDestroy*/
-    private fun saveTrackAndStopTracking(title: CharSequence) {
-        disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, title.toString()), wayPoints)
-            .subscribe(Consumer{
+    private fun renameTrackAndStopTracking(title: CharSequence) {
+        disposable += trackInteractor.renameTrack(Track(traceBeginningTime!!, title.toString()))
+            .subscribe(Consumer {
                 when (it) {
                     is SaveTrackResult.Success -> successToast(getString(R.string.toast_track_saved)) /*todo check availability of toasts from service in latest versions*/
                     is SaveTrackResult.DatabaseCorruptionError -> errorToast(getString(R.string.error_couldnt_save_track))
                 }
-                uploadTrackInteractor.uploadTrack(traceBeginningTime!!)
+                uploadTrackInteractor.uploadTrack(traceBeginningTime!!) /*process needed to be reflected in UI*/
                 stopTracking()
             })
     }
@@ -137,15 +142,12 @@ class LocationTrackingService : Service() {
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeUpdateInterval, distanceBetweenUpdates, locationListener)
             isTracking.onNext(true)
+            isTrackEmpty = true
             traceBeginningTime = System.currentTimeMillis()
 
-            /*todo time calculation - is it not too old?*/
-            (locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER))?.let { initLocation ->
-                wayPoints.add(initLocation.toWayPoint(traceBeginningTime!!))
-            }
-            wayPointsCounter.onNext(wayPoints.size)
+            disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toString())).subscribe() /*what if fails?*/
 
-            syncDisposable += Observable.interval(30, TimeUnit.SECONDS)
+            syncDisposable += Observable.interval(15, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     uploadTrackInteractor.uploadTrack(traceBeginningTime!!)

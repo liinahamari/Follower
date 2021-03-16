@@ -22,7 +22,7 @@ class UploadTrackWorker(private val trackDao: TrackDao, private val serverServic
                 wayPoints = it.wayPoints.map { wp -> wp.longitude to wp.latitude }.toTypedArray()
             )
         }
-        .flatMap { serverService.replace(it, it.time).map { Result.success() } }
+        .flatMap { serverService.put(it).map { Result.success() } }
         .onErrorReturn { Result.failure() }
 
     class Factory @Inject constructor(private val serverService: Provider<ServerService>, private val trackDao: Provider<TrackDao>) : ChildWorkerFactory {
