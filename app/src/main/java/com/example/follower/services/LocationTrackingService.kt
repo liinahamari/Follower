@@ -8,6 +8,7 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
+import com.example.follower.BuildConfig
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.db.entities.Track
@@ -147,7 +148,10 @@ class LocationTrackingService : Service() {
 
             disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toString())).subscribe() /*what if fails?*/
 
-            syncDisposable += Observable.interval(15, TimeUnit.SECONDS)
+            syncDisposable += (
+                    if (BuildConfig.DEBUG)
+                        Observable.interval(15, TimeUnit.SECONDS) else Observable.interval(10, TimeUnit.MINUTES)
+                    )
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     uploadTrackInteractor.uploadTrack(traceBeginningTime!!)
