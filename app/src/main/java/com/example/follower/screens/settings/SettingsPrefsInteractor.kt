@@ -6,8 +6,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.example.follower.R
 import com.example.follower.ext.writeStringOf
 import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.services.DEFAULT_LOCATION_UPDATE_INTERVAL
-import com.example.follower.services.DEFAULT_TIME_UPDATE_INTERVAL
+import com.example.follower.services.location_tracking.DEFAULT_LOCATION_UPDATE_INTERVAL
+import com.example.follower.services.location_tracking.DEFAULT_TIME_UPDATE_INTERVAL
 import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
 

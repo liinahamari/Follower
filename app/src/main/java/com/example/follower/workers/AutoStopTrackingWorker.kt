@@ -14,7 +14,6 @@ class AutoStopTrackingWorker(private val context: Context, workerParams: WorkerP
         context.applicationContext.startService(
             Intent(context.applicationContext, LocationTrackingService::class.java)
             .apply {
-                /*TODO save!*/
                 action = ACTION_RENAME_TRACK_AND_STOP_TRACKING
             })
         return Result.success()

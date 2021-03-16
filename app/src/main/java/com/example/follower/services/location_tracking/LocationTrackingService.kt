@@ -1,4 +1,4 @@
-package com.example.follower.services
+package com.example.follower.services.location_tracking
 
 import android.app.Notification
 import android.app.Service
@@ -13,6 +13,7 @@ import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.db.entities.Track
 import com.example.follower.db.entities.toWayPoint
+import com.example.follower.ext.tryLogging
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.CustomToast.successToast
 import com.example.follower.helper.FlightRecorder
@@ -22,7 +23,6 @@ import com.example.follower.screens.tracking_control.UploadTrackInteractor
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.subjects.BehaviorSubject
 import java.util.*
@@ -80,7 +80,7 @@ class LocationTrackingService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         when (intent.action) {
-            ACTION_RENAME_TRACK_AND_STOP_TRACKING -> intent.extras?.getCharSequence(ARG_AUTO_SAVE, null)?.let { renameTrackAndStopTracking(it) } /*if no argument provided, do nothing, track already save with readable date as title*/
+            ACTION_RENAME_TRACK_AND_STOP_TRACKING -> renameTrackAndStopTracking(intent.extras?.getCharSequence(ARG_AUTO_SAVE, null))
             ACTION_START_TRACKING -> startTracking()
             ACTION_DISCARD_TRACK -> discardTrack()
         }
@@ -88,7 +88,8 @@ class LocationTrackingService : Service() {
     }
 
     private fun discardTrack() {
-        disposable += trackInteractor.deleteTrack(traceBeginningTime!!).subscribe({ stopTracking() }, { stopTracking() })
+        disposable += trackInteractor.deleteTrack(traceBeginningTime!!)/*todo delete on server*/
+            .subscribe({ stopTracking() }, { stopTracking() })
     }
 
     override fun onCreate() {
@@ -97,11 +98,13 @@ class LocationTrackingService : Service() {
     }
 
     override fun onDestroy() {
+        /* to prevent leaks dispose all the subscriptions here (in case system kills service to free the resources)*/
         logger.d { "${javaClass.simpleName} onDestroy()" }
         stopForeground(true)
         isTracking.onNext(false)
         disposable.clear()
         syncDisposable.clear()
+        kotlin.runCatching { locationManager.removeUpdates(locationListener) }
     }
 
     private fun stopTracking() {
@@ -119,16 +122,18 @@ class LocationTrackingService : Service() {
         stopSelf()
     }
 
-    private fun renameTrackAndStopTracking(title: CharSequence) {
-        disposable += trackInteractor.renameTrack(Track(traceBeginningTime!!, title.toString()))
-            .subscribe(Consumer {
-                when (it) {
-                    is SaveTrackResult.Success -> successToast(getString(R.string.toast_track_saved)) /*todo check availability of toasts from service in latest versions*/
-                    is SaveTrackResult.DatabaseCorruptionError -> errorToast(getString(R.string.error_couldnt_save_track))
+    private fun renameTrackAndStopTracking(title: CharSequence?) {
+        title?.let {
+            disposable += trackInteractor.renameTrack(Track(traceBeginningTime!!, it.toString()))
+                .subscribe { saveResult ->
+                    when (saveResult) {
+                        is SaveTrackResult.Success -> successToast(getString(R.string.toast_track_saved)) /*todo check availability of toasts from service in latest versions*/
+                        is SaveTrackResult.DatabaseCorruptionError -> errorToast(getString(R.string.error_couldnt_save_track))
+                    }
                 }
-                uploadTrackInteractor.uploadTrack(traceBeginningTime!!) /*process needed to be reflected in UI*/
-                stopTracking()
-            })
+        }
+        uploadTrackInteractor.uploadTrack(traceBeginningTime!!) /*process needed to be reflected in UI*/
+        stopTracking()
     }
 
     private fun startTracking() {

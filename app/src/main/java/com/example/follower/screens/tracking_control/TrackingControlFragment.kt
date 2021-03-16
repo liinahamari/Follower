@@ -20,9 +20,8 @@ import com.example.follower.di.modules.DIALOG_EMPTY_WAYPOINTS
 import com.example.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
 import com.example.follower.di.modules.TrackingControlModule
 import com.example.follower.ext.*
-import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.FlightRecorder
-import com.example.follower.services.*
+import com.example.follower.services.location_tracking.*
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*

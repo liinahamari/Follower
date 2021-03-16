@@ -1,4 +1,4 @@
-package com.example.follower.services
+package com.example.follower.services.location_tracking
 
 import android.content.Context
 import android.content.SharedPreferences
