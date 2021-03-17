@@ -10,8 +10,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ServiceTestRule
 import com.example.follower.di.components.DaggerAppComponent
 import com.example.follower.di.modules.ServiceModule
-import com.example.follower.services.ACTION_START_TRACKING
-import com.example.follower.services.LocationTrackingService
+import com.example.follower.services.location_tracking.ACTION_START_TRACKING
+import com.example.follower.services.location_tracking.LocationTrackingService
 import dagger.Module
 import junit.framework.TestCase.assertNotNull
 import org.junit.Rule

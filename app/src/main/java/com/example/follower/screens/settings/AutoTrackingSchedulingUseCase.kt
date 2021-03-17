@@ -5,16 +5,14 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.work.*
 import com.example.follower.R
-import com.example.follower.ext.isServiceRunning
-import com.example.follower.ext.isTimeBetweenTwoTimes
-import com.example.follower.ext.minutesFromMidnightToHourlyTime
-import com.example.follower.ext.now
+import com.example.follower.ext.*
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.services.location_tracking.LocationTrackingService
 import com.example.follower.workers.AutoStartTrackingWorker
 import com.example.follower.workers.AutoStopTrackingWorker
 import com.example.follower.workers.TAG_AUTO_START_WORKER
 import com.example.follower.workers.TAG_AUTO_STOP_WORKER
+import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toCompletable
 import java.util.*
@@ -22,11 +20,13 @@ import java.util.concurrent.TimeUnit
 
 @SettingsScope
 class AutoTrackingSchedulingUseCase constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val baseComposers: BaseComposers, private val workManager: WorkManager) {
-    fun cancelAutoTracking(): Single<CancelAutoTrackingResult> = Single.fromCallable {
-        workManager.cancelUniqueWork(TAG_AUTO_STOP_WORKER)
-        workManager.cancelUniqueWork(TAG_AUTO_START_WORKER)
-    }
-        .flatMapCompletable { it.result.toCompletable() }
+    fun cancelAutoTracking(): Single<CancelAutoTrackingResult> = (if (workManager.isWorkScheduled(TAG_AUTO_START_WORKER) || workManager.isWorkScheduled(TAG_AUTO_STOP_WORKER)) {
+        Maybe.just(TAG_AUTO_START_WORKER to TAG_AUTO_STOP_WORKER)
+    } else Maybe.empty())
+        .flatMapCompletable {
+            workManager.cancelUniqueWork(TAG_AUTO_STOP_WORKER).result.toCompletable()
+                .andThen(workManager.cancelUniqueWork(TAG_AUTO_START_WORKER).result.toCompletable())
+        }
         .toSingleDefault<CancelAutoTrackingResult>(CancelAutoTrackingResult.Success)
         .onErrorReturn { CancelAutoTrackingResult.Failure }
 
@@ -44,7 +44,7 @@ class AutoTrackingSchedulingUseCase constructor(private val sharedPreferences: S
                     Log.d("a", "START_WORKER start delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}")
                     workManager.enqueueUniquePeriodicWork(
                         TAG_AUTO_START_WORKER,
-                        ExistingPeriodicWorkPolicy.KEEP,
+                        ExistingPeriodicWorkPolicy.REPLACE,
                         defaultConstraints<AutoStartTrackingWorker>()
                             .setInitialDelay(getNextLaunchTime(it.first) - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                             .build()
@@ -55,7 +55,7 @@ class AutoTrackingSchedulingUseCase constructor(private val sharedPreferences: S
                 Log.d("a", "STOP_WORKER stop delay ${(getNextLaunchTime(startStopTimeValues.second) - System.currentTimeMillis()) / 3600000}")
                 workManager.enqueueUniquePeriodicWork(
                     TAG_AUTO_STOP_WORKER,
-                    ExistingPeriodicWorkPolicy.KEEP,
+                    ExistingPeriodicWorkPolicy.REPLACE,
                     defaultConstraints<AutoStopTrackingWorker>()
                         .setInitialDelay(getNextLaunchTime(startStopTimeValues.second) - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                         .build()

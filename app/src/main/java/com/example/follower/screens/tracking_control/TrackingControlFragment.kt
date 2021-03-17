@@ -8,11 +8,9 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.callbacks.onCancel
@@ -32,9 +30,10 @@ import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
 import javax.inject.Named
 
-private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
-@RequiresApi(Build.VERSION_CODES.Q) private const val PERMISSION_BACKGROUND_PERMISSION = Manifest.permission.ACCESS_BACKGROUND_LOCATION
-private const val CODE_PERMISSION_LOCATION = 101
+
+const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
+@RequiresApi(Build.VERSION_CODES.Q) const val PERMISSION_BACKGROUND_LOCATION = Manifest.permission.ACCESS_BACKGROUND_LOCATION
+const val CODE_PERMISSION_LOCATION = 101
 
 /*todo, add distance, points*/
 
@@ -116,7 +115,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             val permissionsToHandle = mutableListOf(PERMISSION_LOCATION)
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 /* https://stackoverflow.com/questions/58816066/android-10-q-access-background-location-permission */
-                permissionsToHandle.add(PERMISSION_BACKGROUND_PERMISSION)
+                permissionsToHandle.add(PERMISSION_BACKGROUND_LOCATION)
             }
 
             handleUsersReactionToPermissions(
@@ -135,7 +134,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             .subscribe {
                 val permissions = mutableListOf(PERMISSION_LOCATION)
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    permissions.add(PERMISSION_BACKGROUND_PERMISSION)
+                    permissions.add(PERMISSION_BACKGROUND_LOCATION)
                 }
                 if (hasAllPermissions(permissions)) {
                     startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
