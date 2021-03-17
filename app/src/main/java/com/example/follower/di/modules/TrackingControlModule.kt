@@ -7,8 +7,8 @@ import androidx.fragment.app.FragmentActivity
 import com.example.follower.R
 import com.example.follower.ext.openAppSettings
 import com.example.follower.screens.tracking_control.TrackingControlScope
-import com.example.follower.services.ACTION_DISCARD_TRACK
-import com.example.follower.services.LocationTrackingService
+import com.example.follower.services.location_tracking.ACTION_DISCARD_TRACK
+import com.example.follower.services.location_tracking.LocationTrackingService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.Module
 import dagger.Provides

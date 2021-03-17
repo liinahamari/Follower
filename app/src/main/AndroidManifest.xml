@@ -8,7 +8,6 @@
         android:required="true" />
     <uses-feature android:name="android.hardware.location.network" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -39,7 +38,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.LocationTrackingService"
+        <service android:name=".services.location_tracking.LocationTrackingService"
             android:foregroundServiceType="location"
             android:exported="false" />
 

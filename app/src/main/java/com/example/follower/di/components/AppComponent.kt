@@ -5,7 +5,7 @@ import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.*
 import com.example.follower.screens.MainActivity
 import com.example.follower.screens.logs.LogsFragment
-import com.example.follower.services.LocationTrackingService
+import com.example.follower.services.location_tracking.LocationTrackingService
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton

@@ -24,6 +24,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -151,16 +152,18 @@ class LocationTrackingService : Service() {
             isTrackEmpty = true
             traceBeginningTime = System.currentTimeMillis()
 
-            disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toString())).subscribe() /*what if fails?*/
+            disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toString())).subscribe({}, {
+                logger.e("failed to initially save track!", stackTrace = it.stackTrace)
+            })
 
             syncDisposable += (
                     if (BuildConfig.DEBUG)
                         Observable.interval(15, TimeUnit.SECONDS) else Observable.interval(10, TimeUnit.MINUTES)
                     )
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    uploadTrackInteractor.uploadTrack(traceBeginningTime!!)
-                }
+                .observeOn(Schedulers.newThread())
+                .doOnNext { uploadTrackInteractor.uploadTrack(traceBeginningTime!!) }
+                .subscribe()
+
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
             stopSelf()

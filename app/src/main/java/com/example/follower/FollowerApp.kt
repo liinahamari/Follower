@@ -19,7 +19,7 @@ import com.example.follower.helper.FlightRecorder
 import com.example.follower.model.PersistedLocaleResult
 import com.example.follower.model.PreferencesRepository
 import com.example.follower.screens.logs.MY_EMAIL
-import com.example.follower.services.CHANNEL_ID
+import com.example.follower.services.location_tracking.CHANNEL_ID
 import com.github.anrwatchdog.ANRWatchDog
 import io.reactivex.internal.functions.Functions
 import io.reactivex.plugins.RxJavaPlugins

@@ -5,8 +5,8 @@ import android.content.Intent
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.example.follower.services.ACTION_START_TRACKING
-import com.example.follower.services.LocationTrackingService
+import com.example.follower.services.location_tracking.ACTION_START_TRACKING
+import com.example.follower.services.location_tracking.LocationTrackingService
 
 const val TAG_AUTO_START_WORKER = "worker_auto_start"
 

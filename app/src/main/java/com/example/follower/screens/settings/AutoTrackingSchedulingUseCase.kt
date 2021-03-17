@@ -10,7 +10,7 @@ import com.example.follower.ext.isTimeBetweenTwoTimes
 import com.example.follower.ext.minutesFromMidnightToHourlyTime
 import com.example.follower.ext.now
 import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.services.LocationTrackingService
+import com.example.follower.services.location_tracking.LocationTrackingService
 import com.example.follower.workers.AutoStartTrackingWorker
 import com.example.follower.workers.AutoStopTrackingWorker
 import com.example.follower.workers.TAG_AUTO_START_WORKER
