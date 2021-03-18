@@ -12,10 +12,10 @@ import javax.inject.Singleton
 private const val DATABASE_NAME_TRACKS = "database-tracks"
 
 @Module
-class DatabaseModule {
+open class DatabaseModule {
     @Provides
     @Singleton
-    fun provideMissedAlarmsCountersDatabase(context: Context): TracksDb = Room.databaseBuilder(context, TracksDb::class.java, DATABASE_NAME_TRACKS)
+    open fun provideMissedAlarmsCountersDatabase(context: Context): TracksDb = Room.databaseBuilder(context, TracksDb::class.java, DATABASE_NAME_TRACKS)
         .build()
 
     @Provides
