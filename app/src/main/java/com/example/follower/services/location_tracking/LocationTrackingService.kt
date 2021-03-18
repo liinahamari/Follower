@@ -124,17 +124,19 @@ class LocationTrackingService : Service() {
     }
 
     private fun renameTrackAndStopTracking(title: CharSequence?) {
-        title?.let {
-            disposable += trackInteractor.renameTrack(Track(traceBeginningTime!!, it.toString()))
+        if (title != null) {
+            disposable += trackInteractor.renameTrack(Track(traceBeginningTime!!, title.toString()))
                 .subscribe { saveResult ->
                     when (saveResult) {
                         is SaveTrackResult.Success -> successToast(getString(R.string.toast_track_saved)) /*todo check availability of toasts from service in latest versions*/
                         is SaveTrackResult.DatabaseCorruptionError -> errorToast(getString(R.string.error_couldnt_save_track))
                     }
+
                 }
+        } else {
+            uploadTrackInteractor.uploadTrack(traceBeginningTime!!) /*process needed to be reflected in UI*/
+            stopTracking()
         }
-        uploadTrackInteractor.uploadTrack(traceBeginningTime!!) /*process needed to be reflected in UI*/
-        stopTracking()
     }
 
     private fun startTracking() {

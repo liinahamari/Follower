@@ -13,7 +13,6 @@ import com.example.follower.db.TracksDb
 import com.example.follower.di.components.DaggerAppComponent
 import com.example.follower.di.modules.DatabaseModule
 import com.example.follower.di.modules.ServiceModule
-import com.example.follower.screens.MainActivity
 import com.example.follower.services.location_tracking.ACTION_START_TRACKING
 import com.example.follower.services.location_tracking.LocationTrackingService
 import dagger.Module
@@ -70,7 +69,7 @@ class SampleServiceTest {
         assert(db.getTrackDao().getCount() == 1)
         assert(db.getWayPointDao().getCount() == 0)
     }
-
+    
     private fun createMockedLocationManager(): LocationManager {
         val loc = mock(Location::class.java).apply {
             `when`(longitude).thenReturn(SOME_LON)
