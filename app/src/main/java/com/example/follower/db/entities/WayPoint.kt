@@ -5,12 +5,11 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
-import java.math.BigDecimal
-import java.math.RoundingMode
+import com.example.follower.ext.round
 
 @Entity(foreignKeys = [ForeignKey(onDelete = CASCADE, entity = Track::class, parentColumns = ["time"], childColumns = ["trackId"])])
 data class WayPoint(
-    @Volatile var trackId: Long,
+    val trackId: Long,
     val provider: String,
     val latitude: Double,
     val longitude: Double,
@@ -19,10 +18,4 @@ data class WayPoint(
     @PrimaryKey val time: Long
 )
 
-fun Location.toWayPoint(trackId: Long): WayPoint = WayPoint(trackId = trackId, provider = provider, longitude = round(longitude, 6), latitude = round(latitude, 6), time = System.currentTimeMillis())
-
-fun round(value: Double, places: Int): Double {
-    var bd: BigDecimal = BigDecimal.valueOf(value)
-    bd = bd.setScale(places, RoundingMode.HALF_UP)
-    return bd.toDouble()
-}
+fun Location.toWayPoint(trackId: Long): WayPoint = WayPoint(trackId = trackId, provider = provider, longitude = longitude.round(6), latitude = latitude.round(6), time = System.currentTimeMillis())

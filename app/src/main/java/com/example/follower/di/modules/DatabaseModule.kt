@@ -15,7 +15,7 @@ private const val DATABASE_NAME_TRACKS = "database-tracks"
 open class DatabaseModule {
     @Provides
     @Singleton
-    open fun provideMissedAlarmsCountersDatabase(context: Context): TracksDb = Room.databaseBuilder(context, TracksDb::class.java, DATABASE_NAME_TRACKS)
+    open fun provideTracksDb(context: Context): TracksDb = Room.databaseBuilder(context, TracksDb::class.java, DATABASE_NAME_TRACKS)
         .build()
 
     @Provides

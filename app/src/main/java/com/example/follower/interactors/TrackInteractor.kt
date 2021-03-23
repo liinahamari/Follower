@@ -34,8 +34,9 @@ class TrackInteractor @Inject constructor(
     private val baseComposers: BaseComposers,
     private val gson: Gson
 ) {
-    fun deleteTrack(trackId: Long): Single<DeleteTrackResult> = wayPointDao.delete(trackId) /*todo in transaction?!*/
-        .andThen(trackDao.delete(trackId))
+    fun  deleteTrack(trackId: Long): Single<DeleteTrackResult> = /*wayPointDao.delete(trackId) *//*todo in transaction?!*//*
+        .andThen(trackDao.delete(trackId))*/
+        trackDao.delete(trackId)
         .toSingleDefault<DeleteTrackResult> (DeleteTrackResult.Success)
         .onErrorReturn { DeleteTrackResult.DatabaseCorruptionError }
         .doOnError { logger.e("track|wayPoints deleting", stackTrace = it.stackTrace) }

@@ -69,7 +69,7 @@ class SampleServiceTest {
         assert(db.getTrackDao().getCount() == 1)
         assert(db.getWayPointDao().getCount() == 0)
     }
-    
+
     private fun createMockedLocationManager(): LocationManager {
         val loc = mock(Location::class.java).apply {
             `when`(longitude).thenReturn(SOME_LON)
@@ -90,5 +90,5 @@ class FakeServiceModule(private val lockMng: LocationManager) : ServiceModule() 
 
 @Module
 class FakeDbModule(private val db: TracksDb): DatabaseModule(){
-    override fun provideMissedAlarmsCountersDatabase(context: Context): TracksDb = db
+    override fun provideTracksDb(context: Context): TracksDb = db
 }
