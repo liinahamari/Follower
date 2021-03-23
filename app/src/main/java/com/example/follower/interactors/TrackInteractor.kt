@@ -33,9 +33,16 @@ class TrackInteractor @Inject constructor(
     private val baseComposers: BaseComposers,
     private val gson: Gson
 ) {
-    fun saveTrack(track: Track, wayPoints: List<WayPoint>): Single<SaveTrackResult> = trackDao.insert(track)
-        .doOnSuccess { trackId -> wayPoints.forEach { it.trackId = trackId } }
-        .flatMapCompletable { wayPointDao.insertAll(wayPoints) }
+    fun deleteTrack(trackId: Long): Single<DeleteTrackResult> = trackDao.delete(trackId)
+        .toSingleDefault<DeleteTrackResult> (DeleteTrackResult.Success)
+        .onErrorReturn { DeleteTrackResult.DatabaseCorruptionError }
+        .doOnError { logger.e("track&wayPoints deleting", stackTrace = it.stackTrace) }
+        .compose(baseComposers.applySingleSchedulers())
+
+    fun saveWayPoint(wp: WayPoint): Completable = wayPointDao.insert(wp)
+        .compose(baseComposers.applyCompletableSchedulers())
+
+    fun renameTrack(track: Track): Single<SaveTrackResult> = trackDao.update(track)
         .toSingleDefault<SaveTrackResult>(SaveTrackResult.Success)
         .onErrorResumeNext {
             trackDao.delete(track.time)
