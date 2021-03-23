@@ -117,4 +117,5 @@
     <string name="title_other">Other</string>
     <string name="acra_toast_text">Sorry, the application crashed. A report will be sent to developers.</string>
     <string name="title_way_points_collected">%s waypoints collected</string>
+    <string name="discard">Discard</string>
 </resources>

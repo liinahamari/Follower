@@ -13,6 +13,7 @@ import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.db.entities.Track
 import com.example.follower.db.entities.toWayPoint
+import com.example.follower.ext.toReadableDate
 import com.example.follower.ext.tryLogging
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.CustomToast.successToast
@@ -131,12 +132,10 @@ class LocationTrackingService : Service() {
                         is SaveTrackResult.Success -> successToast(getString(R.string.toast_track_saved)) /*todo check availability of toasts from service in latest versions*/
                         is SaveTrackResult.DatabaseCorruptionError -> errorToast(getString(R.string.error_couldnt_save_track))
                     }
-
                 }
-        } else {
-            uploadTrackInteractor.uploadTrack(traceBeginningTime!!) /*process needed to be reflected in UI*/
-            stopTracking()
         }
+        uploadTrackInteractor.uploadTrack(traceBeginningTime!!) /*process needed to be reflected in UI*/
+        stopTracking()
     }
 
     private fun startTracking() {
@@ -154,7 +153,7 @@ class LocationTrackingService : Service() {
             isTrackEmpty = true
             traceBeginningTime = System.currentTimeMillis()
 
-            disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toString())).subscribe({}, {
+            disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toReadableDate())).subscribe({}, {
                 logger.e("failed to initially save track!", stackTrace = it.stackTrace)
             })
 

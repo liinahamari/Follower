@@ -154,9 +154,11 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
                         emptyWayPointsDialog.show()
                     } else {
                         MaterialDialog(requireContext()).show {
-                            onCancel { /*todo add button DISCARD and make unskippable*/
+                            cancelable(false)
+                            negativeButton(res = R.string.discard) {
                                 startService(LocationTrackingService::class.java, action = ACTION_DISCARD_TRACK)
                             }
+
                             input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
                                 startService(LocationTrackingService::class.java,
                                     action = ACTION_RENAME_TRACK_AND_STOP_TRACKING,
