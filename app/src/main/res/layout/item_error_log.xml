@@ -6,7 +6,7 @@
     <data>
         <variable
             name="errorLog"
-            type="com.example.follower.screens.logs.LogUi.ErrorLog" />
+            type="dev.liinahamari.follower.screens.logs.LogUi.ErrorLog" />
     </data>
 
     <com.google.android.material.card.MaterialCardView

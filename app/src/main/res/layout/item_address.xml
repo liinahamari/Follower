@@ -7,7 +7,7 @@
 
         <variable
             name="address"
-            type="com.example.follower.screens.address_trace.MapPointer" />
+            type="dev.liinahamari.follower.screens.address_trace.MapPointer" />
     </data>
 
     <androidx.cardview.widget.CardView

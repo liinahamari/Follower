@@ -6,7 +6,7 @@
     <data>
         <variable
             name="infoLog"
-            type="com.example.follower.screens.logs.LogUi.InfoLog" />
+            type="dev.liinahamari.follower.screens.logs.LogUi.InfoLog" />
     </data>
 
     <androidx.cardview.widget.CardView
