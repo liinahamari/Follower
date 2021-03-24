@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import com.example.follower.R
 import com.example.follower.base.BaseViewModel
 import com.example.follower.helper.SingleLiveEvent
-import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject
 
@@ -58,12 +57,19 @@ class LogsFragmentViewModel @Inject constructor(private val loggerInteractor: Lo
     }
 
     fun createZippedLogsFile() {
-        disposable += loggerInteractor.createZippedLogsFile().subscribe(Consumer {
+        disposable += loggerInteractor.createZippedLogsFile().subscribe {
             when (it) {
-                is CreateZipLogsFileResult.Success -> _logFilePathEvent.value = it.path
-                is CreateZipLogsFileResult.IOError -> _errorEvent.value = R.string.io_error
+                is CreateZipLogsFileResult.InProgress -> _loadingEvent.value = true
+                is CreateZipLogsFileResult.Success -> {
+                    _loadingEvent.value = false
+                    _logFilePathEvent.value = it.path
+                }
+                is CreateZipLogsFileResult.IOError -> {
+                    _loadingEvent.value = false
+                    _errorEvent.value = R.string.io_error
+                }
             }
-        })
+        }
     }
 
     fun deleteZippedLogs() {

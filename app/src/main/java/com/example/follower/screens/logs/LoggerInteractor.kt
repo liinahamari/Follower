@@ -50,13 +50,13 @@ class LoggerInteractor @Inject constructor(
     fun clearEntireRecord(): Observable<ClearRecordResult> = Observable.fromCallable {
         kotlin.runCatching { logFile.writeText("") }.isSuccess
     }
-        .delaySubscription(1, TimeUnit.SECONDS)
+        .delaySubscription(750, TimeUnit.MILLISECONDS)
         .compose(baseComposers.applyObservableSchedulers())
         .map { if (it) ClearRecordResult.Success else ClearRecordResult.IOError }
         .onErrorReturn { ClearRecordResult.IOError }
         .startWith(ClearRecordResult.InProgress)
 
-    fun createZippedLogsFile(): Single<CreateZipLogsFileResult> = Single.just(BuildConfig.APPLICATION_ID + FILE_PROVIDER_META)
+    fun createZippedLogsFile(): Observable<CreateZipLogsFileResult> = Observable.just(BuildConfig.APPLICATION_ID + FILE_PROVIDER_META)
         .map { authority ->
             val zippedLogs = context.createFileIfNotExist(ZIPPED_LOGS_FILE_NAME, DEBUG_LOGS_DIR)
             ZipOutputStream(BufferedOutputStream(FileOutputStream(zippedLogs))).use { output ->
@@ -71,12 +71,14 @@ class LoggerInteractor @Inject constructor(
             }
             FileProvider.getUriForFile(context, authority, zippedLogs)
         }
+        .delaySubscription(750, TimeUnit.MILLISECONDS)
+        .compose(baseComposers.applyObservableSchedulers())
         .map<CreateZipLogsFileResult> { CreateZipLogsFileResult.Success(it) }
         .onErrorReturn {
             it.printStackTrace()
             CreateZipLogsFileResult.IOError
         }
-        .compose(baseComposers.applySingleSchedulers())
+        .startWith(CreateZipLogsFileResult.InProgress)
 
     fun deleteZippedLogs(): Completable = Completable.fromCallable { File(ZIPPED_LOGS_FILE_NAME, DEBUG_LOGS_DIR).delete() }
         .compose(baseComposers.applyCompletableSchedulers())
@@ -86,6 +88,7 @@ class LoggerInteractor @Inject constructor(
 sealed class CreateZipLogsFileResult {
     data class Success(val path: Uri) : CreateZipLogsFileResult()
     object IOError : CreateZipLogsFileResult()
+    object InProgress : CreateZipLogsFileResult()
 }
 
 sealed class GetRecordResult {

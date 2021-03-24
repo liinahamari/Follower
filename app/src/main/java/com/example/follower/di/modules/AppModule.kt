@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.example.follower.FollowerApp
 import com.example.follower.R
-import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.helper.rx.BaseSchedulerProvider
 import com.example.follower.helper.rx.SchedulersProvider
