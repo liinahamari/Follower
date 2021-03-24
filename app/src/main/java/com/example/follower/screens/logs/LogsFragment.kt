@@ -82,10 +82,10 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
         if (requestCode == FILE_SENDING_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 successToast(getString(R.string.sending_logs_successful))
-                viewModel.deleteZippedLogs()
             } else {
                 errorToast(getString(R.string.error_sending_logs_unsuccessful))
             }
+            viewModel.deleteZippedLogs()
         }
     }
 

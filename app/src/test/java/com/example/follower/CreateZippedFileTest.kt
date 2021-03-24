@@ -77,34 +77,6 @@ class CreateZippedFileTest {
         }
     }
 
-    /** happens when some problems happen with sending logs to the developer (see LogsFragment.onActivityResult()) and Send button been tapped again in case of retry*/
-    @Test
-    fun `rewriting already not blank zip file`() {
-        shadowOf(getMainLooper()).idle()
-
-        val zippedLogsFile = File(File(context.filesDir, DEBUG_LOGS_DIR), ZIPPED_LOGS_FILE_NAME)
-        assert(zippedLogsFile.exists().not())
-
-        logsInteractor.createZippedLogsFile()
-            .test()
-            .assertNoErrors()
-            .assertComplete()
-            .assertValue { it is CreateZipLogsFileResult.Success }
-
-        val initialZippedLogsFileSize = zippedLogsFile.length()
-        assert(zippedLogsFile.exists())
-        assert(initialZippedLogsFileSize > 0)
-        assert(zippedLogsFile.length() < logsFile.length())
-
-        logsInteractor.createZippedLogsFile()
-            .test()
-            .assertNoErrors()
-            .assertComplete()
-            .assertValue { it is CreateZipLogsFileResult.Success }
-
-        assert(initialZippedLogsFileSize == zippedLogsFile.length())
-    }
-
     private fun unzip(zipFile: File): File {
         val tempFile = createTempFile()
         ZipInputStream(BufferedInputStream(FileInputStream(zipFile))).use { zis ->
