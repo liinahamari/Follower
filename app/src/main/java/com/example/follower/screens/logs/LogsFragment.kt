@@ -2,6 +2,7 @@
 
 package com.example.follower.screens.logs
 
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -16,6 +17,7 @@ import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.UID
 import com.example.follower.ext.throttleFirst
 import com.example.follower.helper.CustomToast.errorToast
+import com.example.follower.helper.CustomToast.successToast
 import com.jakewharton.rxbinding3.appcompat.navigationClicks
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
@@ -23,6 +25,7 @@ import kotlinx.android.synthetic.main.fragment_logs.*
 import javax.inject.Inject
 import javax.inject.Named
 
+private const val FILE_SENDING_REQUEST_CODE = 111
 const val MY_EMAIL = "l1bills@protonmail.com"
 private const val MESSAGE_TITLE = "Follower Logs of "
 const val TEXT_TYPE = "text/plain"
@@ -67,15 +70,30 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
                 putExtra(Intent.EXTRA_STREAM, it)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 type = TEXT_TYPE
-            }.also { startActivity(it) }
+            }.also {
+                @Suppress("DEPRECATION")
+                startActivityForResult(it, FILE_SENDING_REQUEST_CODE)
+            }
         })
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION") super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == FILE_SENDING_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                successToast(getString(R.string.sending_logs_successful))
+                viewModel.deleteZippedLogs()
+            } else {
+                errorToast(getString(R.string.error_sending_logs_unsuccessful))
+            }
+        }
     }
 
     override fun setupClicks() {
         subscriptions += logsToolbar.menu.findItem(R.id.sendLogs)
             .clicks()
             .throttleFirst()
-            .subscribe { viewModel.requestLogFilePath() }
+            .subscribe { viewModel.createZippedLogsFile() }
 
         subscriptions += logsToolbar.menu.findItem(R.id.clearLogs)
             .clicks()

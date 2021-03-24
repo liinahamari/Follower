@@ -10,7 +10,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 /** related to file_paths.xml -> TempLogs directory*/
-private const val DEBUG_LOGS_DIR = "TempLogs"
+const val DEBUG_LOGS_DIR = "TempLogs"
 const val DEBUG_LOGS_STORAGE_FILE = "tape.log"
 
 @Module

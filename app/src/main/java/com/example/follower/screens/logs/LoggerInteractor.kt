@@ -4,18 +4,24 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.example.follower.BuildConfig
+import com.example.follower.di.modules.DEBUG_LOGS_DIR
 import com.example.follower.di.modules.DEBUG_LOGS_STORAGE_FILE
+import com.example.follower.ext.createFileIfNotExist
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.rx.BaseComposers
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import java.io.File
+import java.io.*
 import java.util.concurrent.TimeUnit
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import javax.inject.Named
 
 /** Refers to <provider>'s authority in AndroidManifest.xml*/
 const val FILE_PROVIDER_META = ".fileprovider"
+const val ZIPPED_LOGS_FILE_NAME = "logs.zip"
 
 class LoggerInteractor @Inject constructor(
     private val context: Context,
@@ -46,20 +52,40 @@ class LoggerInteractor @Inject constructor(
     }
         .delaySubscription(1, TimeUnit.SECONDS)
         .compose(baseComposers.applyObservableSchedulers())
-        .map { if(it) ClearRecordResult.Success else ClearRecordResult.IOError }
+        .map { if (it) ClearRecordResult.Success else ClearRecordResult.IOError }
         .onErrorReturn { ClearRecordResult.IOError }
         .startWith(ClearRecordResult.InProgress)
 
-    fun getLogFilePath(): Single<GetPathResult> = Single.just(BuildConfig.APPLICATION_ID + FILE_PROVIDER_META)
-        .map { FileProvider.getUriForFile(context, it, logFile) }
-        .map<GetPathResult> { GetPathResult.Success(it) }
-        .onErrorReturn { GetPathResult.IOError }
+    fun createZippedLogsFile(): Single<CreateZipLogsFileResult> = Single.just(BuildConfig.APPLICATION_ID + FILE_PROVIDER_META)
+        .map { authority ->
+            val zippedLogs = context.createFileIfNotExist(ZIPPED_LOGS_FILE_NAME, DEBUG_LOGS_DIR)
+            ZipOutputStream(BufferedOutputStream(FileOutputStream(zippedLogs))).use { output ->
+                val data = ByteArray(1024)
+                BufferedInputStream(FileInputStream(logFile), data.size).use { input ->
+                    output.putNextEntry(ZipEntry(logFile.name))
+                    var counter: Int
+                    while (input.read(data, 0, data.size).also { counter = it } != -1) {
+                        output.write(data, 0, counter)
+                    }
+                }
+            }
+            FileProvider.getUriForFile(context, authority, zippedLogs)
+        }
+        .map<CreateZipLogsFileResult> { CreateZipLogsFileResult.Success(it) }
+        .onErrorReturn {
+            it.printStackTrace()
+            CreateZipLogsFileResult.IOError
+        }
         .compose(baseComposers.applySingleSchedulers())
+
+    fun deleteZippedLogs(): Completable = Completable.fromCallable { File(ZIPPED_LOGS_FILE_NAME, DEBUG_LOGS_DIR).delete() }
+        .compose(baseComposers.applyCompletableSchedulers())
+        .doOnError { logger.e("deteling $ZIPPED_LOGS_FILE_NAME", it) }
 }
 
-sealed class GetPathResult {
-    data class Success(val path: Uri) : GetPathResult()
-    object IOError : GetPathResult()
+sealed class CreateZipLogsFileResult {
+    data class Success(val path: Uri) : CreateZipLogsFileResult()
+    object IOError : CreateZipLogsFileResult()
 }
 
 sealed class GetRecordResult {

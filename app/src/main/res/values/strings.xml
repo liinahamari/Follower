@@ -118,4 +118,6 @@
     <string name="acra_toast_text">Sorry, the application crashed. A report will be sent to developers.</string>
     <string name="title_way_points_collected">%s waypoints collected</string>
     <string name="discard">Discard</string>
+    <string name="sending_logs_successful">Logs are successfully sent!</string>
+    <string name="error_sending_logs_unsuccessful">Logs haven\'t been successfully sent!</string>
 </resources>

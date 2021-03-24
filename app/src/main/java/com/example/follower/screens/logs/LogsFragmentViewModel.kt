@@ -57,12 +57,16 @@ class LogsFragmentViewModel @Inject constructor(private val loggerInteractor: Lo
         }
     }
 
-    fun requestLogFilePath() {
-        disposable += loggerInteractor.getLogFilePath().subscribe(Consumer {
+    fun createZippedLogsFile() {
+        disposable += loggerInteractor.createZippedLogsFile().subscribe(Consumer {
             when (it) {
-                is GetPathResult.Success -> _logFilePathEvent.value = it.path
-                is GetPathResult.IOError -> _errorEvent.value = R.string.io_error
+                is CreateZipLogsFileResult.Success -> _logFilePathEvent.value = it.path
+                is CreateZipLogsFileResult.IOError -> _errorEvent.value = R.string.io_error
             }
         })
+    }
+
+    fun deleteZippedLogs() {
+        disposable += loggerInteractor.deleteZippedLogs().subscribe()
     }
 }

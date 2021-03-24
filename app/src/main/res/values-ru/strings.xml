@@ -83,4 +83,6 @@
     <string name="acra_toast_text">Приложение некорректно завершило свою работу. Отчет будет доставлен разработчикам.</string>
     <string name="title_way_points_collected">%d геолокационных точек собрано</string>
     <string name="discard">Сбросить</string>
+    <string name="sending_logs_successful">Отправка логов прошла успешно!</string>
+    <string name="error_sending_logs_unsuccessful">Логи не были отправлены!</string>
 </resources>
