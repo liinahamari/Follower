@@ -13,7 +13,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.callbacks.onCancel
 import com.afollestad.materialdialogs.input.input
 import com.example.follower.FollowerApp
 import com.example.follower.R
@@ -93,7 +92,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             isServiceBound = false
             gpsService = null
         } catch (e: Throwable) {
-            logger.e(label = "Unbinding unsuccessful...", stackTrace = e.stackTrace)
+            logger.e(label = "Unbinding unsuccessful...", error = e)
         }
     }
 

@@ -70,8 +70,7 @@ class FollowerApp : Application() {
 
     private fun setupAnrWatchDog() = anrWatchDog
         .setANRListener { error ->
-            logger.wtf { "ANR: $error" }
-            logger.e("ANR", stackTrace = error.cause?.stackTrace ?: emptyArray())
+            error?.cause?.let { logger.e("ANR $error", error = it) }
         }.also {
             it.start()
         }

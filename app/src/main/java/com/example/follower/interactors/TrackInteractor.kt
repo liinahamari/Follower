@@ -39,7 +39,7 @@ class TrackInteractor @Inject constructor(
         trackDao.delete(trackId)
         .toSingleDefault<DeleteTrackResult> (DeleteTrackResult.Success)
         .onErrorReturn { DeleteTrackResult.DatabaseCorruptionError }
-        .doOnError { logger.e("track|wayPoints deleting", stackTrace = it.stackTrace) }
+        .doOnError { logger.e("track|wayPoints deleting", error = it) }
         .compose(baseComposers.applySingleSchedulers())
 
     fun saveWayPoint(wp: WayPoint): Completable = wayPointDao.insert(wp)

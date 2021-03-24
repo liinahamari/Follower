@@ -114,7 +114,7 @@ class LocationTrackingService : Service() {
             try {
                 locationManager.removeUpdates(locationListener)
             } catch (ex: Exception) {
-                logger.e(label = "Failed to remove location listeners", stackTrace = ex.stackTrace)
+                logger.e(label = "Failed to remove location listeners", error = ex)
             } finally {
                 isTracking.onNext(false) /* ? */
                 syncDisposable.clear()
@@ -154,7 +154,7 @@ class LocationTrackingService : Service() {
             traceBeginningTime = System.currentTimeMillis()
 
             disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toReadableDate())).subscribe({}, {
-                logger.e("failed to initially save track!", stackTrace = it.stackTrace)
+                logger.e("failed to initially save track!", error = it)
             })
 
             syncDisposable += (
@@ -168,11 +168,11 @@ class LocationTrackingService : Service() {
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
             stopSelf()
-            logger.e(label = "Failed to request location updates", stackTrace = ex.stackTrace)
+            logger.e(label = "Failed to request location updates", error = ex)
         } catch (ex: IllegalArgumentException) {
             stopSelf()
             isTracking.onNext(false)
-            logger.e(label = "GPS provider does not exist (${ex.localizedMessage})", stackTrace = ex.stackTrace)
+            logger.e(label = "GPS provider does not exist (${ex.localizedMessage})", error = ex)
         }
     }
 

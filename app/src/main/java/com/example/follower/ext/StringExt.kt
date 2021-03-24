@@ -5,12 +5,11 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
-/** Represents date and in such format: "day_of_month concise_month_name 24_format_hours:minutes"
+/** Represents date and in such format: "year-concise_month_name-day_of_month 24_format_hours:minutes:seconds.milliseconds"
  *  For example:
- *  23 Dec 00:12
- *  01 May 05:55
+ *  2020-Dec-23 00:12:11:101
  *  */
-private const val DATE_PATTERN_FOR_LOGGING = "dd EEE MMM HH:mm"
+private const val DATE_PATTERN_FOR_LOGGING = "yyyy-MMM-dd HH:mm:ss.SSS"
 
 /** Represents hours and minutes in hours:minutes way. Hours will be shown in 24-hour format. For example,
  *  00:12
@@ -31,8 +30,8 @@ fun Long.toReadableDate(): String = DateFormat.getDateTimeInstance(DateFormat.LO
  * 00:52
  * 08:11
  * */
-fun now(): String = SimpleDateFormat(TIME_PATTERN_HOURS_24_MINUTES, Locale.getDefault()).format(Date())
-fun today(): String = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING, Locale.getDefault()).format(Date())
+fun nowHoursAndMinutesOnly(): String = SimpleDateFormat(TIME_PATTERN_HOURS_24_MINUTES, Locale.getDefault()).format(Date())
+fun now(): String = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING, Locale.getDefault()).format(Date())
 
 fun minutesFromMidnightToHourlyTime(minutes: Int): String {
     val hour: Int = minutes / 60

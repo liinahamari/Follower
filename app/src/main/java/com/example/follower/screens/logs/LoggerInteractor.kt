@@ -26,17 +26,16 @@ class LoggerInteractor @Inject constructor(
     fun getEntireRecord(): Observable<GetRecordResult> = Observable.fromCallable { logger.getEntireRecord() }
         .concatMapIterable { it.split("\n\n".toRegex()).filter { line -> line.isNotBlank() } }
         .map {
-            @Suppress("RegExpRedundantEscape") /* https://stackoverflow.com/questions/13508992/android-syntax-error-in-regexp-pattern */
-            if (it.contains("\\} E \\{".toRegex())) {
+            if (it.contains(FlightRecorder.getPriorityPattern(FlightRecorder.Priority.E).toRegex())) {
                 val stackTraceLines = "(.*)(label:(.|\n)*)".toRegex().find(it)!!.groupValues[2].split("\n")
-                LogUi.ErrorLog(stackTraceLines.first(), stackTraceLines.subList(1, stackTraceLines.lastIndex).joinToString(separator = "\n"))
+                LogUi.ErrorLog(stackTraceLines.first(), stackTraceLines.subList(1, stackTraceLines.size).joinToString(separator = "\n"))
             } else {
                 LogUi.InfoLog(it)
             }
         }
         .toList()
         .toObservable()
-        .delaySubscription(1, TimeUnit.SECONDS)
+        .delaySubscription(750, TimeUnit.MILLISECONDS)
         .compose(baseComposers.applyObservableSchedulers())
         .map<GetRecordResult> { GetRecordResult.Success(it) }
         .onErrorReturn { GetRecordResult.IOError }

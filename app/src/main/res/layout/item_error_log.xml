@@ -33,7 +33,9 @@
                 android:textSize="16sp"
                 android:textColor="@color/white"
                 android:text="@{errorLog.label}"
-                tools:text="Some log info..." />
+                android:paddingEnd="54dp"
+                tools:text="Some log info..."
+                tools:ignore="RtlSymmetry" />
 
             <ImageView
                 android:id="@+id/arrowBtn"

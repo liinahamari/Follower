@@ -32,7 +32,7 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun bindComposers(schedulers: SchedulersProvider, logger: FlightRecorder): BaseComposers = BaseComposers(schedulers, logger)
+    fun bindComposers(schedulers: SchedulersProvider): BaseComposers = BaseComposers(schedulers)
 
     @Provides
     @Singleton

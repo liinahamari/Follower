@@ -36,7 +36,7 @@ class AutoTrackingSchedulingUseCase constructor(private val sharedPreferences: S
             .map { minutesFromMidnightToHourlyTime(it.first) to minutesFromMidnightToHourlyTime(it.second) }
             .compose(baseComposers.applySingleSchedulers())
             .doOnSuccess {
-                if (isTimeBetweenTwoTimes(it.first, it.second, now())) {
+                if (isTimeBetweenTwoTimes(it.first, it.second, nowHoursAndMinutesOnly())) {
                     if (context.isServiceRunning(LocationTrackingService::class.java).not()) {
                         workManager.enqueueUniquePeriodicWork(TAG_AUTO_START_WORKER, ExistingPeriodicWorkPolicy.KEEP, defaultConstraints<AutoStartTrackingWorker>().build())
                     }

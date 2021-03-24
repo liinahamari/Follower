@@ -2,6 +2,7 @@ package com.example.follower.di.modules
 
 import android.content.Context
 import com.example.follower.helper.FlightRecorder
+import com.example.follower.helper.rx.BaseComposers
 import dagger.Module
 import dagger.Provides
 import java.io.File
@@ -16,7 +17,7 @@ const val DEBUG_LOGS_STORAGE_FILE = "tape.log"
 class LoggerModule {
     @Provides
     @Singleton
-    fun provideLogger(@Named(DEBUG_LOGS_STORAGE_FILE) file: File): FlightRecorder = FlightRecorder(file)
+    fun provideLogger(@Named(DEBUG_LOGS_STORAGE_FILE) file: File, baseComposers: BaseComposers): FlightRecorder = FlightRecorder(file, baseComposers)
 
     @Provides
     @Singleton
