@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@color/purple_500"
         app:title="@string/title_logs"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:elevation="4dp"
         app:menu="@menu/logs_menu"
         app:titleTextColor="@color/white"
