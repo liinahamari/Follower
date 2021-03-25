@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">FakeGPS</string>
+    <string name="add_fake_gps_provider">Add fake GPS provider</string>
+    <string name="remove_fake_gps_provider">Remove fake GPS provider</string>
+</resources>

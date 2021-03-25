@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +25,9 @@ import com.example.follower.ext.*
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.CustomToast.infoToast
 import com.example.follower.screens.biometric.Authenticator
+import com.example.follower.screens.tracking_control.CODE_PERMISSION_LOCATION
+import com.example.follower.screens.tracking_control.PERMISSION_BACKGROUND_LOCATION
+import com.example.follower.screens.tracking_control.PERMISSION_LOCATION
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -89,8 +93,13 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             .appComponent
             .biometricComponent(
                 BiometricModule(requireActivity(),
-                    onSuccessfulAuth = { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false },
-                    onFailedAuth = { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true }
+                    onSuccessfulAuth = {
+                        findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false
+                        prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), false)
+                    },
+                    onFailedAuth = { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true
+                        prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), true)
+                    }
                 )
             )
             .settingsComponent(SettingsModule(activity = requireActivity(), resetToDefaults = ::resetToDefaults))
@@ -102,10 +111,41 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     }
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
-        if (isDetached.not() && preference?.key == getString(R.string.pref_reset_to_default)) {
-            resetDialog.show()
+        if (isDetached.not()) {
+            when (preference?.key) {
+                getString(R.string.pref_reset_to_default) -> resetDialog.show()
+            }
         }
         return super.onPreferenceTreeClick(preference)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
+        /*Maybe someday... https://developer.android.com/training/permissions/requesting*/
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (isDetached.not() && requestCode == CODE_PERMISSION_LOCATION) {
+            val permissionsToHandle = mutableListOf(PERMISSION_LOCATION)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                /* https://stackoverflow.com/questions/58816066/android-10-q-access-background-location-permission */
+                permissionsToHandle.add(PERMISSION_BACKGROUND_LOCATION)
+            }
+
+            handleUsersReactionToPermissions(
+                permissionsToHandle = permissionsToHandle,
+                allPermissions = permissions.toList(),
+                doIfAllowed = { viewModel.scheduleAutoTracking() },
+                doIfDenied = {
+                    errorToast(getString(R.string.error_location_permission_denied))
+                    findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_auto_tracking))?.isChecked = false
+                    prefs.writeBooleanOf(getString(R.string.pref_enable_auto_tracking), false)
+                },
+                doIfNeverAskAgain = {
+                    errorToast(getString(R.string.error_location_permission_denied))
+                    prefs.writeBooleanOf(getString(R.string.pref_enable_auto_tracking), false)
+                    findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_auto_tracking))?.isChecked = false
+                }
+            )
+        }
     }
 
     @SuppressLint("ApplySharedPref")
@@ -126,7 +166,18 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             }
             getString(R.string.pref_enable_auto_tracking) -> {
                 if (sharedPreferences.getBooleanOf(key)) {
-                    viewModel.scheduleAutoTracking()
+                    val permissions = mutableListOf(PERMISSION_LOCATION)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        permissions.add(PERMISSION_BACKGROUND_LOCATION)
+                    }
+                    if (hasAllPermissions(permissions)) {
+                        viewModel.scheduleAutoTracking()
+                    } else {
+                        @Suppress("DEPRECATION")
+                        // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :(
+                        // Maybe someday... https://developer.android.com/training/permissions/requesting
+                        requestPermissions(permissions.toTypedArray(), CODE_PERMISSION_LOCATION)
+                    }
                 } else {
                     viewModel.cancelAutoTracking()
                 }
@@ -137,6 +188,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 }
             }
             getString(R.string.pref_acra_enable) -> sharedPreferences.writeBooleanOf(getString(R.string.pref_acra_disable), sharedPreferences.getBooleanOf(key).not())
+
+            getString(R.string.pref_tracking_start_time), getString(R.string.pref_tracking_stop_time) -> viewModel.scheduleAutoTracking() /*no need to cancel, cause ExistingPeriodicWorkPolicy.REPLACE politics applying in AutoTrackingSchedulingUseCase*/
         }
     }
 

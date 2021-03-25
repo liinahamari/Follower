@@ -5,19 +5,22 @@ import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.*
 import com.example.follower.screens.MainActivity
 import com.example.follower.screens.logs.LogsFragment
-import com.example.follower.services.LocationTrackingService
+import com.example.follower.services.location_tracking.LocationTrackingService
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class, LoggerModule::class, ViewModelBuilderModule::class, DatabaseModule::class, ServiceModule::class, NetworkModule::class])
+@Component(modules = [AppModule::class, LoggerModule::class, ViewModelBuilderModule::class, DatabaseModule::class, ServiceModule::class, NetworkModule::class, WorkersBindingModule::class])
 interface AppComponent {
     @Component.Builder
     interface Builder {
         @BindsInstance
         fun application(app: FollowerApp): Builder
-        fun serviceModule(module: ServiceModule): Builder
+
+        fun serviceModule(module: ServiceModule): Builder /** for testing purposes */
+        fun dbModule(module: DatabaseModule): Builder /** for testing purposes */
+
         fun build(): AppComponent
     }
 

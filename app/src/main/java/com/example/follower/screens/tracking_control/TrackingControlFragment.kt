@@ -5,13 +5,14 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.callbacks.onCancel
 import com.afollestad.materialdialogs.input.input
 import com.example.follower.FollowerApp
 import com.example.follower.R
@@ -20,26 +21,23 @@ import com.example.follower.di.modules.DIALOG_EMPTY_WAYPOINTS
 import com.example.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
 import com.example.follower.di.modules.TrackingControlModule
 import com.example.follower.ext.*
-import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.FlightRecorder
-import com.example.follower.services.ACTION_START_TRACKING
-import com.example.follower.services.ACTION_STOP_TRACKING
-import com.example.follower.services.ARG_AUTO_SAVE
-import com.example.follower.services.LocationTrackingService
+import com.example.follower.services.location_tracking.*
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
 import javax.inject.Named
 
-private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
-private const val CODE_PERMISSION_LOCATION = 101
+
+const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
+@RequiresApi(Build.VERSION_CODES.Q) const val PERMISSION_BACKGROUND_LOCATION = Manifest.permission.ACCESS_BACKGROUND_LOCATION
+const val CODE_PERMISSION_LOCATION = 101
 
 /*todo, add distance, points*/
 
 @TrackingControlScope
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
-    @Inject lateinit var viewModel: TrackingControlViewModel
     @Inject lateinit var logger: FlightRecorder
 
     @Inject
@@ -94,37 +92,34 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             isServiceBound = false
             gpsService = null
         } catch (e: Throwable) {
-            logger.e(label = "Unbinding unsuccessful...", stackTrace = e.stackTrace)
+            logger.e(label = "Unbinding unsuccessful...", error = e)
         }
     }
 
     override fun onAttach(context: Context) {
         (context.applicationContext as FollowerApp)
             .appComponent
-            .trackingControlComponent(TrackingControlModule(
-                activity = requireActivity(),
-                onStopTrackingClick = { viewModel.clearWaypoints(gpsService!!.traceBeginningTime!!) })
-            )
+            .trackingControlComponent(TrackingControlModule(activity = requireActivity()))
             .inject(this)
         super.onAttach(context)
     }
 
-    override fun setupViewModelSubscriptions() {
-        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
-        viewModel.stopServiceEvent.observe(viewLifecycleOwner, {
-            gpsService!!.isTracking.onNext(false) /*FIXME rethink*/
-            stopService(LocationTrackingService::class.java)
-        })
-    }
+    override fun setupViewModelSubscriptions() = Unit
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
         /*Maybe someday... https://developer.android.com/training/permissions/requesting*/
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (isDetached.not() && requestCode == CODE_PERMISSION_LOCATION) {
-            handleUsersReactionToPermission(
-                permissionToHandle = PERMISSION_LOCATION,
-                allPermissions = permissions,
+            val permissionsToHandle = mutableListOf(PERMISSION_LOCATION)
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                /* https://stackoverflow.com/questions/58816066/android-10-q-access-background-location-permission */
+                permissionsToHandle.add(PERMISSION_BACKGROUND_LOCATION)
+            }
+
+            handleUsersReactionToPermissions(
+                permissionsToHandle = permissionsToHandle,
+                allPermissions = permissions.toList(),
                 doIfAllowed = { startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING) },
                 doIfDenied = { locationPermissionExplanationDialog.show() },
                 doIfNeverAskAgain = { locationPermissionExplanationDialog.show() }
@@ -136,13 +131,17 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         subscriptions += btn_start_tracking.clicks()
             .throttleFirst(750L)
             .subscribe {
-                if (hasPermission(PERMISSION_LOCATION)) {
+                val permissions = mutableListOf(PERMISSION_LOCATION)
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    permissions.add(PERMISSION_BACKGROUND_LOCATION)
+                }
+                if (hasAllPermissions(permissions)) {
                     startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
                 } else {
                     @Suppress("DEPRECATION")
                     // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :(
                     // Maybe someday... https://developer.android.com/training/permissions/requesting
-                    requestPermissions(arrayOf(PERMISSION_LOCATION), CODE_PERMISSION_LOCATION)
+                    requestPermissions(permissions.toTypedArray(), CODE_PERMISSION_LOCATION)
                 }
             }
 
@@ -150,17 +149,18 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             .throttleFirst(750L)
             .subscribe {
                 if (isServiceBound && gpsService != null) {
-                    if (gpsService!!.wayPoints.isEmpty()) {
+                    if (gpsService!!.isTrackEmpty) {
                         emptyWayPointsDialog.show()
                     } else {
                         MaterialDialog(requireContext()).show {
-                            val nonSavedTrackId = gpsService!!.traceBeginningTime!!
-                            onCancel {
-                                viewModel.clearWaypoints(nonSavedTrackId)
+                            cancelable(false)
+                            negativeButton(res = R.string.discard) {
+                                startService(LocationTrackingService::class.java, action = ACTION_DISCARD_TRACK)
                             }
-                            input(prefill = nonSavedTrackId.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
+
+                            input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
                                 startService(LocationTrackingService::class.java,
-                                    action = ACTION_STOP_TRACKING,
+                                    action = ACTION_RENAME_TRACK_AND_STOP_TRACKING,
                                     bundle = Bundle().apply {
                                         putCharSequence(ARG_AUTO_SAVE, text)
                                     })

@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.example.follower.FollowerApp
 import com.example.follower.R
-import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.helper.rx.BaseSchedulerProvider
 import com.example.follower.helper.rx.SchedulersProvider
@@ -23,16 +22,16 @@ const val UID = "userID"
 class AppModule {
     @Provides
     @Singleton
-//    @Named(APP_CONTEXT) TODO
+    @Named(APP_CONTEXT)
     fun bindContext(app: FollowerApp): Context = app.applicationContext
 
     @Provides
     @Singleton
-    fun bindSharedPrefs(context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    fun bindSharedPrefs(@Named(APP_CONTEXT) context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     @Provides
     @Singleton
-    fun bindComposers(schedulers: SchedulersProvider, logger: FlightRecorder): BaseComposers = BaseComposers(schedulers, logger)
+    fun bindComposers(schedulers: SchedulersProvider): BaseComposers = BaseComposers(schedulers)
 
     @Provides
     @Singleton
@@ -41,7 +40,7 @@ class AppModule {
     @Provides
     @Singleton
     @Named(UID) /* https://developer.android.com/training/articles/user-data-ids.html */
-    fun provideUID(sharedPreferences: SharedPreferences, context: Context): String = sharedPreferences.getString(context.getString(R.string.pref_uid), null)!!
+    fun provideUID(sharedPreferences: SharedPreferences, @Named(APP_CONTEXT) context: Context): String = sharedPreferences.getString(context.getString(R.string.pref_uid), null)!!
 
     @Provides
     @Singleton

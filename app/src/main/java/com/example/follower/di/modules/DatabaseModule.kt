@@ -7,15 +7,16 @@ import com.example.follower.db.TracksDb
 import com.example.follower.model.WayPointDao
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
 import javax.inject.Singleton
 
 private const val DATABASE_NAME_TRACKS = "database-tracks"
 
 @Module
-class DatabaseModule {
+open class DatabaseModule {
     @Provides
     @Singleton
-    fun provideMissedAlarmsCountersDatabase(context: Context): TracksDb = Room.databaseBuilder(context, TracksDb::class.java, DATABASE_NAME_TRACKS)
+    open fun provideTracksDb(@Named(APP_CONTEXT) context: Context): TracksDb = Room.databaseBuilder(context, TracksDb::class.java, DATABASE_NAME_TRACKS)
         .build()
 
     @Provides

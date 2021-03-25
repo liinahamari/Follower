@@ -1,11 +1,8 @@
 package com.example.follower.model
 
 import androidx.annotation.VisibleForTesting
-import androidx.room.Dao
-import androidx.room.Insert
+import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
-import androidx.room.Query
-import androidx.room.Transaction
 import com.example.follower.db.entities.Track
 import com.example.follower.db.entities.TrackWithWayPoints
 import io.reactivex.Completable
@@ -22,6 +19,9 @@ interface TrackDao {
 
     @Query("SELECT * FROM track WHERE time LIKE :taskId LIMIT 1")
     fun findByTrackId(taskId: Long): Single<Track>
+
+    @Update
+    fun update(track: Track): Completable
 
     @Insert(onConflict = REPLACE)
     fun insert(counter: Track): Single<Long>

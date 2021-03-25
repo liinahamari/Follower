@@ -1,57 +1,58 @@
 package com.example.follower.helper
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.example.follower.BuildConfig
-import com.example.follower.ext.today
+import com.example.follower.ext.now
+import com.example.follower.helper.rx.BaseComposers
+import io.reactivex.Completable
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.concurrent.TimeUnit
 
-class FlightRecorder(private val logStorage: File) {
+private const val SEPARATOR = "/"
+
+class FlightRecorder(private val logStorage: File, private val baseComposers: BaseComposers) {
     private val isDebug = BuildConfig.DEBUG
-    var TAPE_VOLUME = 10 * 1024 * 1024
+    var TAPE_VOLUME = 10 * 1024 * 1024  /** 10 MB **/
 
-    /** 10 MB **/
+    companion object {
+        fun getPriorityPattern(priority: Priority) = "${SEPARATOR}${priority.name}${SEPARATOR}"
+    }
 
-    fun i(toPrintInLogcat: Boolean = true, what: () -> String) {
-        clearBeginningIfNeeded("} I {", what, today())
-        logStorage.appendText("} I { ${today()} ${what.invoke()}\n\n")
-        if (toPrintInLogcat && isDebug) {
-            Log.i(this::class.java.simpleName, what.invoke())
+    private fun String.toLogMessage(priority: Priority) = "${getPriorityPattern(priority)}  ${now()}$SEPARATOR(${Thread.currentThread().name}): $this\n\n"
+
+    enum class Priority {
+        I, D, W, E, WTF
+    }
+
+    @VisibleForTesting
+    fun printLogAndWriteToFile(logMessage: String, priority: Priority, toPrintInLogcat: Boolean) {
+        with(logMessage.toLogMessage(priority)) {
+            clearBeginningOfLogFileIfNeeded(this)
+
+            Completable.fromCallable { logStorage.appendText(this) }
+                .timeout(5, TimeUnit.SECONDS)
+                .compose(baseComposers.applyCompletableSchedulers())
+                .doOnError { it.printStackTrace() }
+                .subscribe()
+
+            if (toPrintInLogcat && isDebug) {
+                Log.i(this::class.java.simpleName, this)
+            }
         }
     }
 
-    fun d(toPrintInLogcat: Boolean = true, what: () -> String) {
-        clearBeginningIfNeeded("} D {", what, today())
-        logStorage.appendText("} D { ${today()} ${what.invoke()}\n\n")
-        if (toPrintInLogcat && isDebug) {
-            Log.i(this::class.java.simpleName, what.invoke())
-        }
-    }
+    fun i(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.I, toPrintInLogcat)
+    fun d(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.D, toPrintInLogcat)
+    fun w(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.W, toPrintInLogcat)
+    fun wtf(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.WTF, toPrintInLogcat)
 
-    fun w(toPrintInLogcat: Boolean = true, what: () -> String) {
-        clearBeginningIfNeeded("} W {", what, today())
-        logStorage.appendText("} W { ${today()} ${what.invoke()}\n\n")
-        if (toPrintInLogcat && isDebug) {
-            Log.i(this::class.java.simpleName, what.invoke())
-        }
-    }
-
-    /*TODO improve tests*/
-    fun e(label: String, toPrintInLogcat: Boolean = true, stackTrace: Array<StackTraceElement>) {
-        val readableStackTrace = stackTrace.joinToString(separator = "\n") { it.toString() }
-        clearBeginningIfNeeded("} E {", { "$readableStackTrace label: $label" }, today())
-        logStorage.appendText("} E { ${today()} label: $label\n")
-        logStorage.appendText("} E { $readableStackTrace\n\n")
-        if (toPrintInLogcat && isDebug) {
-            Log.w(this::class.java.simpleName, readableStackTrace)
-        }
-    }
-
-    fun wtf(toPrintInLogcat: Boolean = true, what: () -> String) {
-        clearBeginningIfNeeded("} X {", what, today())
-        logStorage.appendText("} X { ${today()} ${what.invoke()}\n\n")
-        if (toPrintInLogcat && isDebug) {
-            Log.i(this::class.java.simpleName, what.invoke())
+    fun e(label: String, error: Throwable, toPrintInLogcat: Boolean = true) {
+        val errorMessage = error.stackTrace.joinToString(separator = "\n\t", prefix = "label: $label\n${error.message}\n")
+        printLogAndWriteToFile(errorMessage, Priority.E, toPrintInLogcat)
+        if (toPrintInLogcat) {
+            error.printStackTrace()
         }
     }
 
@@ -62,8 +63,8 @@ class FlightRecorder(private val logStorage: File) {
         logStorage.readText()
     }
 
-    private fun clearBeginningIfNeeded(meta: String, what: () -> String, timestamp: String) {
-        val newDataSize = "$meta $timestamp ${what.invoke()}\n\n".toByteArray().size
+    private fun clearBeginningOfLogFileIfNeeded(what: String) {
+        val newDataSize = what.toByteArray().size
         if ((logStorage.length() + newDataSize.toLong()) > TAPE_VOLUME) {
             val dataToRemain = logStorage.readBytes().drop(newDataSize).toByteArray()
             logStorage.writeBytes(dataToRemain)
