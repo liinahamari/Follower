@@ -22,7 +22,7 @@ class LoggerModule {
     @Provides
     @Singleton
     @Named(DEBUG_LOGS_STORAGE_FILE)
-    fun provideLogFile(context: Context): File = File(File(context.filesDir, DEBUG_LOGS_DIR).apply {
+    fun provideLogFile(@Named(APP_CONTEXT) context: Context): File = File(File(context.filesDir, DEBUG_LOGS_DIR).apply {
         if (exists().not()) {
             mkdir()
         }

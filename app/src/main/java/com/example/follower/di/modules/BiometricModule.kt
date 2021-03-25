@@ -65,7 +65,7 @@ class BiometricModule(private val activity: FragmentActivity, private val onSucc
     @Provides
     fun provideAuthenticator(
         biometricCallback: BiometricCallback,
-        context: Context,
+        @Named(APP_CONTEXT) context: Context,
         promptInfo: BiometricPrompt.PromptInfo?,
         authCallbackV23to27: FingerprintManagerCompat.AuthenticationCallback,
         authCallbackV28: BiometricPrompt.AuthenticationCallback?,
@@ -120,7 +120,7 @@ class BiometricModule(private val activity: FragmentActivity, private val onSucc
     fun provideBiometricDialogForV28(
         @Named(BIOMETRIC_DIALOG_TITLE) title: String,
         @Named(BIOMETRIC_DIALOG_DESCRIPTION) description: String,
-        context: Context
+        @Named(APP_CONTEXT) context: Context
     ): BiometricPrompt.PromptInfo? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
@@ -132,12 +132,12 @@ class BiometricModule(private val activity: FragmentActivity, private val onSucc
     @BiometricScope
     @Provides
     @Named(BIOMETRIC_DIALOG_TITLE)
-    fun provideDialogTitle(context: Context): String = context.getString(R.string.title_records_access)
+    fun provideDialogTitle(@Named(APP_CONTEXT) context: Context): String = context.getString(R.string.title_records_access)
 
     @BiometricScope
     @Provides
     @Named(BIOMETRIC_DIALOG_DESCRIPTION)
-    fun provideDialogDescription(context: Context): String = context.getString(R.string.title_fingerprint_instruction)
+    fun provideDialogDescription(@Named(APP_CONTEXT) context: Context): String = context.getString(R.string.title_fingerprint_instruction)
 
     @BiometricScope
     @Provides
@@ -151,7 +151,7 @@ class BiometricModule(private val activity: FragmentActivity, private val onSucc
 
     @BiometricScope
     @Provides
-    fun provideAuthCallbackV23to27(biometricCallback: BiometricCallback, dialog: BiometricDialog, context: Context): FingerprintManagerCompat.AuthenticationCallback = object : FingerprintManagerCompat.AuthenticationCallback() {
+    fun provideAuthCallbackV23to27(biometricCallback: BiometricCallback, dialog: BiometricDialog, @Named(APP_CONTEXT) context: Context): FingerprintManagerCompat.AuthenticationCallback = object : FingerprintManagerCompat.AuthenticationCallback() {
         override fun onAuthenticationError(errMsgId: Int, errString: CharSequence) {
             dialog.updateStatus(errString.toString())
             biometricCallback.onAuthenticationError(errMsgId, errString)

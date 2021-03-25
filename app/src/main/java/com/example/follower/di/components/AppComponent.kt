@@ -17,8 +17,10 @@ interface AppComponent {
     interface Builder {
         @BindsInstance
         fun application(app: FollowerApp): Builder
+
         fun serviceModule(module: ServiceModule): Builder /** for testing purposes */
         fun dbModule(module: DatabaseModule): Builder /** for testing purposes */
+
         fun build(): AppComponent
     }
 

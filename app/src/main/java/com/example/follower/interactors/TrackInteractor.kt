@@ -8,6 +8,7 @@ import android.net.Uri
 import com.example.follower.R
 import com.example.follower.db.entities.Track
 import com.example.follower.db.entities.WayPoint
+import com.example.follower.di.modules.APP_CONTEXT
 import com.example.follower.ext.createFileIfNotExist
 import com.example.follower.ext.getUriForInternalFile
 import com.example.follower.helper.FlightRecorder
@@ -25,18 +26,17 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Named
 
 class TrackInteractor @Inject constructor(
-    private val context: Context,
+    @Named(APP_CONTEXT) private val context: Context,
     private val trackDao: TrackDao,
     private val wayPointDao: WayPointDao,
     private val logger: FlightRecorder,
     private val baseComposers: BaseComposers,
     private val gson: Gson
 ) {
-    fun  deleteTrack(trackId: Long): Single<DeleteTrackResult> = /*wayPointDao.delete(trackId) *//*todo in transaction?!*//*
-        .andThen(trackDao.delete(trackId))*/
-        trackDao.delete(trackId)
+    fun deleteTrack(trackId: Long): Single<DeleteTrackResult> = trackDao.delete(trackId)
         .toSingleDefault<DeleteTrackResult> (DeleteTrackResult.Success)
         .onErrorReturn { DeleteTrackResult.DatabaseCorruptionError }
         .doOnError { logger.e("track|wayPoints deleting", error = it) }

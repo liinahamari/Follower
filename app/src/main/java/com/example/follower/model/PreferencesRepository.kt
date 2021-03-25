@@ -4,17 +4,19 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.example.follower.R
+import com.example.follower.di.modules.APP_CONTEXT
 import com.example.follower.ext.*
 import com.example.follower.helper.rx.BaseComposers
 import io.reactivex.Completable
 import io.reactivex.Single
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Named
 
 private const val DEFAULT_AUTO_TRACKING_START_TIME = "09:00"
 private const val DEFAULT_AUTO_TRACKING_END_TIME = "21:00"
 
-class PreferencesRepository @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val baseComposers: BaseComposers) {
+class PreferencesRepository @Inject constructor(private val sharedPreferences: SharedPreferences, @Named(APP_CONTEXT) private val context: Context, private val baseComposers: BaseComposers) {
     /** If App is launching first time, then set default preferences*/
     fun applyDefaultPreferences(): Completable = Completable.fromCallable {
             if (sharedPreferences.getBoolean(context.getString(R.string.pref_is_first_launch), false).not()) {

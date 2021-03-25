@@ -6,11 +6,13 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import com.example.follower.R
+import com.example.follower.di.modules.APP_CONTEXT
 import com.example.follower.helper.rx.BaseComposers
 import io.reactivex.Single
+import javax.inject.Named
 
 @SettingsScope
-class BiometricAvailabilityValidationUseCase constructor(/*@Named(APP_CONTEXT) */private val context: Context, private val baseComposers: BaseComposers) {
+class BiometricAvailabilityValidationUseCase constructor(@Named(APP_CONTEXT) private val context: Context, private val baseComposers: BaseComposers) {
     fun execute(): Single<BiometricAvailabilityResult> = Single.fromCallable {
         return@fromCallable when {
             ActivityCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED -> BiometricAvailabilityResult.NotAvailable(R.string.summary_lack_of_fingerprint_permission)

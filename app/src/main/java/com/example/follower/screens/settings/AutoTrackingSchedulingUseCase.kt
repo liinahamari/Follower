@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.work.*
 import com.example.follower.R
+import com.example.follower.di.modules.APP_CONTEXT
 import com.example.follower.ext.*
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.services.location_tracking.LocationTrackingService
@@ -17,9 +18,15 @@ import io.reactivex.Single
 import io.reactivex.rxkotlin.toCompletable
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 
 @SettingsScope
-class AutoTrackingSchedulingUseCase constructor(private val sharedPreferences: SharedPreferences, private val context: Context, private val baseComposers: BaseComposers, private val workManager: WorkManager) {
+class AutoTrackingSchedulingUseCase constructor(
+    private val sharedPreferences: SharedPreferences,
+    @Named(APP_CONTEXT) private val context: Context,
+    private val baseComposers: BaseComposers,
+    private val workManager: WorkManager)
+{
     fun cancelAutoTracking(): Single<CancelAutoTrackingResult> = (if (workManager.isWorkScheduled(TAG_AUTO_START_WORKER) || workManager.isWorkScheduled(TAG_AUTO_STOP_WORKER)) {
         Maybe.just(TAG_AUTO_START_WORKER to TAG_AUTO_STOP_WORKER)
     } else Maybe.empty())

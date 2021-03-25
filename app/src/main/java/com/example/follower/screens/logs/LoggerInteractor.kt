@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.example.follower.BuildConfig
+import com.example.follower.di.modules.APP_CONTEXT
 import com.example.follower.di.modules.DEBUG_LOGS_DIR
 import com.example.follower.di.modules.DEBUG_LOGS_STORAGE_FILE
 import com.example.follower.ext.createFileIfNotExist
@@ -24,7 +25,7 @@ const val FILE_PROVIDER_META = ".fileprovider"
 const val ZIPPED_LOGS_FILE_NAME = "logs.zip"
 
 class LoggerInteractor @Inject constructor(
-    private val context: Context,
+    @Named(APP_CONTEXT) private val context: Context,
     private val logger: FlightRecorder,
     private val baseComposers: BaseComposers,
     @param:Named(DEBUG_LOGS_STORAGE_FILE) private val logFile: File

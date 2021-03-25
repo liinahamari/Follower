@@ -25,7 +25,7 @@ class SettingsModule(private val activity: Activity, private val resetToDefaults
     @Provides
     @SettingsScope
     @Named(DIALOG_RESET_TO_DEFAULTS)
-    fun provideResetToDefaultsDialog(ctx: Context): Dialog = MaterialAlertDialogBuilder(activity).create()
+    fun provideResetToDefaultsDialog(@Named(APP_CONTEXT) ctx: Context): Dialog = MaterialAlertDialogBuilder(activity).create()
         .apply {
             setTitle(ctx.getString(R.string.title_reset_to_defaults))
             setButton(AlertDialog.BUTTON_POSITIVE, ctx.getString(R.string.title_continue)) { dialog, _ -> resetToDefaults.invoke().also { dialog.dismiss() } }
@@ -34,15 +34,15 @@ class SettingsModule(private val activity: Activity, private val resetToDefaults
 
     @Provides
     @SettingsScope
-    fun provideAutoTrackingSchedulingUseCase(prefs: SharedPreferences, ctx: Context, composers: BaseComposers, workManager: WorkManager): AutoTrackingSchedulingUseCase = AutoTrackingSchedulingUseCase(prefs, ctx, composers, workManager)
+    fun provideAutoTrackingSchedulingUseCase(prefs: SharedPreferences, @Named(APP_CONTEXT) ctx: Context, composers: BaseComposers, workManager: WorkManager): AutoTrackingSchedulingUseCase = AutoTrackingSchedulingUseCase(prefs, ctx, composers, workManager)
 
     @Provides
     @SettingsScope
-    fun provideBiometricAvailabilityValidator(context: Context, composers: BaseComposers): BiometricAvailabilityValidationUseCase = BiometricAvailabilityValidationUseCase(context, composers)
+    fun provideBiometricAvailabilityValidator(@Named(APP_CONTEXT) context: Context, composers: BaseComposers): BiometricAvailabilityValidationUseCase = BiometricAvailabilityValidationUseCase(context, composers)
 
     @Provides
     @SettingsScope
-    fun provideSettingsPrefsInteractor(baseComposers: BaseComposers, sharedPreferences: SharedPreferences, context: Context) = SettingsPrefsInteractor(baseComposers, sharedPreferences, context)
+    fun provideSettingsPrefsInteractor(baseComposers: BaseComposers, sharedPreferences: SharedPreferences, @Named(APP_CONTEXT) context: Context) = SettingsPrefsInteractor(baseComposers, sharedPreferences, context)
 
     @Provides
     @SettingsScope

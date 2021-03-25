@@ -22,7 +22,7 @@ class TrackingControlModule(private val activity: FragmentActivity) {
     @TrackingControlScope
     @Named(DIALOG_PERMISSION_EXPLANATION)
     @Provides
-    fun providePermissionExplanationDialog(context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
+    fun providePermissionExplanationDialog(@Named(APP_CONTEXT) context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
         .setTitle(context.getString(R.string.app_name))
         .setMessage(R.string.location_permission_dialog_explanation)
         .setPositiveButton(context.getString(android.R.string.ok), null)
@@ -35,7 +35,7 @@ class TrackingControlModule(private val activity: FragmentActivity) {
     @TrackingControlScope
     @Named(DIALOG_EMPTY_WAYPOINTS)
     @Provides
-    fun provideEmptyWayPointsDialog(context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
+    fun provideEmptyWayPointsDialog(@Named(APP_CONTEXT) context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
         .setTitle(context.getString(R.string.app_name))
         .setMessage(R.string.message_you_have_no_waypoints)
         .setPositiveButton(context.getString(R.string.title_stop_tracking)) { _, _ ->
