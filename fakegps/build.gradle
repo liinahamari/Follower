@@ -24,8 +24,9 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            testProguardFile 'test-proguard-rules.pro'
         }
     }
     compileOptions {
@@ -46,8 +47,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-//    implementation 'com.google.android.gms:play-services-location:18.0.0'
-//    implementation 'com.google.android.gms:play‐services‐location:17.0.0'
 
     /* RX-COMMON */
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
