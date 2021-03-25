@@ -8,7 +8,12 @@ import com.example.follower.helper.rx.BaseComposers
 import io.reactivex.Single
 import javax.inject.Inject
 
-class ServerServiceInteractor constructor(private val service: ServerService, private val baseComposers: BaseComposers, private val errorMessageFactory: ErrorMessageFactory, private val trackLocalToTrackRemoteMapper: TrackLocalToTrackRemoteMapper) {
+class ServerServiceInteractor constructor(
+    private val service: ServerService,
+    private val baseComposers: BaseComposers,
+    private val errorMessageFactory: ErrorMessageFactory,
+    private val trackLocalToTrackRemoteMapper: TrackLocalToTrackRemoteMapper
+) {
     fun deleteTrack(trackBeginningTime: Long): Single<DeleteTrackResult> = service.delete(trackBeginningTime.toString())
         .map<DeleteTrackResult> { DeleteTrackResult.Success }
         .onErrorReturn { DeleteTrackResult.Failure(errorMessageFactory.errorMessage(it)) }

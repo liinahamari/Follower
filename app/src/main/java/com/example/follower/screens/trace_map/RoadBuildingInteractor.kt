@@ -2,6 +2,7 @@ package com.example.follower.screens.trace_map
 
 import android.content.Context
 import com.example.follower.R
+import com.example.follower.di.modules.APP_CONTEXT
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.model.PersistedTrackResult
 import com.example.follower.model.PreferencesRepository
@@ -10,9 +11,16 @@ import io.reactivex.Single
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.util.GeoPoint
+import javax.inject.Named
 
 @RoadBuildingScope
-class RoadBuildingInteractor constructor(private val context: Context, private val trackDao: TrackDao, private val baseComposers: BaseComposers, private val prefRepo: PreferencesRepository, private val osmRoadManager: OSRMRoadManager){
+class RoadBuildingInteractor constructor(
+    @Named(APP_CONTEXT) private val context: Context,
+    private val trackDao: TrackDao,
+    private val baseComposers: BaseComposers,
+    private val prefRepo: PreferencesRepository,
+    private val osmRoadManager: OSRMRoadManager
+) {
     fun getRoad(trackId: Long): Single<GetRoadResult> = prefRepo.getPersistedTrackRepresentation()
         .flatMap { lineOrMarkerSet ->
             if (lineOrMarkerSet is PersistedTrackResult.Success) {

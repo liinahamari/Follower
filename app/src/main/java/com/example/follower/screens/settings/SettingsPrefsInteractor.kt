@@ -4,15 +4,21 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.follower.R
+import com.example.follower.di.modules.APP_CONTEXT
 import com.example.follower.ext.writeStringOf
 import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.services.DEFAULT_LOCATION_UPDATE_INTERVAL
-import com.example.follower.services.DEFAULT_TIME_UPDATE_INTERVAL
+import com.example.follower.services.location_tracking.DEFAULT_LOCATION_UPDATE_INTERVAL
+import com.example.follower.services.location_tracking.DEFAULT_TIME_UPDATE_INTERVAL
 import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 
 @SettingsScope
-class SettingsPrefsInteractor constructor(private val baseComposers: BaseComposers, private val sharedPreferences: SharedPreferences, private val context: Context) {
+class SettingsPrefsInteractor constructor(
+    private val baseComposers: BaseComposers,
+    private val sharedPreferences: SharedPreferences,
+    @Named(APP_CONTEXT) private val context: Context
+) {
     fun resetOptionsToDefaults(): Observable<ResetToDefaultsState> = Observable.fromCallable {
         with(sharedPreferences) {
             writeStringOf(context.getString(R.string.pref_lang), context.resources.getStringArray(R.array.supported_locales).first())

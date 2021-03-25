@@ -1,15 +1,14 @@
 package com.example.follower.di.modules
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import com.example.follower.R
 import com.example.follower.ext.openAppSettings
-import com.example.follower.helper.FlightRecorder
-import com.example.follower.helper.rx.BaseComposers
-import com.example.follower.model.WayPointDao
-import com.example.follower.screens.tracking_control.ClearWayPointsInteractor
 import com.example.follower.screens.tracking_control.TrackingControlScope
+import com.example.follower.services.location_tracking.ACTION_DISCARD_TRACK
+import com.example.follower.services.location_tracking.LocationTrackingService
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.Module
 import dagger.Provides
@@ -19,11 +18,11 @@ const val DIALOG_EMPTY_WAYPOINTS = "tracking_controls_empty_waypoints"
 const val DIALOG_PERMISSION_EXPLANATION = "tracking_controls_permission_explanation"
 
 @Module
-class TrackingControlModule(private val activity: FragmentActivity, private val onStopTrackingClick: () -> Unit) {
+class TrackingControlModule(private val activity: FragmentActivity) {
     @TrackingControlScope
     @Named(DIALOG_PERMISSION_EXPLANATION)
     @Provides
-    fun providePermissionExplanationDialog(context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
+    fun providePermissionExplanationDialog(@Named(APP_CONTEXT) context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
         .setTitle(context.getString(R.string.app_name))
         .setMessage(R.string.location_permission_dialog_explanation)
         .setPositiveButton(context.getString(android.R.string.ok), null)
@@ -33,17 +32,16 @@ class TrackingControlModule(private val activity: FragmentActivity, private val 
         }
         .create()
 
-    @Provides
-    @TrackingControlScope
-    fun provideClearWayPointsInteractor(wayPointDao: WayPointDao, logger: FlightRecorder, baseComposers: BaseComposers) = ClearWayPointsInteractor(wayPointDao, logger, baseComposers)
-
     @TrackingControlScope
     @Named(DIALOG_EMPTY_WAYPOINTS)
     @Provides
-    fun provideEmptyWayPointsDialog(context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
+    fun provideEmptyWayPointsDialog(@Named(APP_CONTEXT) context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
         .setTitle(context.getString(R.string.app_name))
         .setMessage(R.string.message_you_have_no_waypoints)
-        .setPositiveButton(context.getString(R.string.title_stop_tracking)) { _, _ -> onStopTrackingClick.invoke() }
+        .setPositiveButton(context.getString(R.string.title_stop_tracking)) { _, _ ->
+            context.startService(Intent(context, LocationTrackingService::class.java)
+                .apply { action = ACTION_DISCARD_TRACK })
+        }
         .setNegativeButton(context.getString(R.string.title_continue), null)
         .create()
 }

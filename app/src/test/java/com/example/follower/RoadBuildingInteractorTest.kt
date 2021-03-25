@@ -32,7 +32,7 @@ class RoadBuildingInteractorTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val sharedPrefs = context.getDefaultSharedPreferences()
     private val prefTrackRepresentationId = context.getString(R.string.pref_track_representation)
-    private val baseComposers = BaseComposers(TestSchedulers(), FlightRecorder(createTempFile()))
+    private val baseComposers = BaseComposers(TestSchedulers())
     private lateinit var db: TracksDb
     private lateinit var trackDao: TrackDao
     private lateinit var wayPointDao: WayPointDao
