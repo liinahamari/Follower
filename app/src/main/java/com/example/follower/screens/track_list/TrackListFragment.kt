@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.SubMenu
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuCompat
 import androidx.core.view.isVisible
@@ -20,6 +21,7 @@ import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.Authenticator
 import com.example.follower.di.modules.BiometricModule
 import com.example.follower.di.scopes.BiometricScope
+import com.example.follower.ext.adaptToNightModeState
 import com.example.follower.ext.throttleFirst
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.screens.logs.TEXT_TYPE
@@ -29,8 +31,8 @@ import kotlinx.android.synthetic.main.fragment_track_list.*
 import me.saket.cascade.CascadePopupMenu
 import javax.inject.Inject
 
-const val EXT_JSON = ".json"
-const val EXT_TXT = ".txt"
+private const val EXT_JSON = ".json"
+private const val EXT_TXT = ".txt"
 
 @BiometricScope
 class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
@@ -164,6 +166,19 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
         popupMenu.menu.apply {
             MenuCompat.setGroupDividerEnabled(this, true)
 
+            addSubMenu(getString(R.string.title_track_representing)).also {
+                    it.add(getString(R.string.title_addresses_list))
+                        .setOnMenuItemClickListener {
+                            displayTrackWith(getString(R.string.pref_value_track_display_mode_addresses_list), trackId)
+                            true
+                        }
+                    it.add(getString(R.string.title_map))
+                        .setOnMenuItemClickListener {
+                            displayTrackWith(getString(R.string.pref_value_track_display_mode_map), trackId)
+                            true
+                        }
+                it.setIcon(R.drawable.ic_baseline_map_24)
+            }
             addSubMenu(getString(R.string.share)).also {
                 val addShareTargets = { sub: SubMenu ->
                     sub.add(EXT_JSON)
@@ -177,22 +192,23 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
                             true
                         }
                 }
-                it.setIcon(R.drawable.ic_share)
+
+                it.setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_share, null)))
                 addShareTargets(it.addSubMenu(R.string.as_a_file))
             }
             addSubMenu(getString(R.string.delete)).also {
-                it.setIcon(R.drawable.ic_delete)
+                it.setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, null)))
                 it.setHeaderTitle(getString(R.string.are_you_sure))
 
                 it.add(R.string.yes)
-                    .setIcon(R.drawable.ic_toast_success)
+                    .setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_toast_success, null)))
                     .setOnMenuItemClickListener {
                         viewModel.removeTrack(trackId)
                         true
                     }
 
                 it.add(getString(android.R.string.cancel))
-                    .setIcon(R.drawable.ic_close_24)
+                    .setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_close_24, null)))
                     .setOnMenuItemClickListener {
                         popupMenu.navigateBack()
                         true

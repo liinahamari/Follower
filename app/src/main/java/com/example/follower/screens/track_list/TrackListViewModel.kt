@@ -64,7 +64,7 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
         disposable += preferencesRepository.getTrackDisplayMode().subscribe(Consumer {
             when (it) {
                 is TrackDisplayModeResult.Success -> _trackDisplayModeEvent.value = it.displayMode to trackId
-                is TrackDisplayModeResult.Failure -> _errorEvent.value = R.string.error_couldnt_save_preference
+                is TrackDisplayModeResult.Failure -> _errorEvent.value = R.string.error_unexpected
             }
         })
     }

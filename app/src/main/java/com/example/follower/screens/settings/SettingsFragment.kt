@@ -197,10 +197,12 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             MODE_NIGHT_YES -> true
             else -> deviceHasDarkThemeEnabled()
         }
-        findPreference<Preference>(getString(R.string.pref_theme))?.setColorDependantOnNightMode(isNightMode)
-        findPreference<Preference>(getString(R.string.pref_lang))?.setColorDependantOnNightMode(isNightMode)
-        findPreference<Preference>(getString(R.string.pref_report_bug))?.setColorDependantOnNightMode(isNightMode)
-        findPreference<Preference>(getString(R.string.pref_enable_biometric_protection))?.setColorDependantOnNightMode(isNightMode)
-        findPreference<Preference>(getString(R.string.pref_acra_enable))?.setColorDependantOnNightMode(isNightMode)
+        with(requireContext()) {
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_theme))?.icon)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_lang))?.icon)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_report_bug))?.icon)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_enable_biometric_protection))?.icon)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_acra_enable))?.icon)
+        }
     }
 }
