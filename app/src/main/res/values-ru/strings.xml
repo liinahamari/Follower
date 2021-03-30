@@ -19,6 +19,7 @@
     <string name="title_themes">Тема</string>
     <string name="title_language">Язык</string>
     <string name="hint_name_your_trace">Назовите свой маршрут</string>
+    <string name="title_dont_ask_againg">Не показывать больше</string>
     <string name="message_you_have_no_waypoints">Запись маршрута пуста</string>
     <string name="title_stop_tracking">Прекратить запись</string>
     <string name="title_continue">Продолжить</string>
@@ -85,4 +86,6 @@
     <string name="discard">Сбросить</string>
     <string name="sending_logs_successful">Отправка логов прошла успешно!</string>
     <string name="error_sending_logs_unsuccessful">Логи не были отправлены!</string>
+    <string name="title_rate_our_app">Вам нравится пользоваться нашим приложением?</string>
+    <string name="no">Нет</string>
 </resources>

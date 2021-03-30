@@ -8,10 +8,15 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.view.View
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.example.follower.FollowerApp
@@ -19,6 +24,7 @@ import com.example.follower.R
 import com.example.follower.base.BaseFragment
 import com.example.follower.di.modules.DIALOG_EMPTY_WAYPOINTS
 import com.example.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
+import com.example.follower.di.modules.DIALOG_RATE_MY_APP
 import com.example.follower.di.modules.TrackingControlModule
 import com.example.follower.ext.*
 import com.example.follower.helper.FlightRecorder
@@ -29,7 +35,6 @@ import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
 import javax.inject.Named
 
-
 const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
 @RequiresApi(Build.VERSION_CODES.Q) const val PERMISSION_BACKGROUND_LOCATION = Manifest.permission.ACCESS_BACKGROUND_LOCATION
 const val CODE_PERMISSION_LOCATION = 101
@@ -38,6 +43,8 @@ const val CODE_PERMISSION_LOCATION = 101
 
 @TrackingControlScope
 class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
+    private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
+
     @Inject lateinit var logger: FlightRecorder
 
     @Inject
@@ -47,6 +54,10 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     @Inject
     @Named(DIALOG_EMPTY_WAYPOINTS)
     lateinit var emptyWayPointsDialog: AlertDialog
+
+    @Inject
+    @Named(DIALOG_RATE_MY_APP)
+    lateinit var rateMyAppDialog: DialogFragment
 
     private var isServiceBound = false
     private var gpsService: LocationTrackingService? = null
@@ -104,7 +115,14 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         super.onAttach(context)
     }
 
-    override fun setupViewModelSubscriptions() = Unit
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.checkShowRateMyApp()
+    }
+
+    override fun setupViewModelSubscriptions() {
+        viewModel.showRateMyAppEvent.observe(this, { rateMyAppDialog.show(childFragmentManager, RateMyAppDialog::class.java.simpleName) })
+    }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */

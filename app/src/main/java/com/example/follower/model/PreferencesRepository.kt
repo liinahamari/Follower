@@ -59,6 +59,8 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
             }
         }
         .onErrorReturn { PersistedTrackResult.Failure }
+
+    fun incrementAppLaunchCounter() = sharedPreferences.incrementAppLaunchCounter(context)
 }
 
 sealed class PersistedLocaleResult {

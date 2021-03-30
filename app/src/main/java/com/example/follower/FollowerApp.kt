@@ -52,6 +52,7 @@ class FollowerApp : Application() {
     override fun onCreate() {
         setupDagger()
         super.onCreate()
+        preferencesRepository.incrementAppLaunchCounter()
         setupWorkManager()
         setupAnrWatchDog()
         preferencesRepository.applyDefaultPreferences().blockingAwait() /*todo: to splash screen?*/

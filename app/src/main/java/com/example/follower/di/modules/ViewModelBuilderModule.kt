@@ -7,6 +7,7 @@ import com.example.follower.di.ViewModelKey
 import com.example.follower.screens.address_trace.AddressTraceViewModel
 import com.example.follower.screens.logs.LogsFragmentViewModel
 import com.example.follower.screens.track_list.TrackListViewModel
+import com.example.follower.screens.tracking_control.TrackingControlViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -17,6 +18,11 @@ abstract class ViewModelBuilderModule {
     @IntoMap
     @ViewModelKey(LogsFragmentViewModel::class)
     abstract fun logsViewModel(viewModel: LogsFragmentViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TrackingControlViewModel::class)
+    abstract fun trackingControlViewModel(viewModel: TrackingControlViewModel): ViewModel
 
     @Binds
     @IntoMap

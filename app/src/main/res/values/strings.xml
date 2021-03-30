@@ -7,6 +7,8 @@
     <string name="arg_toSinglePointerMap_Latitude" translatable="false">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
 
     <!--prefs-->
+    <string name="pref_app_launch_counter" translatable="false">pref_app_launch_counter</string>
+    <string name="pref_never_show_rate_app" translatable="false">pref_never_show_rate_app</string>
     <string name="pref_report_bug" translatable="false">pref_report_bug</string>
     <string name="pref_acra_enable" translatable="false">pref_acra_enable</string>
     <string name="pref_acra_disable" translatable="false">acra.disable</string> <!--do not change - library listens exact value in SharedPreferences-->
@@ -76,6 +78,7 @@
     <string name="error_unexpected">Unexpected error happened!</string>
     <string name="title_addresses_list">Addresses list</string>
     <string name="title_always_ask">Always ask</string>
+    <string name="title_dont_ask_againg">Don\'t ask again</string>
     <string name="title_track_display_mode">Display track as…</string>
     <string name="title_tracklist_is_empty">You have to tracks saved.</string>
     <string name="title_map_display_model">If track displaying on the map (see the option above), you can represent it as a line or as a set of markers</string>
@@ -120,4 +123,6 @@
     <string name="discard">Discard</string>
     <string name="sending_logs_successful">Logs are successfully sent!</string>
     <string name="error_sending_logs_unsuccessful">Logs haven\'t been successfully sent!</string>
+    <string name="title_rate_our_app">Are you enjoying using our app?</string>
+    <string name="no">No</string>
 </resources>

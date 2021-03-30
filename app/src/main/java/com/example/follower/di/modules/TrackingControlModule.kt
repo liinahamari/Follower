@@ -2,10 +2,13 @@ package com.example.follower.di.modules
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.example.follower.R
 import com.example.follower.ext.openAppSettings
+import com.example.follower.screens.tracking_control.RateMyAppDialog
 import com.example.follower.screens.tracking_control.TrackingControlScope
 import com.example.follower.services.location_tracking.ACTION_DISCARD_TRACK
 import com.example.follower.services.location_tracking.LocationTrackingService
@@ -14,6 +17,7 @@ import dagger.Module
 import dagger.Provides
 import javax.inject.Named
 
+const val DIALOG_RATE_MY_APP = "tracking_controls_rate_my_app"
 const val DIALOG_EMPTY_WAYPOINTS = "tracking_controls_empty_waypoints"
 const val DIALOG_PERMISSION_EXPLANATION = "tracking_controls_permission_explanation"
 
@@ -44,4 +48,9 @@ class TrackingControlModule(private val activity: FragmentActivity) {
         }
         .setNegativeButton(context.getString(R.string.title_continue), null)
         .create()
+
+    @TrackingControlScope
+    @Named(DIALOG_RATE_MY_APP)
+    @Provides
+    fun provideRateMyAppDialog(sharedPreferences: SharedPreferences): DialogFragment = RateMyAppDialog(sharedPreferences)
 }
