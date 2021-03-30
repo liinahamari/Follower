@@ -18,26 +18,22 @@ class ServerServiceInteractor constructor(
         .map<DeleteTrackResult> { DeleteTrackResult.Success }
         .onErrorReturn { DeleteTrackResult.Failure(errorMessageFactory.errorMessage(it)) }
         .compose(baseComposers.applySingleSchedulers())
-        .doOnError { it.printStackTrace() }
 
     fun getAllTracks(): Single<GetAllTracksResult> = service.getAll()
         .map { it.map(trackLocalToTrackRemoteMapper::transform) }
         .map<GetAllTracksResult> { GetAllTracksResult.Success(it) }
         .onErrorReturn { GetAllTracksResult.Failure(errorMessageFactory.errorMessage(it)) }
         .compose(baseComposers.applySingleSchedulers())
-        .doOnError { it.printStackTrace() }
 
     fun sendTrack(track: TrackWithWayPoints): Single<SendTrackResult> = service.put(trackLocalToTrackRemoteMapper.transform(track))
         .map<SendTrackResult> { SendTrackResult.Success }
         .onErrorReturn { SendTrackResult.Failure(errorMessageFactory.errorMessage(it)) }
         .compose(baseComposers.applySingleSchedulers())
-        .doOnError { it.printStackTrace() }
 
     fun updateTrack(track: TrackWithWayPoints): Single<UpdateTrackResult> = service.replace(trackLocalToTrackRemoteMapper.transform(track), track.track.time)
         .map<UpdateTrackResult> { UpdateTrackResult.Success }
         .onErrorReturn { UpdateTrackResult.Failure(errorMessageFactory.errorMessage(it)) }
         .compose(baseComposers.applySingleSchedulers())
-        .doOnError { it.printStackTrace() }
 }
 
 class TrackLocalToTrackRemoteMapper @Inject constructor() {

@@ -44,7 +44,6 @@ class RoadBuildingInteractor constructor(
                 }
             } else return@flatMap Single.just(GetRoadResult.SharedPrefsError)
         }
-        .doOnError { it.printStackTrace() } /*FIXME : wtf it isn't working in composers?*/
         .compose(baseComposers.applySingleSchedulers())
 }
 

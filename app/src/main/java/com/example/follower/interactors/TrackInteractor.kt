@@ -53,7 +53,6 @@ class TrackInteractor @Inject constructor(
     fun saveTrack(track: Track): Single<SaveTrackResult> = trackDao.insert(track)
         .map<SaveTrackResult> { SaveTrackResult.Success }
         .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
-        .doOnError { it.printStackTrace() }
         .compose(baseComposers.applySingleSchedulers())
 
     fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
@@ -69,7 +68,6 @@ class TrackInteractor @Inject constructor(
                 return@with MapPointer(address, it.first, it.second)
             }
         }
-        .doOnError { it.printStackTrace() }
         .toList()
         .toObservable()
         .doOnNext { logger.i { "getAddresses trimmed size: ${it.size}" } }
@@ -82,14 +80,12 @@ class TrackInteractor @Inject constructor(
         .andThen(wayPointDao.delete(taskId))
         .toSingleDefault<RemoveTrackResult>(RemoveTrackResult.Success)
         .onErrorReturn { RemoveTrackResult.DatabaseCorruptionError }
-        .doOnError { it.printStackTrace() }
         .compose(baseComposers.applySingleSchedulers())
 
     fun fetchTracks(): Single<FetchTracksResult> = trackDao.getAllTracksWithWayPoints()
         .map { it.map { track -> TrackUi(id = track.track.time, title = track.track.title) } }
         .map { if (it.isEmpty()) FetchTracksResult.SuccessEmpty else FetchTracksResult.Success(it) }
         .onErrorReturn { FetchTracksResult.DatabaseCorruptionError }
-        .doOnError { it.printStackTrace() }
         .compose(baseComposers.applySingleSchedulers())
 
     /*todo: caching list of fetched tracks as a field?*/
@@ -109,7 +105,6 @@ class TrackInteractor @Inject constructor(
         .map<SharedTrackResult> { SharedTrackResult.Success(it) }
         .onErrorReturn { SharedTrackResult.DatabaseCorruptionError }
         .compose(baseComposers.applySingleSchedulers())
-        .doOnError { it.printStackTrace() }
 }
 
 sealed class SaveTrackResult {

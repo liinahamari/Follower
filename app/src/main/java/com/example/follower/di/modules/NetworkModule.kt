@@ -1,5 +1,6 @@
 package com.example.follower.di.modules
 
+import com.example.follower.BuildConfig
 import com.example.follower.networking.ServerService
 import dagger.Module
 import dagger.Provides
@@ -31,9 +32,8 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    //todo set NONE in release
     fun provideHttpLoggingInterceptor(logger: HttpLoggingInterceptor.Logger) = HttpLoggingInterceptor(logger).apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = if(BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
     }
 
     @Provides

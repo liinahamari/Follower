@@ -34,7 +34,6 @@ class FlightRecorder(private val logStorage: File, private val baseComposers: Ba
             Completable.fromCallable { logStorage.appendText(this) }
                 .timeout(5, TimeUnit.SECONDS)
                 .compose(baseComposers.applyCompletableSchedulers())
-                .doOnError { it.printStackTrace() }
                 .subscribe()
 
             if (toPrintInLogcat && isDebug) {

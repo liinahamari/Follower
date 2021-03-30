@@ -41,7 +41,7 @@ const val ARG_AUTO_SAVE = "BackgroundTracker.arg_auto_save"
 class LocationTrackingService : Service() {
     private val notification by lazy {
         Notification.Builder(applicationContext, CHANNEL_ID)
-            .setContentText("tracking..." /*todo*/)
+            .setContentText(getString(R.string.title_tracking))
             .setAutoCancel(false)
             .build()
     }
