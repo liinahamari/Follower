@@ -36,7 +36,7 @@ open class MapFragment : BaseFragment(R.layout.fragment_map) {
                 setCompassCenter(36f, 36f + (0 / requireContext().resources.displayMetrics.density))
             })
 
-            if (PreferenceManager.getDefaultSharedPreferences(requireContext()).getStringOf(getString(R.string.pref_theme))!!.toInt() == AppCompatDelegate.MODE_NIGHT_YES) /*todo: to repo*/ {
+            if (PreferenceManager.getDefaultSharedPreferences(requireContext()).getStringOf(getString(R.string.pref_theme))!!.toInt() == AppCompatDelegate.MODE_NIGHT_YES) {
                 overlayManager.tilesOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
             }
         }

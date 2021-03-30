@@ -17,14 +17,11 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.example.follower.FollowerApp
 import com.example.follower.R
-import com.example.follower.di.modules.BiometricModule
-import com.example.follower.di.modules.DIALOG_LOADING
-import com.example.follower.di.modules.DIALOG_RESET_TO_DEFAULTS
-import com.example.follower.di.modules.SettingsModule
+import com.example.follower.di.modules.*
+import com.example.follower.di.scopes.BiometricScope
 import com.example.follower.ext.*
 import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.CustomToast.infoToast
-import com.example.follower.screens.biometric.Authenticator
 import com.example.follower.screens.tracking_control.CODE_PERMISSION_LOCATION
 import com.example.follower.screens.tracking_control.PERMISSION_BACKGROUND_LOCATION
 import com.example.follower.screens.tracking_control.PERMISSION_LOCATION
@@ -32,6 +29,7 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 
+@BiometricScope
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
     @Inject lateinit var authenticator: Authenticator
     @Inject lateinit var viewModel: SettingsViewModel

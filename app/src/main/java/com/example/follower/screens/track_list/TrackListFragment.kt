@@ -17,10 +17,11 @@ import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.example.follower.FollowerApp
 import com.example.follower.R
 import com.example.follower.base.BaseFragment
+import com.example.follower.di.modules.Authenticator
 import com.example.follower.di.modules.BiometricModule
+import com.example.follower.di.scopes.BiometricScope
 import com.example.follower.ext.throttleFirst
 import com.example.follower.helper.CustomToast.errorToast
-import com.example.follower.screens.biometric.Authenticator
 import com.example.follower.screens.logs.TEXT_TYPE
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
@@ -31,6 +32,7 @@ import javax.inject.Inject
 const val EXT_JSON = ".json"
 const val EXT_TXT = ".txt"
 
+@BiometricScope
 class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     @Inject lateinit var sharedPreferences: SharedPreferences
     @Inject lateinit var authenticator: Authenticator
