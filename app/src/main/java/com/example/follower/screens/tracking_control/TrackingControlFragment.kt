@@ -1,35 +1,30 @@
 package com.example.follower.screens.tracking_control
 
 import android.Manifest
-import android.content.ComponentName
+import android.app.Service
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.example.follower.FollowerApp
 import com.example.follower.R
-import com.example.follower.base.BaseFragment
+import com.example.follower.base.BoundFragment
 import com.example.follower.di.modules.DIALOG_EMPTY_WAYPOINTS
 import com.example.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
 import com.example.follower.di.modules.DIALOG_RATE_MY_APP
 import com.example.follower.di.modules.TrackingControlModule
 import com.example.follower.ext.*
-import com.example.follower.helper.FlightRecorder
 import com.example.follower.services.location_tracking.*
 import com.jakewharton.rxbinding3.view.clicks
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
@@ -42,10 +37,9 @@ const val CODE_PERMISSION_LOCATION = 101
 /*todo, add distance, points*/
 
 @TrackingControlScope
-class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control) {
+class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control) {
     private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
-
-    @Inject lateinit var logger: FlightRecorder
+    private val boundServiceDisposables = CompositeDisposable()
 
     @Inject
     @Named(DIALOG_PERMISSION_EXPLANATION)
@@ -59,52 +53,32 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     @Named(DIALOG_RATE_MY_APP)
     lateinit var rateMyAppDialog: DialogFragment
 
-    private var isServiceBound = false
     private var gpsService: LocationTrackingService? = null
 
-    private val serviceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            if (className.className.endsWith(LocationTrackingService::class.java.simpleName)) {
-                logger.i { "ServiceConnection (${this::class.java.simpleName}): connected" }
-                isServiceBound = true
+    override fun getBindingTarget(): Class<out Service> = LocationTrackingService::class.java
 
-                gpsService = (service as LocationTrackingService.LocationServiceBinder).getService()
-//                subscriptions.clear() /*FIXME WTF?!!!!?!??!???!!?*/
-                subscriptions += gpsService!!
-                    .isTracking
-                    .subscribe { toggleButtons(it) }
-
-                subscriptions += gpsService!!
-                    .wayPointsCounter
-                    .subscribe { way_points_counter.text = String.format(getString(R.string.title_way_points_collected), it) }
-            }
-        }
-
-        /*calling if Service have been crashed or killed*/
-        override fun onServiceDisconnected(name: ComponentName) {
-            if (name.className.endsWith(LocationTrackingService::class.java.simpleName)) {
-                logger.i { "ServiceConnection: disconnected" }
-                isServiceBound = false
-                toggleButtons(false)/*todo think about clearing database and stopping service*/
-            }
-        }
+    override fun onServiceDisconnected() {
+        gpsService = null
+        toggleButtons(false)
     }
 
-    override fun onStart() {
-        super.onStart()
-        requireActivity().bindService(Intent(requireActivity(), LocationTrackingService::class.java), serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
-            .also { logger.i { "(${this::class.java.simpleName}) Service bound ($it) from onStart()" } }
+    override fun onDetach() {
+        super.onDetach()
+        gpsService = null
+        boundServiceDisposables.clear()
     }
 
-    override fun onStop() {
-        super.onStop()
-        try {
-            requireActivity().unbindService(serviceConnection)
-            isServiceBound = false
-            gpsService = null
-        } catch (e: Throwable) {
-            logger.e(label = "(${this::class.java.simpleName}) Unbinding unsuccessful...", error = e)
-        }
+    override fun onServiceConnected(binder: IBinder) {
+        boundServiceDisposables.clear()
+        gpsService = (binder as LocationTrackingService.LocationServiceBinder).getService()
+
+        boundServiceDisposables += gpsService!!
+            .isTracking
+            .subscribe { toggleButtons(it) }
+
+        boundServiceDisposables += gpsService!!
+            .wayPointsCounter
+            .subscribe { way_points_counter.text = String.format(getString(R.string.title_way_points_collected), it) }
     }
 
     override fun onAttach(context: Context) {
@@ -124,7 +98,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
         viewModel.showRateMyAppEvent.observe(this, { rateMyAppDialog.show(childFragmentManager, RateMyAppDialog::class.java.simpleName) })
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
         /*Maybe someday... https://developer.android.com/training/permissions/requesting*/
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

@@ -99,6 +99,7 @@ class LocationTrackingService : Service() {
         logger.i { "${javaClass.simpleName} onCreate()" }
     }
 
+    /*TODO handle deleting or save unsaved track when system kills service*/
     override fun onDestroy() {
         /* to prevent leaks dispose all the subscriptions here (in case system kills service to free the resources)*/
         logger.d { "${javaClass.simpleName} onDestroy()" }

@@ -1,9 +1,9 @@
 package com.example.follower.screens.track_list
 
+import android.app.Service
 import android.content.*
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Log
 import android.view.SubMenu
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
@@ -17,14 +17,13 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.example.follower.FollowerApp
 import com.example.follower.R
-import com.example.follower.base.BaseFragment
+import com.example.follower.base.BoundFragment
 import com.example.follower.di.modules.Authenticator
 import com.example.follower.di.modules.BiometricModule
 import com.example.follower.di.scopes.BiometricScope
 import com.example.follower.ext.adaptToNightModeState
 import com.example.follower.ext.throttleFirst
 import com.example.follower.helper.CustomToast.errorToast
-import com.example.follower.helper.FlightRecorder
 import com.example.follower.screens.logs.TEXT_TYPE
 import com.example.follower.services.location_tracking.LocationTrackingService
 import com.jakewharton.rxbinding3.view.clicks
@@ -38,51 +37,14 @@ private const val EXT_JSON = ".json"
 private const val EXT_TXT = ".txt"
 
 @BiometricScope
-class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
+class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
     @Inject lateinit var sharedPreferences: SharedPreferences
     @Inject lateinit var authenticator: Authenticator
-    @Inject lateinit var logger: FlightRecorder
+
+    private var gpsService: LocationTrackingService? = null
 
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
     private val tracksAdapter = TrackListAdapter(::showMenu, ::getTrackDisplayMode)
-
-    private var isServiceBound = false
-    private var gpsService: LocationTrackingService? = null
-
-    private val serviceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            if (className.className.endsWith(LocationTrackingService::class.java.simpleName)) {
-                logger.i { "ServiceConnection (${this::class.java.simpleName}): connected" }
-                isServiceBound = true
-                gpsService = (service as LocationTrackingService.LocationServiceBinder).getService()
-            }
-        }
-
-        /*calling if Service have been crashed or killed*/
-        override fun onServiceDisconnected(name: ComponentName) {
-            if (name.className.endsWith(LocationTrackingService::class.java.simpleName)) {
-                logger.i { "ServiceConnection (${this::class.java.simpleName}): disconnected" }
-                isServiceBound = false
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        requireActivity().bindService(Intent(requireActivity(), LocationTrackingService::class.java), serviceConnection, 0)
-            .also { logger.i { "(${this::class.java.simpleName}) Service bound ($it) from onStart()" } }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        try {
-            requireActivity().unbindService(serviceConnection)
-            isServiceBound = false
-            gpsService = null
-        } catch (e: Throwable) {
-            logger.e(label = "(${this::class.java.simpleName}) Unbinding unsuccessful...", error = e)
-        }
-    }
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
     private fun showMenu(id: Long) = showCascadeMenu(id)
@@ -129,6 +91,21 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
         }
         NavHostFragment.findNavController(this@TrackListFragment)
             .navigate(action, bundleOf(getString(R.string.arg_addressFragment_trackId) to trackId))
+    }
+
+    override fun getBindingTarget(): Class<out Service> = LocationTrackingService::class.java
+
+    override fun onServiceConnected(binder: IBinder) {
+        gpsService = (binder as LocationTrackingService.LocationServiceBinder).getService()
+    }
+
+    override fun onServiceDisconnected() {
+        gpsService = null
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        gpsService = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
