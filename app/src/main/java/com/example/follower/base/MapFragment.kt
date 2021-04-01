@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 import com.example.follower.R
 import com.example.follower.ext.getStringOf
+import com.example.follower.ext.isDarkModeEnabled
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.api.IMapController
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -35,7 +36,7 @@ open class MapFragment : BaseFragment(R.layout.fragment_map) {
                 setCompassCenter(36f, 36f + (0 / requireContext().resources.displayMetrics.density))
             })
 
-            if (PreferenceManager.getDefaultSharedPreferences(requireContext()).getStringOf(getString(R.string.pref_theme))!!.toInt() == AppCompatDelegate.MODE_NIGHT_YES) {
+            if (isDarkModeEnabled()) {
                 overlayManager.tilesOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
             }
         }

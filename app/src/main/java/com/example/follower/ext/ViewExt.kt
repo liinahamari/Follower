@@ -19,13 +19,20 @@ fun Context.dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
 
 fun Context.pxToDp(px: Int) = (px / resources.displayMetrics.density).toInt()
 
+fun Context.isDarkModeEnabled(): Boolean = when (PreferenceManager.getDefaultSharedPreferences(this).getStringOf(getString(R.string.pref_theme))!!.toInt()) {
+    AppCompatDelegate.MODE_NIGHT_NO -> false
+    AppCompatDelegate.MODE_NIGHT_YES -> true
+    else -> deviceHasDarkThemeEnabled()
+}
+
+fun Fragment.isDarkModeEnabled(): Boolean = when (PreferenceManager.getDefaultSharedPreferences(requireContext()).getStringOf(getString(R.string.pref_theme))!!.toInt()) {
+    AppCompatDelegate.MODE_NIGHT_NO -> false
+    AppCompatDelegate.MODE_NIGHT_YES -> true
+    else -> deviceHasDarkThemeEnabled()
+}
+
 fun Context.adaptToNightModeState(drawable: Drawable?): Drawable? = drawable?.also {
-    val isNightMode: Boolean = when (PreferenceManager.getDefaultSharedPreferences(this).getStringOf(getString(R.string.pref_theme))!!.toInt()) {
-        AppCompatDelegate.MODE_NIGHT_NO -> false
-        AppCompatDelegate.MODE_NIGHT_YES -> true
-        else -> deviceHasDarkThemeEnabled()
-    }
-    DrawableCompat.setTint(DrawableCompat.wrap(drawable), if (isNightMode) Color.WHITE else Color.BLACK)
+    DrawableCompat.setTint(DrawableCompat.wrap(drawable), if (isDarkModeEnabled()) Color.WHITE else Color.BLACK)
 }
 
 fun Context.deviceHasDarkThemeEnabled() = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
