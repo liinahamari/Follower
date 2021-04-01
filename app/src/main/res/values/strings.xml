@@ -127,4 +127,9 @@
     <string name="title_rate_our_app">Are you enjoying using our app?</string>
     <string name="no">No</string>
     <string name="unknown_time">Unknown time</string>
+    <string name="summary_you_dont_have_fingerprint_presented">You don\'t have any fingerprints presented. Please, provide at least one.</string>
+    <string name="summary_sensor_unavailable">The hardware is unavailable. Try again later.</string>
+    <string name="summary_security_vulnerability">A security vulnerability has been discovered with one or more hardware sensors. Try to apply security patch.</string>
+    <string name="unknown_error">Unknown error</string>
+
 </resources>

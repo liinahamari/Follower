@@ -59,7 +59,6 @@
     <string name="title_not_recognized">Не опознано</string>
     <string name="summary_lack_of_fingerprint_permission">Разрешение на пользовнием сенсором отпечатка пальцев не было дано.</string>
     <string name="summary_lack_of_fingerprint_sensor">У Вас нет сканера отпечатков пальцев!</string>
-    <string name="summary_you_dont_have_fingerprint_presented">На устройстве не обнаружено ни одного отпечатка пальцев. Пожалуйста, предоставьте по меньшей мере один.</string>
     <string name="title_lock_records">Автоблокировка записей</string>
     <string name="summary_lock_explanation">Включите эту опцию для автоблокировки записей и разблокировки по отпечатку пальца.</string>
     <string name="error_cant_stop_auto_tacking">Непредвиденная ошибка при отмене авто-трекинга!</string>
@@ -89,4 +88,8 @@
     <string name="title_rate_our_app">Вам нравится пользоваться нашим приложением?</string>
     <string name="no">Нет</string>
     <string name="unknown_time">Неизвестное время</string>
+    <string name="summary_you_dont_have_fingerprint_presented">На устройстве не обнаружено ни одного отпечатка пальцев. Пожалуйста, предоставьте по меньшей мере один.</string>
+    <string name="summary_sensor_unavailable">Сканер отпечатка пальцев недоступен. Попробуйте позже.</string>
+    <string name="summary_security_vulnerability">У сенсор(ов) которые Вы используете обнаружена критическая уязвимость в системе безопасности. Попробуйте установить патч безопасности.</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
 </resources>
