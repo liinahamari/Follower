@@ -12,7 +12,7 @@ enum class MarkerType {
     START, END, STANDARD, WAYPOINT
 }
 
-fun MapView.createMarker(long: Longitude, lat: Latitude, markerType: MarkerType) = Marker(this).apply {
+fun MapView.createMarker(long: Longitude, lat: Latitude, markerType: MarkerType, time: String) = Marker(this).apply {
     position = GeoPoint(lat, long)
     when (markerType) {
         MarkerType.START -> icon = ContextCompat.getDrawable(context, R.drawable.ic_track_start)
@@ -20,5 +20,6 @@ fun MapView.createMarker(long: Longitude, lat: Latitude, markerType: MarkerType)
         MarkerType.STANDARD -> Unit
         MarkerType.WAYPOINT -> icon = ContextCompat.getDrawable(context, R.drawable.marker)
     }
+    title = time
     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
 }

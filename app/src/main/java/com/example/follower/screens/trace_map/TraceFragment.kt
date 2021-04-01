@@ -11,7 +11,6 @@ import com.example.follower.helper.CustomToast.errorToast
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.BoundingBox
-import org.osmdroid.util.GeoPoint
 import javax.inject.Inject
 
 class TraceFragment : MapFragment() {
@@ -35,24 +34,32 @@ class TraceFragment : MapFragment() {
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
 
-        viewModel.getTrackAsLine.observe(viewLifecycleOwner, {
+        viewModel.getTrackAsLineEvent.observe(viewLifecycleOwner, {
             map.overlays.add(RoadManager.buildRoadOverlay(it))
+
+            with(it.mRouteHigh.first()) {
+                map.overlays.add(map.createMarker(longitude, latitude, MarkerType.START, "second"))
+            }
+            with(it.mRouteHigh.last()) {
+                map.overlays.add(map.createMarker(longitude, latitude, MarkerType.END, "second"))
+            }
+
             map.invalidate()
             map.zoomToBoundingBox(BoundingBox.fromGeoPointsSafe(it.mRouteHigh), true, getScreenHeightPx() / 10)
         })
 
         viewModel.getTrackAsMarkerSet.observe(viewLifecycleOwner, {
-            it.subList(1, it.size - 1).map { wayPoint -> map.createMarker(wayPoint.first, wayPoint.second, MarkerType.WAYPOINT) }
+            it.subList(1, it.size - 1).map { wayPoint -> map.createMarker(wayPoint.first.longitude, wayPoint.first.latitude, MarkerType.WAYPOINT, wayPoint.second) }
                 .apply { map.overlays.addAll(this) }
 
             with(it.first()) {
-                map.overlays.add(map.createMarker(first, second, MarkerType.START))
+                map.overlays.add(map.createMarker(first.longitude, first.latitude, MarkerType.START, second))
             }
             with(it.last()) {
-                map.overlays.add(map.createMarker(first, second, MarkerType.END))
+                map.overlays.add(map.createMarker(first.longitude, first.latitude, MarkerType.END, second))
             }
 
-            map.zoomToBoundingBox(BoundingBox.fromGeoPointsSafe(it.map { GeoPoint(it.second, it.first) }), true, getScreenHeightPx() / 10)
+            map.zoomToBoundingBox(BoundingBox.fromGeoPointsSafe(it.map { w -> w.first }), true, getScreenHeightPx() / 10)
         })
     }
 }

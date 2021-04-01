@@ -3,6 +3,7 @@ package com.example.follower.screens.trace_map
 import android.content.Context
 import com.example.follower.R
 import com.example.follower.di.modules.APP_CONTEXT
+import com.example.follower.ext.toReadableDate
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.model.PersistedTrackResult
 import com.example.follower.model.PreferencesRepository
@@ -28,7 +29,7 @@ class RoadBuildingInteractor constructor(
                     context.getString(R.string.pref_line) -> {
                         trackDao.getTrackWithWayPoints(trackId)
                             .flattenAsObservable { it.wayPoints }
-                            .map { GeoPoint(it.latitude, it.longitude, 0.0) }
+                            .map { GeoPoint(it.latitude, it.longitude) }
                             .toList()
                             .map { osmRoadManager.getRoad(ArrayList(it)) }
                             .map<GetRoadResult> { GetRoadResult.SuccessfulLine(it) }
@@ -36,7 +37,7 @@ class RoadBuildingInteractor constructor(
                     }
                     context.getString(R.string.pref_marker_set) -> {
                         trackDao.getTrackWithWayPoints(trackId)
-                            .map { it.wayPoints.map { wayPoint -> Pair(wayPoint.longitude, wayPoint.latitude) } }
+                            .map { it.wayPoints.map { wayPoint -> GeoPoint(wayPoint.latitude, wayPoint.longitude) to wayPoint.time.toReadableDate() } }
                             .map<GetRoadResult> { GetRoadResult.SuccessfulMarkerSet(it) }
                             .onErrorReturn { GetRoadResult.DatabaseCorruptionError }
                     }
@@ -49,7 +50,7 @@ class RoadBuildingInteractor constructor(
 
 sealed class GetRoadResult {
     data class SuccessfulLine(val road: Road) : GetRoadResult()
-    data class SuccessfulMarkerSet(val markerSet: List<Pair<Longitude, Latitude>>) : GetRoadResult()
+    data class SuccessfulMarkerSet(val markerSet: List<Pair<GeoPoint, String>>) : GetRoadResult()
     object DatabaseCorruptionError : GetRoadResult()
     object SharedPrefsError : GetRoadResult()
 }
