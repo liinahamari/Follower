@@ -6,8 +6,9 @@ import com.example.follower.base.BaseViewModel
 import com.example.follower.helper.SingleLiveEvent
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign
-import org.osmdroid.bonuspack.routing.Road
-import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.BoundingBox
+import org.osmdroid.views.overlay.Overlay
+import org.osmdroid.views.overlay.Polyline
 import javax.inject.Inject
 
 typealias Longitude = Double
@@ -15,11 +16,11 @@ typealias Latitude = Double
 
 @RoadBuildingScope
 class TraceFragmentViewModel @Inject constructor(private val roadBuildingInteractor: RoadBuildingInteractor): BaseViewModel() {
-    private val _getTrackAsLineEvent = SingleLiveEvent<Road>()
-    val getTrackAsLineEvent: LiveData<Road> get() = _getTrackAsLineEvent
+    private val _getTrackAsLineEvent = SingleLiveEvent<TrackUi.Road>()
+    val getTrackAsLineEvent: LiveData<TrackUi.Road> get() = _getTrackAsLineEvent
 
-    private val _getTrackAsMarkerSet = SingleLiveEvent<List<Pair<GeoPoint, String>>>()
-    val getTrackAsMarkerSet: LiveData<List<Pair<GeoPoint, String>>> get() = _getTrackAsMarkerSet
+    private val _getTrackAsMarkerSet = SingleLiveEvent<TrackUi.Markers>()
+    val getTrackAsMarkerSet: LiveData<TrackUi.Markers> get() = _getTrackAsMarkerSet
 
     private val _errorEvent = SingleLiveEvent<Int>()
     val errorEvent: LiveData<Int> get() = _errorEvent
@@ -36,3 +37,13 @@ class TraceFragmentViewModel @Inject constructor(private val roadBuildingInterac
     }
 }
 
+sealed class TrackUi {
+    abstract val startPoint: WayPointUi
+    abstract val finishPoint: WayPointUi
+    abstract val boundingBox: BoundingBox
+
+    data class Markers(val wayPoints: List<WayPointUi>, override val startPoint: WayPointUi, override val finishPoint: WayPointUi, override val boundingBox: BoundingBox): TrackUi()
+    data class Road(val road: Polyline, override val startPoint: WayPointUi, override val finishPoint: WayPointUi, override val boundingBox: BoundingBox): TrackUi()
+}
+
+data class WayPointUi(val lat: Latitude, val lon: Longitude, val readableTimeStamp: String)

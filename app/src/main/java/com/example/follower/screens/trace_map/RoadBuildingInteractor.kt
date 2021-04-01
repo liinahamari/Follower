@@ -10,7 +10,8 @@ import com.example.follower.model.PreferencesRepository
 import com.example.follower.model.TrackDao
 import io.reactivex.Single
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
-import org.osmdroid.bonuspack.routing.Road
+import org.osmdroid.bonuspack.routing.RoadManager
+import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import javax.inject.Named
 
@@ -29,16 +30,32 @@ class RoadBuildingInteractor constructor(
                     context.getString(R.string.pref_line) -> {
                         trackDao.getTrackWithWayPoints(trackId)
                             .flattenAsObservable { it.wayPoints }
-                            .map { GeoPoint(it.latitude, it.longitude) }
                             .toList()
-                            .map { osmRoadManager.getRoad(ArrayList(it)) }
-                            .map<GetRoadResult> { GetRoadResult.SuccessfulLine(it) }
+                            .map<GetRoadResult> {
+                                val geoPoints = ArrayList(it.map { wp -> GeoPoint(wp.latitude, wp.longitude) })
+                                GetRoadResult.SuccessfulLine(
+                                    TrackUi.Road(
+                                        road = RoadManager.buildRoadOverlay(osmRoadManager.getRoad(geoPoints)),
+                                        startPoint = WayPointUi(it.first().latitude, it.first().longitude, it.first().time.toReadableDate()),
+                                        finishPoint = WayPointUi(it.last().latitude, it.last().longitude, it.last().time.toReadableDate()),
+                                        boundingBox = BoundingBox.fromGeoPointsSafe(geoPoints)
+                                    )
+                                )
+                            }
                             .onErrorReturn { GetRoadResult.SharedPrefsError }
                     }
                     context.getString(R.string.pref_marker_set) -> {
                         trackDao.getTrackWithWayPoints(trackId)
-                            .map { it.wayPoints.map { wayPoint -> GeoPoint(wayPoint.latitude, wayPoint.longitude) to wayPoint.time.toReadableDate() } }
-                            .map<GetRoadResult> { GetRoadResult.SuccessfulMarkerSet(it) }
+                            .map { it.wayPoints.map { wayPoint -> WayPointUi(wayPoint.latitude, wayPoint.longitude, wayPoint.time.toReadableDate()) } }
+                            .map<GetRoadResult> { GetRoadResult.SuccessfulMarkerSet(
+                                    TrackUi.Markers(
+                                        wayPoints = it.drop(1).dropLast(1),
+                                        startPoint = it.first(),
+                                        finishPoint = it.last(),
+                                        boundingBox = BoundingBox.fromGeoPointsSafe(it.map { wp -> GeoPoint(wp.lat, wp.lon) })
+                                    )
+                                )
+                            }
                             .onErrorReturn { GetRoadResult.DatabaseCorruptionError }
                     }
                     else -> throw IllegalStateException()
@@ -49,8 +66,8 @@ class RoadBuildingInteractor constructor(
 }
 
 sealed class GetRoadResult {
-    data class SuccessfulLine(val road: Road) : GetRoadResult()
-    data class SuccessfulMarkerSet(val markerSet: List<Pair<GeoPoint, String>>) : GetRoadResult()
+    data class SuccessfulLine(val road: TrackUi.Road) : GetRoadResult()
+    data class SuccessfulMarkerSet(val markerSet: TrackUi.Markers) : GetRoadResult()
     object DatabaseCorruptionError : GetRoadResult()
     object SharedPrefsError : GetRoadResult()
 }

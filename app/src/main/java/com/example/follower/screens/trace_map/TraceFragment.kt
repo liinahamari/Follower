@@ -9,13 +9,11 @@ import com.example.follower.ext.createMarker
 import com.example.follower.ext.getScreenHeightPx
 import com.example.follower.helper.CustomToast.errorToast
 import kotlinx.android.synthetic.main.fragment_map.*
-import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.BoundingBox
 import javax.inject.Inject
 
 class TraceFragment : MapFragment() {
-    @Inject
-    lateinit var viewModel: TraceFragmentViewModel
+    @Inject lateinit var viewModel: TraceFragmentViewModel
 
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
@@ -35,31 +33,24 @@ class TraceFragment : MapFragment() {
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
 
         viewModel.getTrackAsLineEvent.observe(viewLifecycleOwner, {
-            map.overlays.add(RoadManager.buildRoadOverlay(it))
-
-            with(it.mRouteHigh.first()) {
-                map.overlays.add(map.createMarker(longitude, latitude, MarkerType.START, "second"))
-            }
-            with(it.mRouteHigh.last()) {
-                map.overlays.add(map.createMarker(longitude, latitude, MarkerType.END, "second"))
-            }
-
-            map.invalidate()
-            map.zoomToBoundingBox(BoundingBox.fromGeoPointsSafe(it.mRouteHigh), true, getScreenHeightPx() / 10)
+            map.overlays.add(it.road)
+            markTrackStartAndFinishAndZoom(it.boundingBox, it.startPoint, it.finishPoint)
         })
 
         viewModel.getTrackAsMarkerSet.observe(viewLifecycleOwner, {
-            it.subList(1, it.size - 1).map { wayPoint -> map.createMarker(wayPoint.first.longitude, wayPoint.first.latitude, MarkerType.WAYPOINT, wayPoint.second) }
+            it.wayPoints.map { wp -> map.createMarker(wp.lon, wp.lat, MarkerType.WAYPOINT, wp.readableTimeStamp) }
                 .apply { map.overlays.addAll(this) }
 
-            with(it.first()) {
-                map.overlays.add(map.createMarker(first.longitude, first.latitude, MarkerType.START, second))
-            }
-            with(it.last()) {
-                map.overlays.add(map.createMarker(first.longitude, first.latitude, MarkerType.END, second))
-            }
-
-            map.zoomToBoundingBox(BoundingBox.fromGeoPointsSafe(it.map { w -> w.first }), true, getScreenHeightPx() / 10)
+            markTrackStartAndFinishAndZoom(it.boundingBox, it.startPoint, it.finishPoint)
         })
+    }
+
+    private fun markTrackStartAndFinishAndZoom(boundingBox: BoundingBox, startPoint: WayPointUi, finishPointUi: WayPointUi) {
+        map.overlays.add(map.createMarker(startPoint.lon, startPoint.lat, MarkerType.START, startPoint.readableTimeStamp))
+
+        map.overlays.add(map.createMarker(finishPointUi.lon, finishPointUi.lat, MarkerType.END, finishPointUi.readableTimeStamp))
+
+        map.invalidate()
+        map.zoomToBoundingBox(boundingBox, true, getScreenHeightPx() / 10)
     }
 }
