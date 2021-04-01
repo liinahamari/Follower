@@ -1,9 +1,9 @@
 package com.example.follower.screens.track_list
 
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.os.Bundle
+import android.os.IBinder
+import android.util.Log
 import android.view.SubMenu
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
@@ -24,10 +24,13 @@ import com.example.follower.di.scopes.BiometricScope
 import com.example.follower.ext.adaptToNightModeState
 import com.example.follower.ext.throttleFirst
 import com.example.follower.helper.CustomToast.errorToast
+import com.example.follower.helper.FlightRecorder
 import com.example.follower.screens.logs.TEXT_TYPE
+import com.example.follower.services.location_tracking.LocationTrackingService
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
+import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import me.saket.cascade.CascadePopupMenu
 import javax.inject.Inject
 
@@ -38,9 +41,48 @@ private const val EXT_TXT = ".txt"
 class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     @Inject lateinit var sharedPreferences: SharedPreferences
     @Inject lateinit var authenticator: Authenticator
+    @Inject lateinit var logger: FlightRecorder
 
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
     private val tracksAdapter = TrackListAdapter(::showMenu, ::getTrackDisplayMode)
+
+    private var isServiceBound = false
+    private var gpsService: LocationTrackingService? = null
+
+    private val serviceConnection: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            if (className.className.endsWith(LocationTrackingService::class.java.simpleName)) {
+                logger.i { "ServiceConnection (${this::class.java.simpleName}): connected" }
+                isServiceBound = true
+                gpsService = (service as LocationTrackingService.LocationServiceBinder).getService()
+            }
+        }
+
+        /*calling if Service have been crashed or killed*/
+        override fun onServiceDisconnected(name: ComponentName) {
+            if (name.className.endsWith(LocationTrackingService::class.java.simpleName)) {
+                logger.i { "ServiceConnection (${this::class.java.simpleName}): disconnected" }
+                isServiceBound = false
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        requireActivity().bindService(Intent(requireActivity(), LocationTrackingService::class.java), serviceConnection, 0)
+            .also { logger.i { "(${this::class.java.simpleName}) Service bound ($it) from onStart()" } }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        try {
+            requireActivity().unbindService(serviceConnection)
+            isServiceBound = false
+            gpsService = null
+        } catch (e: Throwable) {
+            logger.e(label = "(${this::class.java.simpleName}) Unbinding unsuccessful...", error = e)
+        }
+    }
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
     private fun showMenu(id: Long) = showCascadeMenu(id)
@@ -48,9 +90,10 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
             .appComponent
-            .biometricComponent(BiometricModule(
-                activity = requireActivity(),
-                onSuccessfulAuth = { viewModel.fetchTracks() })
+            .biometricComponent(
+                BiometricModule(
+                    activity = requireActivity(),
+                    onSuccessfulAuth = { viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true) })
             )
             .inject(this)
     }
@@ -112,6 +155,7 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
             emptyListTv.isVisible = false
             ivLock.isVisible = false
             trackList.isVisible = true
+
             tracksAdapter.tracks = it.toMutableList()
         }
         viewModel.removeTrackEvent.observe(viewLifecycleOwner) { id ->
@@ -157,7 +201,7 @@ class TrackListFragment : BaseFragment(R.layout.fragment_track_list) {
 
             authenticator.authenticate()
         } else {
-            viewModel.fetchTracks()
+            viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true)
         }
     }
 

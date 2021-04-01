@@ -65,7 +65,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             if (className.className.endsWith(LocationTrackingService::class.java.simpleName)) {
-                logger.i { "ServiceConnection: connected" }
+                logger.i { "ServiceConnection (${this::class.java.simpleName}): connected" }
                 isServiceBound = true
 
                 gpsService = (service as LocationTrackingService.LocationServiceBinder).getService()
@@ -93,7 +93,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
     override fun onStart() {
         super.onStart()
         requireActivity().bindService(Intent(requireActivity(), LocationTrackingService::class.java), serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
-            .also { logger.i { "service bound ($it) from onStart()" } }
+            .also { logger.i { "(${this::class.java.simpleName}) Service bound ($it) from onStart()" } }
     }
 
     override fun onStop() {
@@ -103,7 +103,7 @@ class TrackingControlFragment : BaseFragment(R.layout.fragment_tracking_control)
             isServiceBound = false
             gpsService = null
         } catch (e: Throwable) {
-            logger.e(label = "Unbinding unsuccessful...", error = e)
+            logger.e(label = "(${this::class.java.simpleName}) Unbinding unsuccessful...", error = e)
         }
     }
 

@@ -82,7 +82,9 @@ class TrackInteractor @Inject constructor(
         .onErrorReturn { RemoveTrackResult.DatabaseCorruptionError }
         .compose(baseComposers.applySingleSchedulers())
 
-    fun fetchTracks(): Single<FetchTracksResult> = trackDao.getAllTracksWithWayPoints()
+    /** @param isTracking -- hides last track if true*/
+    fun fetchTracks(isTracking: Boolean): Single<FetchTracksResult> = trackDao.getAllTracksWithWayPoints()
+        .map { if (isTracking) it.dropLast(1) else it }
         .map { it.map { track -> TrackUi(id = track.track.time, title = track.track.title) } }
         .map { if (it.isEmpty()) FetchTracksResult.SuccessEmpty else FetchTracksResult.Success(it) }
         .onErrorReturn { FetchTracksResult.DatabaseCorruptionError }

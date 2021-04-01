@@ -46,8 +46,8 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
         })
     }
 
-    fun fetchTracks() {
-        disposable += trackInteractor.fetchTracks().subscribe(Consumer {
+    fun fetchTracks(isTracking: Boolean) {
+        disposable += trackInteractor.fetchTracks(isTracking).subscribe(Consumer {
             when (it) {
                 is FetchTracksResult.Success -> _nonEmptyTrackListEvent.value = it.tracks
                 is FetchTracksResult.SuccessEmpty -> _emptyTrackListEvent.call()
