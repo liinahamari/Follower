@@ -28,7 +28,6 @@ open class MapFragment : BaseFragment(R.layout.fragment_map) {
             isTilesScaledToDpi = true
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true)
-            controller.setZoom(17.0)
             zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
 
             map.overlays.add(CompassOverlay(context, InternalCompassOrientationProvider(context), this).apply {
