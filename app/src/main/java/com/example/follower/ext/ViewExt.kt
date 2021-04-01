@@ -42,5 +42,7 @@ fun Activity.deviceHasDarkThemeEnabled() = resources.configuration.uiMode and Co
 fun Drawable.changeColor(@ColorInt color: Int): Drawable = this
     .apply { DrawableCompat.setTint(DrawableCompat.wrap(this), color) }
 
+@Suppress("DEPRECATION")
 fun Activity.getScreenHeightPx(): Int = DisplayMetrics().apply { windowManager.defaultDisplay.getMetrics(this) }.heightPixels
+@Suppress("DEPRECATION")
 fun Fragment.getScreenHeightPx(): Int = DisplayMetrics().apply { requireActivity().windowManager.defaultDisplay.getMetrics(this) }.heightPixels

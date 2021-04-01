@@ -192,11 +192,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     }
 
     private fun changeDrawableColors(theme: Int) {
-        val isNightMode: Boolean = when (theme) {
-            MODE_NIGHT_NO -> false
-            MODE_NIGHT_YES -> true
-            else -> deviceHasDarkThemeEnabled()
-        }
         with(requireContext()) {
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_theme))?.icon)
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_lang))?.icon)
