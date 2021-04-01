@@ -18,12 +18,26 @@
         app:cardCornerRadius="6dp"
         app:cardElevation="6dp">
 
-        <TextView
-            android:id="@+id/addressTv"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="@{address.commonAddress}"
-            tools:text="Some address" />
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/timeTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@{address.time}"
+                tools:text="11 dec 2020 11:11" />
+
+            <TextView
+                android:id="@+id/addressTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:text="@{address.commonAddress}"
+                tools:text="Some address" />
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 </layout>

@@ -14,7 +14,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.extensions.LayoutContainer
 
-class AddressesAdapter constructor(private val mapCallback: (coordinates: Pair<Longitude, Latitude>) -> Unit) : RecyclerView.Adapter<AddressesAdapter.ViewHolder>() {
+class AddressesAdapter constructor(private val mapCallback: (coordinates: Pair<Longitude, Latitude>, time: String) -> Unit) : RecyclerView.Adapter<AddressesAdapter.ViewHolder>() {
     private val clicks = CompositeDisposable()
     var addresses: List<MapPointer> = emptyList()
         set(value) {
@@ -30,8 +30,7 @@ class AddressesAdapter constructor(private val mapCallback: (coordinates: Pair<L
         holder.binding?.address = addresses[position]
         clicks += holder.itemView.clicks()
             .throttleFirst()
-            .map { addresses[position].lon to addresses[position].lat }
-            .subscribe { mapCallback.invoke(it) }
+            .subscribe { mapCallback.invoke(addresses[position].lon to addresses[position].lat, addresses[position].time) }
     }
 
     class ViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {

@@ -11,6 +11,7 @@ import com.example.follower.db.entities.WayPoint
 import com.example.follower.di.modules.APP_CONTEXT
 import com.example.follower.ext.createFileIfNotExist
 import com.example.follower.ext.getUriForInternalFile
+import com.example.follower.ext.toReadableDate
 import com.example.follower.helper.FlightRecorder
 import com.example.follower.helper.rx.BaseComposers
 import com.example.follower.model.TrackDao
@@ -58,14 +59,14 @@ class TrackInteractor @Inject constructor(
     fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
         .flattenAsObservable {
             logger.i { "getAddresses init size: ${it.wayPoints.size}" }
-            it.wayPoints.map { wayPoint -> wayPoint.latitude as Latitude to wayPoint.longitude as Longitude }
+            it.wayPoints
         }
         .distinctUntilChanged()
         .map {
             return@map with(Geocoder(context, Locale.getDefault())) {
-                val address = kotlin.runCatching { getFromLocation(it.first, it.second, 1).first().getAddressLine(0) }.getOrNull()
-                    ?: String.format(context.getString(R.string.address_unknown), it.second, it.first)
-                return@with MapPointer(address, it.first, it.second)
+                val address = kotlin.runCatching { getFromLocation(it.latitude, it.longitude, 1).first().getAddressLine(0) }.getOrNull()
+                    ?: String.format(context.getString(R.string.address_unknown), it.longitude, it.latitude)
+                return@with MapPointer(address, it.latitude, it.longitude, it.time.toReadableDate())
             }
         }
         .toList()

@@ -3,6 +3,7 @@
 
     <!--arguments-->
     <string name="arg_addressFragment_trackId" translatable="false">com.example.follower.AddressTraceFragment.EXTRA_TRACK_ID</string>
+    <string name="arg_toSinglePointerMap_Time" translatable="false">com.example.follower.SinglePointerMapFragment.TIME</string>
     <string name="arg_toSinglePointerMap_Longitude" translatable="false">com.example.follower.SinglePointerMapFragment.LONGITUDE</string>
     <string name="arg_toSinglePointerMap_Latitude" translatable="false">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
 
@@ -125,4 +126,5 @@
     <string name="error_sending_logs_unsuccessful">Logs haven\'t been successfully sent!</string>
     <string name="title_rate_our_app">Are you enjoying using our app?</string>
     <string name="no">No</string>
+    <string name="unknown_time">Unknown time</string>
 </resources>

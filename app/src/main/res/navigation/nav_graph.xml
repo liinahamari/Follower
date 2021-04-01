@@ -66,6 +66,9 @@
         android:label="SinglePointerMap"
         tools:layout="@layout/fragment_map">
         <argument
+            android:name="@string/arg_toSinglePointerMap_Time"
+            app:argType="string" />
+        <argument
             android:name="@string/arg_toSinglePointerMap_Longitude"
             app:argType="float"
             android:defaultValue="-999.0" />

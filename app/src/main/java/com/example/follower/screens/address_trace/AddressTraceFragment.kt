@@ -40,10 +40,11 @@ class AddressTraceFragment : BaseFragment(R.layout.fragment_address_trace) {
         viewModel.getAddressesEvent.observe(viewLifecycleOwner, { adapter.addresses = it })
     }
 
-    private fun openMap(coords: Pair<Longitude, Latitude>) = NavHostFragment
+    private fun openMap(coords: Pair<Longitude, Latitude>, time: String) = NavHostFragment
         .findNavController(this)
         .navigate(
             R.id.action_to_single_pointer_map, bundleOf(
+                getString(R.string.arg_toSinglePointerMap_Time) to time,
                 getString(R.string.arg_toSinglePointerMap_Longitude) to coords.first.toFloat(),
                 getString(R.string.arg_toSinglePointerMap_Latitude) to coords.second.toFloat()
             )
