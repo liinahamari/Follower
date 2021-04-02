@@ -17,7 +17,10 @@ class SinglePointerMapFragment : MapFragment() {
         val time: String = arguments?.getString(getString(R.string.arg_toSinglePointerMap_Time), getString(R.string.unknown_time))!!
         val longitude = arguments?.getFloat(getString(R.string.arg_toSinglePointerMap_Longitude), -999.0f)!!
         val latitude = arguments?.getFloat(getString(R.string.arg_toSinglePointerMap_Latitude), -999.0f)!!
+
         require(latitude != -999.0f && longitude != -999.0f)
+
+        map.maxZoomLevel = 14.0
         map.createMarker(longitude.toDouble(), latitude.toDouble(), MarkerType.STANDARD, time)
             .also { map.overlays.add(it) }
             .also {

@@ -3,10 +3,7 @@ package com.example.follower.base
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.CallSuper
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.preference.PreferenceManager
 import com.example.follower.R
-import com.example.follower.ext.getStringOf
 import com.example.follower.ext.isDarkModeEnabled
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.api.IMapController
@@ -29,7 +26,7 @@ open class MapFragment : BaseFragment(R.layout.fragment_map) {
             isTilesScaledToDpi = true
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true)
-            zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
+            zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
 
             map.overlays.add(CompassOverlay(context, InternalCompassOrientationProvider(context), this).apply {
                 enableCompass()
