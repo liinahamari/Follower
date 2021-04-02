@@ -27,6 +27,7 @@ import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.screens.logs.TEXT_TYPE
 import com.example.follower.services.location_tracking.LocationTrackingService
 import com.jakewharton.rxbinding3.view.clicks
+import dagger.Lazy
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
@@ -39,7 +40,7 @@ private const val EXT_TXT = ".txt"
 @BiometricScope
 class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
     @Inject lateinit var sharedPreferences: SharedPreferences
-    @Inject lateinit var authenticator: Authenticator
+    @Inject lateinit var authenticator: Lazy<Authenticator>
 
     private var gpsService: LocationTrackingService? = null
 
@@ -115,7 +116,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
         if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
             subscriptions += ivLock.clicks()
                 .throttleFirst()
-                .subscribe { authenticator.authenticate() }
+                .subscribe { authenticator.get().authenticate() }
         }
     }
 
@@ -176,7 +177,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
             trackList.isVisible = false
             emptyListTv.isVisible = false
 
-            authenticator.authenticate()
+            authenticator.get().authenticate()
         } else {
             viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true)
         }

@@ -10,8 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -25,13 +23,14 @@ import com.example.follower.helper.CustomToast.infoToast
 import com.example.follower.screens.tracking_control.CODE_PERMISSION_LOCATION
 import com.example.follower.screens.tracking_control.PERMISSION_BACKGROUND_LOCATION
 import com.example.follower.screens.tracking_control.PERMISSION_LOCATION
+import dagger.Lazy
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 
 @BiometricScope
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
-    @Inject lateinit var authenticator: Authenticator
+    @Inject lateinit var authenticator: Lazy<Authenticator>
     @Inject lateinit var viewModel: SettingsViewModel
     @Inject lateinit var prefs: SharedPreferences
 
@@ -49,7 +48,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         super.onViewCreated(view, savedInstanceState)
         setupViewModelSubscriptions()
         viewModel.isBiometricValidationAvailable()
-        changeDrawableColors(themeId)
+        changeDrawableColors()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState).also { prefs.registerOnSharedPreferenceChangeListener(this) }
@@ -152,7 +151,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             requireContext().getString(R.string.pref_theme) -> {
                 if (sharedPreferences.getStringOf(key)!!.toInt() != themeId) {
                     AppCompatDelegate.setDefaultNightMode(sharedPreferences.getStringOf(requireContext().getString(R.string.pref_theme))!!.toInt())
-                    changeDrawableColors(sharedPreferences.getStringOf(key)!!.toInt())
+                    changeDrawableColors()
                 }
             }
             requireContext().getString(R.string.pref_lang) -> {
@@ -182,7 +181,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             }
             getString(R.string.pref_enable_biometric_protection) -> {
                 if (sharedPreferences.getBooleanOf(key).not()) {
-                    authenticator.authenticate()
+                    authenticator.get().authenticate()
                 }
             }
             getString(R.string.pref_acra_enable) -> sharedPreferences.writeBooleanOf(getString(R.string.pref_acra_disable), sharedPreferences.getBooleanOf(key).not())
@@ -191,7 +190,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         }
     }
 
-    private fun changeDrawableColors(theme: Int) {
+    private fun changeDrawableColors() {
         with(requireContext()) {
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_theme))?.icon)
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_lang))?.icon)
