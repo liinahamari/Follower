@@ -9,14 +9,14 @@ import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject
 
 class LogsFragmentViewModel @Inject constructor(private val loggerInteractor: LoggerInteractor) : BaseViewModel() {
-    private val _clearLogsEvent = SingleLiveEvent<Any>()
-    val clearLogsEvent: LiveData<Any> get() = _clearLogsEvent
-
     private val _loadingEvent = SingleLiveEvent<Boolean>()
     val loadingEvent: LiveData<Boolean> get() = _loadingEvent
 
     private val _logFilePathEvent = SingleLiveEvent<Uri>()
     val logFilePathEvent: LiveData<Uri> get() = _logFilePathEvent
+
+    private val _emptyLogListEvent = SingleLiveEvent<Any>()
+    val emptyLogListEvent: LiveData<Any> get() = _emptyLogListEvent
 
     private val _errorEvent = SingleLiveEvent<Int>()
     val errorEvent: LiveData<Int> get() = _errorEvent
@@ -35,7 +35,30 @@ class LogsFragmentViewModel @Inject constructor(private val loggerInteractor: Lo
                     _errorEvent.value = R.string.io_error
                     _loadingEvent.value = false
                 }
+                is GetRecordResult.EmptyList -> {
+                    _emptyLogListEvent.call()
+                    _loadingEvent.value = false
+                }
                 is GetRecordResult.InProgress -> _loadingEvent.value = true
+            }
+        }
+    }
+
+    fun sortLogs(showType: ShowType) {
+        disposable += loggerInteractor.sortLogs(showType).subscribe { sortedLogs ->
+            when (sortedLogs) {
+                is SortResult.Success -> {
+                    _displayLogsEvent.value = sortedLogs.logs
+                    _loadingEvent.value = false
+                }
+                is SortResult.Error -> {
+                    _errorEvent.value = R.string.io_error
+                    _loadingEvent.value = false
+                }
+                is SortResult.EmptyList -> {
+                    _emptyLogListEvent.call()
+                    _loadingEvent.value = false
+                }
             }
         }
     }
@@ -44,7 +67,7 @@ class LogsFragmentViewModel @Inject constructor(private val loggerInteractor: Lo
         disposable += loggerInteractor.clearEntireRecord().subscribe {
             when (it) {
                 is ClearRecordResult.Success -> {
-                    _clearLogsEvent.call()
+                    _emptyLogListEvent.call()
                     _loadingEvent.value = false
                 }
                 is ClearRecordResult.IOError -> {

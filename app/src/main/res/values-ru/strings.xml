@@ -94,4 +94,5 @@
     <string name="unknown_error">Неизвестная ошибка</string>
     <string name="title_logs_only_erros">Показывать только ошибки</string>
     <string name="title_logs_non_main_thread">Не в главном потоке</string>
+    <string name="title_log_list_is_empty">Логи не найдены</string>
 </resources>

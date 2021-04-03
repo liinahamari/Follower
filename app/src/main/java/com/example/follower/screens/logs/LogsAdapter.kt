@@ -22,15 +22,13 @@ private const val LOG_TYPE_INFO = 1
 private const val LOG_TYPE_ERROR = 2
 
 enum class ShowType {
-    ALL, ERRORS_ONLY, NON_MAIN_THREAD_ONLY
+    ALL, ERRORS_ONLY, NON_MAIN_THREAD_ONLY, NOT_MAIN_THREAD_ERRORS
 }
 
 class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val clicks = CompositeDisposable()
     private lateinit var expandedMarkers: SparseBooleanArray
     private var errorItemHeight = -1
-
-    var mixedLogsCache: List<LogUi> = emptyList()
 
     var logs: List<LogUi> = emptyList()
         set(value) {
@@ -39,23 +37,7 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             notifyDataSetChanged()
         }
 
-    /*todo TO INTERACTOR?*/
-    fun sort(showType: ShowType) {
-        logs = when (showType) {
-            ShowType.ALL -> mixedLogsCache
-            ShowType.NON_MAIN_THREAD_ONLY -> {
-                mixedLogsCache = logs
-                logs.filter { it.thread != "main" }
-            }
-            ShowType.ERRORS_ONLY -> {
-                mixedLogsCache = logs
-                logs.filterIsInstance<LogUi.ErrorLog>()
-            }
-        }
-    }
-
     override fun getItemCount() = logs.size
-
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) = clicks.clear()
 
     override fun getItemViewType(position: Int): Int = when (logs[position]) {

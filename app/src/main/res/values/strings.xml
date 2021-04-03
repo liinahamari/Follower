@@ -132,4 +132,5 @@
     <string name="unknown_error">Unknown error</string>
     <string name="title_logs_only_erros">Show only errors</string>
     <string name="title_logs_non_main_thread">Only non-main-thread issues</string>
+    <string name="title_log_list_is_empty">No logs found</string>
 </resources>

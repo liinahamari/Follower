@@ -7,8 +7,8 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +21,7 @@ import com.example.follower.helper.CustomToast.errorToast
 import com.example.follower.helper.CustomToast.successToast
 import com.jakewharton.rxbinding3.appcompat.navigationClicks
 import com.jakewharton.rxbinding3.view.clicks
+import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_logs.*
 import javax.inject.Inject
@@ -66,6 +67,12 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
 
         viewModel.errorEvent.observe(this, { errorToast(getString(it)) })
 
+        viewModel.emptyLogListEvent.observe(this, {
+            emptyLogsTv.isVisible = true
+            logsRv.isVisible = false
+            logsAdapter.logs = emptyList()
+        })
+
         viewModel.loadingEvent.observe(this, { toShow ->
             when {
                 toShow && loadingDialog.isShowing.not() -> loadingDialog.show()
@@ -73,9 +80,11 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
             }
         })
 
-        viewModel.displayLogsEvent.observe(this, { logsAdapter.logs = it })
-
-        viewModel.clearLogsEvent.observe(this, { logsAdapter.logs = emptyList() })
+        viewModel.displayLogsEvent.observe(this, {
+            emptyLogsTv.isVisible = false
+            logsRv.isVisible = true
+            logsAdapter.logs = it
+        })
 
         viewModel.logFilePathEvent.observe(this, {
             Intent(Intent.ACTION_SEND).apply {
@@ -104,23 +113,30 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
     }
 
     override fun setupClicks() {
-        subscriptions += logsToolbar.menu.findItem(R.id.onlyErrors)
-            .clicks()
-            .throttleFirst()
-            .map {
-                logsToolbar.menu.findItem(R.id.onlyErrors).isChecked = logsToolbar.menu.findItem(R.id.onlyErrors).isChecked.not()
-                logsToolbar.menu.findItem(R.id.onlyErrors).isChecked
+        subscriptions += Observable.combineLatest(
+            logsToolbar.menu.findItem(R.id.onlyErrors)
+                .clicks()
+                .doOnNext { logsToolbar.menu.findItem(R.id.onlyErrors).isChecked = logsToolbar.menu.findItem(R.id.onlyErrors).isChecked.not() }
+                .map { logsToolbar.menu.findItem(R.id.onlyErrors).isChecked }
+                .startWith(false),
+            logsToolbar.menu.findItem(R.id.nonMainThreadOnly)
+                .clicks()
+                .doOnNext { logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked = logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked.not() }
+                .map { logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked }
+                .startWith(false),
+            { onlyErrors: Boolean, nonMainThread: Boolean -> onlyErrors to nonMainThread }
+        )
+            .skip(1)
+            .subscribe {
+                val showType = when {
+                    it.first.not() && it.second.not() -> ShowType.ALL
+                    it.first && it.second -> ShowType.NOT_MAIN_THREAD_ERRORS
+                    it.first && it.second.not() -> ShowType.ERRORS_ONLY
+                    it.first.not() && it.second -> ShowType.NON_MAIN_THREAD_ONLY
+                    else -> throw IllegalStateException()
+                }
+                viewModel.sortLogs(showType)
             }
-            .subscribe { logsAdapter.sort(if(it.not()) ShowType.ALL else ShowType.ERRORS_ONLY) }
-
-        subscriptions += logsToolbar.menu.findItem(R.id.nonMainThreadOnly)
-            .clicks()
-            .throttleFirst()
-            .map {
-                logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked = logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked.not()
-                logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked
-            }
-            .subscribe { logsAdapter.sort(if(it.not()) ShowType.ALL else ShowType.NON_MAIN_THREAD_ONLY) }
 
         subscriptions += logsToolbar.menu.findItem(R.id.sendLogs)
             .clicks()
