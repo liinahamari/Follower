@@ -7,6 +7,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
@@ -103,6 +104,15 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
     }
 
     override fun setupClicks() {
+        subscriptions += logsToolbar.menu.findItem(R.id.onlyErrors)
+            .clicks()
+            .throttleFirst()
+            .map {
+                logsToolbar.menu.findItem(R.id.onlyErrors).isChecked = logsToolbar.menu.findItem(R.id.onlyErrors).isChecked.not()
+                logsToolbar.menu.findItem(R.id.onlyErrors).isChecked
+            }
+            .subscribe { logsAdapter.sort(it) }
+
         subscriptions += logsToolbar.menu.findItem(R.id.sendLogs)
             .clicks()
             .throttleFirst()

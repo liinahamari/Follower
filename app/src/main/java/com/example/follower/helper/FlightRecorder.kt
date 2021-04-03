@@ -10,7 +10,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.TimeUnit
 
-private const val SEPARATOR = "/"
+const val SEPARATOR = "/"
 
 class FlightRecorder(private val logStorage: File, private val baseComposers: BaseComposers) {
     private val isDebug = BuildConfig.DEBUG
@@ -20,7 +20,7 @@ class FlightRecorder(private val logStorage: File, private val baseComposers: Ba
         fun getPriorityPattern(priority: Priority) = "${SEPARATOR}${priority.name}${SEPARATOR}"
     }
 
-    private fun String.toLogMessage(priority: Priority) = "${getPriorityPattern(priority)}  ${now()}$SEPARATOR(${Thread.currentThread().name}): $this\n\n"
+    private fun String.toLogMessage(priority: Priority) = "${getPriorityPattern(priority)}  ${now()} $SEPARATOR${Thread.currentThread().name}$SEPARATOR: $this\n\n"
 
     enum class Priority {
         I, D, W, E, WTF

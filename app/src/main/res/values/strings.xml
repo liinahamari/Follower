@@ -130,5 +130,6 @@
     <string name="summary_sensor_unavailable">The hardware is unavailable. Try again later.</string>
     <string name="summary_security_vulnerability">A security vulnerability has been discovered with one or more hardware sensors. Try to apply security patch.</string>
     <string name="unknown_error">Unknown error</string>
+    <string name="title_logs_only_erros">Show only errors</string>
 
 </resources>

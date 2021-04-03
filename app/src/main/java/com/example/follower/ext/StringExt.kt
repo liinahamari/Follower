@@ -5,11 +5,11 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
-/** Represents date and in such format: "year-concise_month_name-day_of_month 24_format_hours:minutes:seconds.milliseconds"
+/** Represents date and in such format: "year-month-day_of_month 24_format_hours:minutes:seconds.milliseconds"
  *  For example:
- *  2020-Dec-23 00:12:11:101
+ *  2020-12-23 00:12:11:101
  *  */
-private const val DATE_PATTERN_FOR_LOGGING = "yyyy-MMM-dd HH:mm:ss.SSS"
+const val DATE_PATTERN_FOR_LOGGING = "yyyy-MM-dd HH:mm:ss:SSS"
 
 /** Represents hours and minutes in hours:minutes way. Hours will be shown in 24-hour format. For example,
  *  00:12

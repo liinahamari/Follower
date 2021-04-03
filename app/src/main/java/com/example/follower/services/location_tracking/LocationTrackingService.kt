@@ -66,7 +66,7 @@ class LocationTrackingService : Service() {
 
     inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
-            logger.i { "${System.currentTimeMillis()}: Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
+            logger.i { "Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
             disposable += trackInteractor.saveWayPoint(location.toWayPoint(traceBeginningTime!!)).subscribe {
                 wayPointsCounter.onNext(wayPointsCounter.value!!.inc())
                 if (isTrackEmpty) {

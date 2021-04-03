@@ -92,4 +92,5 @@
     <string name="summary_sensor_unavailable">Сканер отпечатка пальцев недоступен. Попробуйте позже.</string>
     <string name="summary_security_vulnerability">У сенсор(ов) которые Вы используете обнаружена критическая уязвимость в системе безопасности. Попробуйте установить патч безопасности.</string>
     <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="title_logs_only_erros">Показывать только ошибки</string>
 </resources>

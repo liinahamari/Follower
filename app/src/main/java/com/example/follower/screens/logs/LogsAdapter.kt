@@ -26,12 +26,23 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private lateinit var expandedMarkers: SparseBooleanArray
     private var errorItemHeight = -1
 
+    var mixedLogsCache: List<LogUi> = emptyList()
+
     var logs: List<LogUi> = emptyList()
         set(value) {
             field = value
             expandedMarkers = SparseBooleanArray(value.size)
             notifyDataSetChanged()
         }
+
+    fun sort(errorsOnly: Boolean) {
+        logs = if (errorsOnly) {
+            mixedLogsCache = logs
+            logs.filterIsInstance<LogUi.ErrorLog>().sortedBy { it.time } /*TODO bring sorting to LoggerInteractor*/
+        } else {
+            mixedLogsCache.sortedBy { it.time }
+        }
+    }
 
     override fun getItemCount() = logs.size
 
@@ -71,7 +82,8 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 }
             }
 
-            if (errorItemHeight != -1) { /** expedient duplicated code */
+            if (errorItemHeight != -1) {
+                /** expedient duplicated code */
                 arrowBtn.layoutParams = (arrowBtn.layoutParams as ConstraintLayout.LayoutParams).apply {
                     setMargins(0, errorItemHeight, 0, 0)
                 }
