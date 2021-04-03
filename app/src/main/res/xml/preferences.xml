@@ -47,14 +47,14 @@
             android:title="@string/title_automatic_tracking_setting"
             app:iconSpaceReserved="false" />
 
-        <com.example.follower.screens.settings.TimePickerPreference
+        <dev.liinahamari.follower.screens.settings.TimePickerPreference
             android:defaultValue="540"
             android:dependency="@string/pref_enable_auto_tracking"
             android:key="@string/pref_tracking_start_time"
             android:title="@string/title_auto_tracking_start_time"
             app:iconSpaceReserved="false" />
 
-        <com.example.follower.screens.settings.TimePickerPreference
+        <dev.liinahamari.follower.screens.settings.TimePickerPreference
             android:dependency="@string/pref_enable_auto_tracking"
             android:key="@string/pref_tracking_stop_time"
             android:title="@string/title_auto_tracking_stop_time"

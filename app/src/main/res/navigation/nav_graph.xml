@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/tab_controls"
-        android:name="com.example.follower.screens.tracking_control.TrackingControlFragment"
+        android:name="dev.liinahamari.follower.screens.tracking_control.TrackingControlFragment"
         android:label="Tracking Control"
         tools:layout="@layout/fragment_tracking_control">
         <action
@@ -20,12 +20,12 @@
 
     <fragment
         android:id="@+id/tab_settings"
-        android:name="com.example.follower.screens.settings.SettingsFragment"
+        android:name="dev.liinahamari.follower.screens.settings.SettingsFragment"
         android:label="Settings"/>
 
     <fragment
         android:id="@+id/tracklist_fragment"
-        android:name="com.example.follower.screens.track_list.TrackListFragment"
+        android:name="dev.liinahamari.follower.screens.track_list.TrackListFragment"
         android:label="Track List"
         tools:layout="@layout/fragment_track_list">
         <action
@@ -38,7 +38,7 @@
 
     <fragment
         android:id="@+id/tab_map"
-        android:name="com.example.follower.screens.trace_map.TraceFragment"
+        android:name="dev.liinahamari.follower.screens.trace_map.TraceFragment"
         android:label="Map"
         tools:layout="@layout/fragment_map" >
         <argument
@@ -48,7 +48,7 @@
     </fragment>
     <fragment
         android:id="@+id/tab_addresses_list"
-        android:name="com.example.follower.screens.address_trace.AddressTraceFragment"
+        android:name="dev.liinahamari.follower.screens.address_trace.AddressTraceFragment"
         android:label="Addresses List"
         tools:layout="@layout/fragment_address_trace" >
         <action
@@ -62,7 +62,7 @@
 
     <fragment
         android:id="@+id/tab_single_pointer_map"
-        android:name="com.example.follower.screens.single_pointer_map.SinglePointerMapFragment"
+        android:name="dev.liinahamari.follower.screens.single_pointer_map.SinglePointerMapFragment"
         android:label="SinglePointerMap"
         tools:layout="@layout/fragment_map">
         <argument
