@@ -1,6 +1,7 @@
 package dev.liinahamari.follower.services.location_tracking
 
 import android.app.Notification
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.location.Location
@@ -37,13 +38,6 @@ const val ACTION_RENAME_TRACK_AND_STOP_TRACKING = "BackgroundTracker.action_rena
 const val ARG_AUTO_SAVE = "BackgroundTracker.arg_auto_save"
 
 class LocationTrackingService : Service() {
-    private val notification by lazy {
-        Notification.Builder(applicationContext, CHANNEL_ID)
-            .setContentText(getString(R.string.title_tracking))
-            .setAutoCancel(false)
-            .build()
-    }
-
     private val disposable = CompositeDisposable()
     private val syncDisposable = CompositeDisposable()
     var traceBeginningTime: Long? = null
@@ -54,6 +48,7 @@ class LocationTrackingService : Service() {
     @Inject lateinit var locationManager: LocationManager
     @Inject lateinit var trackInteractor: TrackInteractor
     @Inject lateinit var uploadTrackInteractor: UploadTrackInteractor
+    @Inject lateinit var notificationManager: NotificationManager
 
     private val locationListener = LocationListener()
     private val binder = LocationServiceBinder()
@@ -62,14 +57,21 @@ class LocationTrackingService : Service() {
 
     override fun onBind(intent: Intent): IBinder = binder
 
+    private fun createNotification(wayPointsCounter: Int): Notification.Builder = Notification.Builder(applicationContext, CHANNEL_ID)
+        .setContentText(getString(R.string.title_tracking))
+        .setSubText(String.format(getString(R.string.title_way_points_collected), wayPointsCounter))
+        .setAutoCancel(false)
+
     inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
             logger.i { "Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
             disposable += trackInteractor.saveWayPoint(location.toWayPoint(traceBeginningTime!!)).subscribe {
-                wayPointsCounter.onNext(wayPointsCounter.value!!.inc())
-                if (isTrackEmpty) {
+                val wp = wayPointsCounter.value!!.inc()
+                wayPointsCounter.onNext(wp)
+                if (isTrackEmpty && wp > 1) {
                     isTrackEmpty = false
                 }
+                notificationManager.notify(FOREGROUND_SERVICE_ID, createNotification(wp).build())
             }
         }
 
@@ -138,7 +140,7 @@ class LocationTrackingService : Service() {
     }
 
     private fun startTracking() {
-        startForeground(FOREGROUND_SERVICE_ID, notification)
+        startForeground(FOREGROUND_SERVICE_ID, createNotification(0).build())
 
         val timeUpdateInterval = (prefInteractor.getTimeIntervalBetweenUpdates()
             .blockingGet() as GetTimeIntervalResult.Success).timeInterval

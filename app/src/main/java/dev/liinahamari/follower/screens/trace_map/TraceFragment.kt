@@ -34,14 +34,19 @@ class TraceFragment : MapFragment() {
 
         viewModel.getTrackAsLineEvent.observe(viewLifecycleOwner, {
             map.overlays.add(it.road)
-            markTrackStartAndFinishAndZoom(it.boundingBox, it.startPoint, it.finishPoint)
+
+            if (it.startPoint != it.finishPoint) {
+                markTrackStartAndFinishAndZoom(it.boundingBox, it.startPoint, it.finishPoint)
+            }
         })
 
         viewModel.getTrackAsMarkerSet.observe(viewLifecycleOwner, {
             it.wayPoints.map { wp -> map.createMarker(wp.lon, wp.lat, MarkerType.WAYPOINT, wp.readableTimeStamp) }
                 .apply { map.overlays.addAll(this) }
 
-            markTrackStartAndFinishAndZoom(it.boundingBox, it.startPoint, it.finishPoint)
+            if (it.startPoint != it.finishPoint) {
+                markTrackStartAndFinishAndZoom(it.boundingBox, it.startPoint, it.finishPoint)
+            }
         })
     }
 

@@ -21,7 +21,7 @@
             android:title="@string/title_language" />
 
         <ListPreference
-            android:defaultValue="@string/pref_line"
+            android:defaultValue="@string/pref_marker_set"
             android:entries="@array/track_representing"
             android:entryValues="@array/track_representing_values"
             android:key="@string/pref_track_representation"
