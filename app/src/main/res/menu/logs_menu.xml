@@ -16,4 +16,11 @@
         android:id="@+id/onlyErrors"
         android:title="@string/title_logs_only_erros"
         app:showAsAction="never" />
+
+    <item
+        android:checkable="true"
+        android:checked="false"
+        android:id="@+id/nonMainThreadOnly"
+        android:title="@string/title_logs_non_main_thread"
+        app:showAsAction="never" />
 </menu>

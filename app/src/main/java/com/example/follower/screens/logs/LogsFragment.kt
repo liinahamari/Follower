@@ -111,7 +111,16 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
                 logsToolbar.menu.findItem(R.id.onlyErrors).isChecked = logsToolbar.menu.findItem(R.id.onlyErrors).isChecked.not()
                 logsToolbar.menu.findItem(R.id.onlyErrors).isChecked
             }
-            .subscribe { logsAdapter.sort(it) }
+            .subscribe { logsAdapter.sort(if(it.not()) ShowType.ALL else ShowType.ERRORS_ONLY) }
+
+        subscriptions += logsToolbar.menu.findItem(R.id.nonMainThreadOnly)
+            .clicks()
+            .throttleFirst()
+            .map {
+                logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked = logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked.not()
+                logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked
+            }
+            .subscribe { logsAdapter.sort(if(it.not()) ShowType.ALL else ShowType.NON_MAIN_THREAD_ONLY) }
 
         subscriptions += logsToolbar.menu.findItem(R.id.sendLogs)
             .clicks()

@@ -21,6 +21,10 @@ import kotlinx.android.synthetic.main.item_error_log.*
 private const val LOG_TYPE_INFO = 1
 private const val LOG_TYPE_ERROR = 2
 
+enum class ShowType {
+    ALL, ERRORS_ONLY, NON_MAIN_THREAD_ONLY
+}
+
 class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val clicks = CompositeDisposable()
     private lateinit var expandedMarkers: SparseBooleanArray
@@ -35,12 +39,18 @@ class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             notifyDataSetChanged()
         }
 
-    fun sort(errorsOnly: Boolean) {
-        logs = if (errorsOnly) {
-            mixedLogsCache = logs
-            logs.filterIsInstance<LogUi.ErrorLog>().sortedBy { it.time } /*TODO bring sorting to LoggerInteractor*/
-        } else {
-            mixedLogsCache.sortedBy { it.time }
+    /*todo TO INTERACTOR?*/
+    fun sort(showType: ShowType) {
+        logs = when (showType) {
+            ShowType.ALL -> mixedLogsCache
+            ShowType.NON_MAIN_THREAD_ONLY -> {
+                mixedLogsCache = logs
+                logs.filter { it.thread != "main" }
+            }
+            ShowType.ERRORS_ONLY -> {
+                mixedLogsCache = logs
+                logs.filterIsInstance<LogUi.ErrorLog>()
+            }
         }
     }
 

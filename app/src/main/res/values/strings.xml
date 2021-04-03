@@ -131,5 +131,5 @@
     <string name="summary_security_vulnerability">A security vulnerability has been discovered with one or more hardware sensors. Try to apply security patch.</string>
     <string name="unknown_error">Unknown error</string>
     <string name="title_logs_only_erros">Show only errors</string>
-
+    <string name="title_logs_non_main_thread">Only non-main-thread issues</string>
 </resources>
