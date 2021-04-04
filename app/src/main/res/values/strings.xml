@@ -135,6 +135,7 @@
     <string name="title_logs_only_erros">Show only errors</string>
     <string name="title_logs_non_main_thread">Only non-main-thread issues</string>
     <string name="title_log_list_is_empty">No logs found</string>
+    <string name="title_scheduling">Auto tracking scheduling</string>
     <string name="optimization_successful">Battery optimizations enabled</string>
     <string name="device_does_not_support_battery_optimization">Your device does not support opting out of battery optimization</string>
     <string name="error_opening_settings">Unable to open the settings, please do it manually</string>

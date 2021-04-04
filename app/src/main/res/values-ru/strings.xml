@@ -100,4 +100,5 @@
     <string name="error_opening_settings">Не удалось открыть настройки приложения, сделайте это вручную</string>
     <string name="title_battery_usage_settings">Настройки оптимизации заряда батареи</string>
     <string name="title_disable_battery_optimization">Отключить оптимизацию заряда батареи</string>
+    <string name="title_scheduling">Планирование автотрекинга</string>
 </resources>

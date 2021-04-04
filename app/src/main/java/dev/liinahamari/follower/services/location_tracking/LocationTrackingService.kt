@@ -9,6 +9,10 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
+import android.os.Looper
+import android.util.Log
+import androidx.annotation.MainThread
+import androidx.core.content.ContextCompat
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
@@ -30,7 +34,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-const val CHANNEL_ID = "GPS_CHANNEL"
 private const val FOREGROUND_SERVICE_ID = 123
 const val ACTION_START_TRACKING = "BackgroundTracker.action_start_tracking"
 const val ACTION_DISCARD_TRACK = "BackgroundTracker.action_discard_track"
@@ -38,6 +41,10 @@ const val ACTION_RENAME_TRACK_AND_STOP_TRACKING = "BackgroundTracker.action_rena
 const val ARG_AUTO_SAVE = "BackgroundTracker.arg_auto_save"
 
 class LocationTrackingService : Service() {
+    companion object {
+        const val CHANNEL_ID = "GPS_CHANNEL"
+    }
+
     private val disposable = CompositeDisposable()
     private val syncDisposable = CompositeDisposable()
     var traceBeginningTime: Long? = null

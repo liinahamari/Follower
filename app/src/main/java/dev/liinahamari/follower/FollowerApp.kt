@@ -12,15 +12,16 @@ import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
+import com.github.anrwatchdog.ANRWatchDog
 import dev.liinahamari.follower.di.components.AppComponent
+import dev.liinahamari.follower.di.components.DaggerAppComponent
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.model.PersistedLocaleResult
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.screens.logs.MY_EMAIL
-import dev.liinahamari.follower.services.location_tracking.CHANNEL_ID
-import com.github.anrwatchdog.ANRWatchDog
-import dev.liinahamari.follower.di.components.DaggerAppComponent
+import dev.liinahamari.follower.services.AutoTrackingSchedulingService
+import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import io.reactivex.internal.functions.Functions
 import io.reactivex.plugins.RxJavaPlugins
 import org.acra.*
@@ -57,8 +58,13 @@ class FollowerApp : Application() {
         setupAnrWatchDog()
         preferencesRepository.applyDefaultPreferences().blockingAwait() /*todo: to splash screen?*/
         setupOsmdroid()
-        notificationManager.createNotificationChannel(NotificationChannel(CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
+        setupNotificationChannels()
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
+    }
+
+    private fun setupNotificationChannels() {
+        notificationManager.createNotificationChannel(NotificationChannel(AutoTrackingSchedulingService.CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
+        notificationManager.createNotificationChannel(NotificationChannel(LocationTrackingService.CHANNEL_ID, "Auto tracking scheduling", NotificationManager.IMPORTANCE_DEFAULT))
     }
 
     private fun setupWorkManager() = WorkManager.initialize(applicationContext,

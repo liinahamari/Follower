@@ -1,8 +1,10 @@
 package dev.liinahamari.follower.di.modules
 
+import android.app.AlarmManager
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import androidx.work.WorkManager
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.helper.rx.BaseComposers
@@ -12,6 +14,10 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
+import dagger.Reusable
+import dev.liinahamari.follower.helper.FlightRecorder
+import dev.liinahamari.follower.screens.settings.AutoTrackingSchedulingUseCase
+import dev.liinahamari.follower.screens.settings.SettingsScope
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -24,6 +30,11 @@ class AppModule {
     @Singleton
     @Named(APP_CONTEXT)
     fun bindContext(app: FollowerApp): Context = app.applicationContext
+
+    @Provides
+    @Reusable
+    fun provideAutoTrackingSchedulingUseCase(prefs: SharedPreferences, @Named(APP_CONTEXT) ctx: Context, composers: BaseComposers, logger: FlightRecorder, alarmManager: AlarmManager): AutoTrackingSchedulingUseCase =
+        AutoTrackingSchedulingUseCase(prefs, ctx, composers, alarmManager, logger)
 
     @Provides
     @Singleton

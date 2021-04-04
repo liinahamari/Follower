@@ -4,13 +4,11 @@ import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import dev.liinahamari.follower.workers.AutoStartTrackingWorker
-import dev.liinahamari.follower.workers.AutoStopTrackingWorker
-import dev.liinahamari.follower.workers.UploadTrackWorker
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
 import dagger.multibindings.IntoMap
+import dev.liinahamari.follower.workers.UploadTrackWorker
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.reflect.KClass
@@ -21,16 +19,6 @@ interface WorkersBindingModule {
     @IntoMap
     @WorkerKey(UploadTrackWorker::class)
     fun bindSyncTrackWorker(factory: UploadTrackWorker.Factory): ChildWorkerFactory
-
-    @Binds
-    @IntoMap
-    @WorkerKey(AutoStartTrackingWorker::class)
-    fun bindAutoStartTrackingWorker(factory: AutoStartTrackingWorker.Factory): ChildWorkerFactory
-
-    @Binds
-    @IntoMap
-    @WorkerKey(AutoStopTrackingWorker::class)
-    fun bindAutoStopTrackingWorker(factory: AutoStopTrackingWorker.Factory): ChildWorkerFactory
 
     @Binds
     fun bindAlbumsWorkerFactory(factory: FollowerWorkersFactory): WorkerFactory

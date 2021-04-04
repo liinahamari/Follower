@@ -254,7 +254,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             }
             getString(R.string.pref_acra_enable) -> sharedPreferences.writeBooleanOf(getString(R.string.pref_acra_disable), sharedPreferences.getBooleanOf(key).not())
 
-            getString(R.string.pref_tracking_start_time), getString(R.string.pref_tracking_stop_time) -> viewModel.scheduleAutoTracking() /*no need to cancel, cause ExistingPeriodicWorkPolicy.REPLACE politics applying in AutoTrackingSchedulingUseCase*/
+            getString(R.string.pref_tracking_start_time), getString(R.string.pref_tracking_stop_time) -> viewModel.scheduleAutoTracking()
         }
     }
 

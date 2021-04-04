@@ -8,6 +8,7 @@ import dev.liinahamari.follower.services.location_tracking.LocationTrackingServi
 import dagger.BindsInstance
 import dagger.Component
 import dev.liinahamari.follower.di.modules.*
+import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import javax.inject.Singleton
 
 @Singleton
@@ -37,4 +38,5 @@ interface AppComponent {
     fun inject(app: FollowerApp)
     fun inject(service: LocationTrackingService)
     fun inject(activity: MainActivity)
+    fun inject(service: AutoTrackingSchedulingService)
 }
