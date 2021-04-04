@@ -7,8 +7,6 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.util.Log
-import androidx.work.*
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.di.modules.APP_CONTEXT
 import dev.liinahamari.follower.ext.isServiceRunning
@@ -23,7 +21,6 @@ import dev.liinahamari.follower.services.location_tracking.LocationTrackingServi
 import io.reactivex.Completable
 import io.reactivex.Single
 import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Named
 
 class AutoTrackingSchedulingUseCase constructor(
@@ -50,8 +47,7 @@ class AutoTrackingSchedulingUseCase constructor(
                 0
             )
         )
-    }
-        .toSingleDefault<CancelAutoTrackingResult>(CancelAutoTrackingResult.Success)
+    }.toSingleDefault<CancelAutoTrackingResult>(CancelAutoTrackingResult.Success)
         .onErrorReturn { CancelAutoTrackingResult.Failure }
         .doOnError { logger.e("Canceling auto-tracking", it) }
 
@@ -67,12 +63,12 @@ class AutoTrackingSchedulingUseCase constructor(
                             action = ACTION_START_TRACKING
                         })
                     } else {
-                        logger.i {  "AUTO_START delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}" }
+                        logger.i { "AUTO_START delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}" }
                         scheduleAutoStart(it.first)
                     }
                 } else {
                     /*todo consider 15 minutes delay of AlarmManager (+= 15 min to start if lesser)*/
-                    logger.i {  "AUTO_START delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}" }
+                    logger.i { "AUTO_START delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}" }
                     scheduleAutoStart(it.first)
                 }
             }
