@@ -4,10 +4,13 @@
       <w>coords</w>
       <w>geocoder</w>
       <w>gson</w>
+      <w>huawei</w>
       <w>interactor</w>
       <w>osmdroid</w>
+      <w>samsung</w>
       <w>waypoint</w>
       <w>waypoints</w>
+      <w>xiaomi</w>
     </words>
   </dictionary>
 </component>

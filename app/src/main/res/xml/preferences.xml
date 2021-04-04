@@ -21,7 +21,7 @@
             android:title="@string/title_language" />
 
         <ListPreference
-            android:defaultValue="@string/pref_line"
+            android:defaultValue="@string/pref_marker_set"
             android:entries="@array/track_representing"
             android:entryValues="@array/track_representing_values"
             android:key="@string/pref_track_representation"
@@ -47,14 +47,14 @@
             android:title="@string/title_automatic_tracking_setting"
             app:iconSpaceReserved="false" />
 
-        <com.example.follower.screens.settings.TimePickerPreference
+        <dev.liinahamari.follower.screens.settings.TimePickerPreference
             android:defaultValue="540"
             android:dependency="@string/pref_enable_auto_tracking"
             android:key="@string/pref_tracking_start_time"
             android:title="@string/title_auto_tracking_start_time"
             app:iconSpaceReserved="false" />
 
-        <com.example.follower.screens.settings.TimePickerPreference
+        <dev.liinahamari.follower.screens.settings.TimePickerPreference
             android:dependency="@string/pref_enable_auto_tracking"
             android:key="@string/pref_tracking_stop_time"
             android:title="@string/title_auto_tracking_stop_time"
@@ -114,6 +114,11 @@
         android:title="@string/title_other"
         app:iconSpaceReserved="false">
 
+        <SwitchPreferenceCompat
+            android:title="@string/title_disable_battery_optimization"
+            app:defaultValue="false"
+            android:key="@string/pref_battery_optimization" />
+
         <Preference
             android:key="@string/pref_report_bug"
             android:icon="@drawable/ic_bug_report"
@@ -122,6 +127,20 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/liinahamari/Follower/issues" />
         </Preference>
+
+        <Preference
+            android:icon="@drawable/ic_baseline_settings_applications_24"
+            android:title="@string/title_settings">
+            <intent
+                android:action="android.settings.APPLICATION_DETAILS_SETTINGS"
+                android:data="package:dev.liinahamari.follower"
+                />
+        </Preference>
+
+        <Preference
+            android:key="@string/pref_battery_optimization_settings"
+            android:icon="@drawable/ic_battery"
+            android:title="@string/title_battery_usage_settings" />
 
         <Preference
             android:key="@string/pref_reset_to_default"

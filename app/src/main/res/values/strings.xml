@@ -18,6 +18,7 @@
     <string name="pref_tracking_stop_time" translatable="false">pref_tracking_end_time</string>
     <string name="pref_theme" translatable="false">pref_theme</string>
     <string name="pref_lang" translatable="false">pref_lang</string>
+    <string name="pref_battery_optimization_settings" translatable="false">pref_battery_optimization_settings</string>
     <string name="pref_min_distance" translatable="false">pref_min_distance</string>
     <string name="pref_min_location_update_interval" translatable="false">pref_min_location_update_interval</string>
     <string name="pref_track_representation" translatable="false">pref_track_representation</string>
@@ -29,6 +30,7 @@
     <string name="pref_value_track_display_mode_addresses_list" translatable="false">pref_value_track_display_mode_addresses_list</string>
     <string name="pref_enable_auto_tracking" translatable="false">pref_enable_auto_tracking</string>
     <string name="pref_reset_to_default" translatable="false">pref_reset_to_default</string>
+    <string name="pref_battery_optimization" translatable="false">pref_battery_optimization</string>
     <string name="pref_is_first_launch" translatable="false">pref_is_first_launch</string>
     <string name="pref_enable_biometric_protection" translatable="false">pref_enable_biometric_protection</string>
 
@@ -55,7 +57,7 @@
     <string name="title_dark_theme">Dark theme</string>
     <string name="title_themes">Themes</string>
     <string name="title_language">Language</string>
-    <string name="hint_name_your_trace">Name your trace</string>
+    <string name="hint_name_your_track">Name your track</string>
     <string name="message_you_have_no_waypoints">You have no waypoints in your trace yet</string>
     <string name="title_stop_tracking">Stop tracking</string>
     <string name="title_continue">Continue</string>
@@ -133,4 +135,10 @@
     <string name="title_logs_only_erros">Show only errors</string>
     <string name="title_logs_non_main_thread">Only non-main-thread issues</string>
     <string name="title_log_list_is_empty">No logs found</string>
+    <string name="title_scheduling">Auto tracking scheduling</string>
+    <string name="optimization_successful">Battery optimizations enabled</string>
+    <string name="device_does_not_support_battery_optimization">Your device does not support opting out of battery optimization</string>
+    <string name="error_opening_settings">Unable to open the settings, please do it manually</string>
+    <string name="title_battery_usage_settings">Battery optimization settings</string>
+    <string name="title_disable_battery_optimization">Disable battery optimization</string>
 </resources>

@@ -7,7 +7,7 @@
 
         <variable
             name="track"
-            type="com.example.follower.screens.track_list.TrackUi" />
+            type="dev.liinahamari.follower.screens.track_list.TrackUi" />
     </data>
 
     <LinearLayout

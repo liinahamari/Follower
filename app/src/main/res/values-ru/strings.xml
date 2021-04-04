@@ -18,7 +18,7 @@
     <string name="title_dark_theme">Темная тема</string>
     <string name="title_themes">Тема</string>
     <string name="title_language">Язык</string>
-    <string name="hint_name_your_trace">Назовите свой маршрут</string>
+    <string name="hint_name_your_track">Назовите свой маршрут</string>
     <string name="title_dont_ask_againg">Не показывать больше</string>
     <string name="message_you_have_no_waypoints">Запись маршрута пуста</string>
     <string name="title_stop_tracking">Прекратить запись</string>
@@ -95,4 +95,10 @@
     <string name="title_logs_only_erros">Показывать только ошибки</string>
     <string name="title_logs_non_main_thread">Не в главном потоке</string>
     <string name="title_log_list_is_empty">Логи не найдены</string>
+    <string name="optimization_successful">Оптимизация энергопотребления разрешена</string>
+    <string name="device_does_not_support_battery_optimization">Ваше устройство не поддерживает отключение оптимизации энергопотребления</string>
+    <string name="error_opening_settings">Не удалось открыть настройки приложения, сделайте это вручную</string>
+    <string name="title_battery_usage_settings">Настройки оптимизации заряда батареи</string>
+    <string name="title_disable_battery_optimization">Отключить оптимизацию заряда батареи</string>
+    <string name="title_scheduling">Планирование автотрекинга</string>
 </resources>
