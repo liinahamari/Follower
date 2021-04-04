@@ -86,7 +86,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
 
         boundServiceDisposables += gpsService!!
             .wayPointsCounter
-            .subscribe { way_points_counter.text = String.format(getString(R.string.title_way_points_collected), it) }
+            .subscribe { way_points_counter.text = String.format(getString(R.string.title_way_points_collected), if (it == 1) 0 else it) }
     }
 
     override fun onAttach(context: Context) {

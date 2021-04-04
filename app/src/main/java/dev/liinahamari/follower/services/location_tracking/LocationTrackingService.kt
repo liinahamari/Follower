@@ -9,10 +9,6 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
-import android.os.Looper
-import android.util.Log
-import androidx.annotation.MainThread
-import androidx.core.content.ContextCompat
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
@@ -67,7 +63,6 @@ class LocationTrackingService : Service() {
     private fun createNotification(wayPointsCounter: Int): Notification.Builder = Notification.Builder(applicationContext, CHANNEL_ID)
         .setContentText(getString(R.string.title_tracking))
         .setSubText(String.format(getString(R.string.title_way_points_collected), wayPointsCounter))
-        .setAutoCancel(false)
 
     inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -75,7 +70,7 @@ class LocationTrackingService : Service() {
             disposable += trackInteractor.saveWayPoint(location.toWayPoint(traceBeginningTime!!)).subscribe {
                 val wp = wayPointsCounter.value!!.inc()
                 wayPointsCounter.onNext(wp)
-                if (isTrackEmpty && wp > 1) {
+                if (isTrackEmpty) {
                     isTrackEmpty = false
                 }
                 notificationManager.notify(FOREGROUND_SERVICE_ID, createNotification(wp).build())
