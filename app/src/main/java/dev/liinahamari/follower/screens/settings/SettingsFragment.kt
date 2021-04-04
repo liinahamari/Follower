@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +29,6 @@ import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.infoToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.helper.FlightRecorder
-import dev.liinahamari.follower.screens.tracking_control.CODE_PERMISSION_LOCATION
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_BACKGROUND_LOCATION
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_LOCATION
 import java.util.*
@@ -60,6 +58,16 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     lateinit var resetDialog: Dialog
 
     private var themeId = -1
+
+    private val geoPermission = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (it.values.all { accepted -> accepted }) {
+            viewModel.scheduleAutoTracking()
+        } else {
+            errorToast(getString(R.string.error_location_permission_denied))
+            findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_auto_tracking))?.isChecked = false
+            prefs.writeBooleanOf(getString(R.string.pref_enable_auto_tracking), false)
+        }
+    }
 
     private val batteryOptimization = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
@@ -101,7 +109,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 loadingDialog.isShowing && it.not() -> loadingDialog.dismiss()
             }
         })
-        viewModel.biometricNotAvailable.observe(viewLifecycleOwner, {
+        viewModel.biometricNotAvailableEvent.observe(viewLifecycleOwner, {
             findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.apply {
                 summary = getString(it)
                 isEnabled = false
@@ -196,6 +204,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         }
     }
 
+    @SuppressLint("BatteryLife")
     private fun openBatteryOptimizationDialogIfNeeded() {
         if (isIgnoringBatteryOptimizations().not()) {
             batteryOptimization.launch(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
@@ -204,35 +213,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         } else {
             findPreference<SwitchPreferenceCompat>(getString(R.string.pref_battery_optimization))!!.isChecked = true
             prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), true)
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
-        /*Maybe someday... https://developer.android.com/training/permissions/requesting*/
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (isDetached.not() && requestCode == CODE_PERMISSION_LOCATION) {
-            val permissionsToHandle = mutableListOf(PERMISSION_LOCATION)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                /* https://stackoverflow.com/questions/58816066/android-10-q-access-background-location-permission */
-                permissionsToHandle.add(PERMISSION_BACKGROUND_LOCATION)
-            }
-
-            handleUsersReactionToPermissions(
-                permissionsToHandle = permissionsToHandle,
-                allPermissions = permissions.toList(),
-                doIfAllowed = { viewModel.scheduleAutoTracking() },
-                doIfDenied = {
-                    errorToast(getString(R.string.error_location_permission_denied))
-                    findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_auto_tracking))?.isChecked = false
-                    prefs.writeBooleanOf(getString(R.string.pref_enable_auto_tracking), false)
-                },
-                doIfNeverAskAgain = {
-                    errorToast(getString(R.string.error_location_permission_denied))
-                    prefs.writeBooleanOf(getString(R.string.pref_enable_auto_tracking), false)
-                    findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_auto_tracking))?.isChecked = false
-                }
-            )
         }
     }
 
@@ -261,10 +241,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     if (hasAllPermissions(permissions)) {
                         viewModel.scheduleAutoTracking()
                     } else {
-                        @Suppress("DEPRECATION")
-                        // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :(
-                        // Maybe someday... https://developer.android.com/training/permissions/requesting
-                        requestPermissions(permissions.toTypedArray(), CODE_PERMISSION_LOCATION)
+                        geoPermission.launch(permissions.toTypedArray())
                     }
                 } else {
                     viewModel.cancelAutoTracking()

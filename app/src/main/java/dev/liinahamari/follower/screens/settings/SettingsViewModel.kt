@@ -28,13 +28,13 @@ class SettingsViewModel @Inject constructor(private val prefInteractor: Settings
     private val _loadingEvent = SingleLiveEvent<Boolean>()
     val loadingEvent: LiveData<Boolean> get() = _loadingEvent
 
-    private val _biometricNotAvailable = SingleLiveEvent<Int>()
-    val biometricNotAvailable: LiveData<Int> get() = _biometricNotAvailable
+    private val _biometricNotAvailableEvent = SingleLiveEvent<Int>()
+    val biometricNotAvailableEvent: LiveData<Int> get() = _biometricNotAvailableEvent
 
     fun isBiometricValidationAvailable() {
         disposable += biometricValidationUseCase.execute().subscribe(Consumer {
             if (it is BiometricAvailabilityResult.NotAvailable) {
-                _biometricNotAvailable.value = it.explanation
+                _biometricNotAvailableEvent.value = it.explanation
             }
         })
     }

@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
@@ -32,7 +33,6 @@ import javax.inject.Named
 
 const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
 @RequiresApi(Build.VERSION_CODES.Q) const val PERMISSION_BACKGROUND_LOCATION = Manifest.permission.ACCESS_BACKGROUND_LOCATION
-const val CODE_PERMISSION_LOCATION = 101
 
 /*todo, add distance, points*/
 
@@ -54,6 +54,14 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
     lateinit var rateMyAppDialog: DialogFragment
 
     private var gpsService: LocationTrackingService? = null
+
+    private val geoPermission = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (it.values.all { accepted -> accepted }) {
+            startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
+        } else {
+            locationPermissionExplanationDialog.show()
+        }
+    }
 
     override fun getBindingTarget(): Class<out Service> = LocationTrackingService::class.java
 
@@ -98,27 +106,6 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
         viewModel.showRateMyAppEvent.observe(this, { rateMyAppDialog.show(childFragmentManager, RateMyAppDialog::class.java.simpleName) })
     }
 
-        override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        @Suppress("DEPRECATION") /* new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :( */
-        /*Maybe someday... https://developer.android.com/training/permissions/requesting*/
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (isDetached.not() && requestCode == CODE_PERMISSION_LOCATION) {
-            val permissionsToHandle = mutableListOf(PERMISSION_LOCATION)
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                /* https://stackoverflow.com/questions/58816066/android-10-q-access-background-location-permission */
-                permissionsToHandle.add(PERMISSION_BACKGROUND_LOCATION)
-            }
-
-            handleUsersReactionToPermissions(
-                permissionsToHandle = permissionsToHandle,
-                allPermissions = permissions.toList(),
-                doIfAllowed = { startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING) },
-                doIfDenied = { locationPermissionExplanationDialog.show() },
-                doIfNeverAskAgain = { locationPermissionExplanationDialog.show() }
-            )
-        }
-    }
-
     override fun setupClicks() {
         subscriptions += btn_start_tracking.clicks()
             .throttleFirst(750L)
@@ -130,10 +117,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                 if (hasAllPermissions(permissions)) {
                     startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
                 } else {
-                    @Suppress("DEPRECATION")
-                    // new API with registerForActivityResult(ActivityResultContract, ActivityResultCallback)} instead doesn't work! :(
-                    // Maybe someday... https://developer.android.com/training/permissions/requesting
-                    requestPermissions(permissions.toTypedArray(), CODE_PERMISSION_LOCATION)
+                    geoPermission.launch(permissions.toTypedArray())
                 }
             }
 
