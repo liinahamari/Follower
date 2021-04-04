@@ -16,6 +16,9 @@ import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseFragment
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import com.squareup.seismic.ShakeDetector
+import dev.liinahamari.follower.ext.getBooleanOf
+import dev.liinahamari.follower.ext.isIgnoringBatteryOptimizations
+import dev.liinahamari.follower.ext.writeBooleanOf
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -60,7 +63,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
         clicks.clear()
     }
 
-    override fun onResume() = super.onResume().also { shakeDetector!!.start(sensorManager) }
+    override fun onResume() {
+        super.onResume()
+        shakeDetector!!.start(sensorManager)
+        if (isIgnoringBatteryOptimizations() != prefs.getBooleanOf(getString(R.string.pref_battery_optimization))) {
+            prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), isIgnoringBatteryOptimizations())
+        }
+    }
     override fun onPause() = super.onPause().also { shakeDetector!!.stop() }
     override fun onSupportNavigateUp(): Boolean = findNavController(R.id.mainActivityFragmentContainer).navigateUp()
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())

@@ -1,5 +1,6 @@
 package dev.liinahamari.follower.ext
 
+import android.app.Activity
 import android.app.ActivityManager
 import android.app.Service
 import android.content.Context
@@ -8,6 +9,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -66,3 +68,7 @@ fun Context.createFileIfNotExist(fileName: String, dirName: String) = File(creat
 }
 
 fun Context.getUriForInternalFile(file: File): Uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + FILE_PROVIDER_META, file)
+
+fun Context.isIgnoringBatteryOptimizations() = (getSystemService(Context.POWER_SERVICE) as PowerManager?)?.isIgnoringBatteryOptimizations(packageName) == true
+fun Fragment.isIgnoringBatteryOptimizations() = (requireActivity().getSystemService(Context.POWER_SERVICE) as PowerManager?)?.isIgnoringBatteryOptimizations(requireActivity().packageName) == true
+fun Activity.isIgnoringBatteryOptimizations() = (getSystemService(Context.POWER_SERVICE) as PowerManager?)?.isIgnoringBatteryOptimizations(packageName) == true

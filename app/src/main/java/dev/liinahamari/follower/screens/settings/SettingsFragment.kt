@@ -1,38 +1,55 @@
 package dev.liinahamari.follower.screens.settings
 
 import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
 import android.app.Dialog
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import dagger.Lazy
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
+import dev.liinahamari.follower.di.modules.*
 import dev.liinahamari.follower.di.scopes.BiometricScope
+import dev.liinahamari.follower.ext.*
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.infoToast
+import dev.liinahamari.follower.helper.CustomToast.successToast
+import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.screens.tracking_control.CODE_PERMISSION_LOCATION
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_BACKGROUND_LOCATION
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_LOCATION
-import dagger.Lazy
-import dev.liinahamari.follower.di.modules.*
-import dev.liinahamari.follower.ext.*
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
+
+private const val MANUFACTURER_XIAOMI = "Xiaomi"
+private const val MANUFACTURER_HUAWEI = "HUAWEI"
+private const val MANUFACTURER_SAMSUNG = "samsung"
+private const val PACKAGE_SAMSUNG_DEVICE_CARE = "com.samsung.android.lool"
+private const val CLASS_SAMSUNG_BATTERY_ACTIVITY_S10 = "com.samsung.android.sm.battery.ui.BatteryActivity"
+private const val CLASS_SAMSUNG_BATTERY_ACTIVITY_S7 = "com.samsung.android.sm.ui.battery.BatteryActivity"
 
 @BiometricScope
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
     @Inject lateinit var authenticator: Lazy<Authenticator>
     @Inject lateinit var viewModel: SettingsViewModel
     @Inject lateinit var prefs: SharedPreferences
+    @Inject lateinit var logger: FlightRecorder
 
     @Inject
     @Named(DIALOG_LOADING)
@@ -43,6 +60,17 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     lateinit var resetDialog: Dialog
 
     private var themeId = -1
+
+    private val batteryOptimization = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            findPreference<SwitchPreferenceCompat>(getString(R.string.pref_battery_optimization))!!.isChecked = true
+            prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), true)
+            successToast(getString(R.string.optimization_successful))
+        } else {
+            findPreference<SwitchPreferenceCompat>(getString(R.string.pref_battery_optimization))!!.isChecked = false
+            prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), false)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -94,7 +122,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                         findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false
                         prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), false)
                     },
-                    onFailedAuth = { findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true
+                    onFailedAuth = {
+                        findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true
                         prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), true)
                     }
                 )
@@ -111,9 +140,71 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         if (isDetached.not()) {
             when (preference?.key) {
                 getString(R.string.pref_reset_to_default) -> resetDialog.show()
+                getString(R.string.pref_battery_optimization) -> openBatteryOptimizationDialogIfNeeded()
+                getString(R.string.pref_battery_optimization_settings) -> openBatteryOptimizationSettings()
             }
         }
         return super.onPreferenceTreeClick(preference)
+    }
+
+    private fun openBatteryOptimizationSettings() {
+        try {
+            when (Build.MANUFACTURER) {
+                MANUFACTURER_HUAWEI -> {
+                    startActivity(
+                        Intent().apply {
+                            action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                            putExtra("extra_pkgname", requireContext().packageName)
+                            putExtra("package: ", requireContext().packageName)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                    )
+                }
+                MANUFACTURER_SAMSUNG -> {
+                    startActivity(
+                        Intent().apply {
+                            component = try {
+                                ComponentName(PACKAGE_SAMSUNG_DEVICE_CARE, CLASS_SAMSUNG_BATTERY_ACTIVITY_S7)
+                            } catch (e: Exception) {
+                                ComponentName(PACKAGE_SAMSUNG_DEVICE_CARE, CLASS_SAMSUNG_BATTERY_ACTIVITY_S10)
+                            }
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        })
+                }
+                MANUFACTURER_XIAOMI -> {
+                    startActivity(
+                        Intent().apply {
+                            component = ComponentName("com.miui.powerkeeper", "com.miui.powerkeeper.ui.HiddenAppsConfigActivity")
+                            putExtra("package_name", context?.packageName)
+                            putExtra("package_label", R.string.app_name)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                    )
+                }
+                else -> {
+                    startActivity(
+                        Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+                            putExtra("extra_pkgname", context?.packageName)
+                            putExtra("package: ", context?.packageName)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        })
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            errorToast(getString(R.string.error_opening_settings))
+        }
+    }
+
+    private fun openBatteryOptimizationDialogIfNeeded() {
+        if (isIgnoringBatteryOptimizations().not()) {
+            batteryOptimization.launch(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = Uri.parse("package:${requireContext().packageName}")
+            })
+        } else {
+            findPreference<SwitchPreferenceCompat>(getString(R.string.pref_battery_optimization))!!.isChecked = true
+            prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), true)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -192,6 +283,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
 
     private fun changeDrawableColors() {
         with(requireContext()) {
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_battery_optimization_settings))?.icon)
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_theme))?.icon)
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_lang))?.icon)
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_report_bug))?.icon)

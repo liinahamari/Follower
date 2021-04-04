@@ -21,6 +21,7 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
     fun applyDefaultPreferences(): Completable = Completable.fromCallable {
             if (sharedPreferences.getBoolean(context.getString(R.string.pref_is_first_launch), false).not()) {
                 sharedPreferences.writeBooleanOf(context.getString(R.string.pref_is_first_launch), true)
+                sharedPreferences.writeBooleanOf(context.getString(R.string.pref_battery_optimization), context.isIgnoringBatteryOptimizations())
 
                 sharedPreferences.writeBooleanOf(context.getString(R.string.pref_acra_disable), true)
                 sharedPreferences.writeStringOf(context.getString(R.string.pref_uid), UUID.randomUUID().toString())
