@@ -134,7 +134,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                                 startService(LocationTrackingService::class.java, action = ACTION_DISCARD_TRACK)
                             }
 
-                            input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_trace) { _, text ->
+                            input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_track) { _, text ->
                                 startService(
                                     LocationTrackingService::class.java,
                                     action = ACTION_RENAME_TRACK_AND_STOP_TRACKING,
