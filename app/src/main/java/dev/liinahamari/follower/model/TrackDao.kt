@@ -1,6 +1,6 @@
 package dev.liinahamari.follower.model
 
-import androidx.annotation.VisibleForTesting
+import androidx.paging.DataSource
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import dev.liinahamari.follower.db.entities.Track
@@ -11,9 +11,8 @@ import io.reactivex.Single
 @Dao
 interface TrackDao {
     @Query("SELECT * FROM track")
-    fun getAll(): Single<List<Track>>
+    fun getAll(): DataSource.Factory<Int, Track>
 
-    @VisibleForTesting
     @Query("SELECT COUNT(time) FROM track")
     fun getCount(): Int
 
@@ -34,7 +33,7 @@ interface TrackDao {
 
     @Transaction
     @Query("SELECT * FROM track")
-    fun getAllTracksWithWayPoints(): Single<List<TrackWithWayPoints>>
+    fun getAllTracksWithWayPoints(): DataSource.Factory<Int, TrackWithWayPoints>
 
     @Transaction
     @Query("SELECT * FROM track WHERE time LIKE :trackId LIMIT 1")

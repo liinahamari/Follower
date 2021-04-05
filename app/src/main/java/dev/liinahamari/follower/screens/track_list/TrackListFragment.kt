@@ -15,6 +15,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
+import com.jakewharton.rxbinding3.view.clicks
+import dagger.Lazy
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BoundFragment
@@ -26,8 +28,6 @@ import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.screens.logs.TEXT_TYPE
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
-import com.jakewharton.rxbinding3.view.clicks
-import dagger.Lazy
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
@@ -48,7 +48,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
     private val tracksAdapter = TrackListAdapter(::showMenu, ::getTrackDisplayMode)
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
-    private fun showMenu(id: Long) = showCascadeMenu(id)
+    private fun showMenu(id: Long, position: Int) = showCascadeMenu(id, position)
 
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
@@ -56,7 +56,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
             .biometricComponent(
                 BiometricModule(
                     activity = requireActivity(),
-                    onSuccessfulAuth = { viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true) })
+                    onSuccessfulAuth = { viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true, gpsService?.traceBeginningTime) })
             )
             .inject(this)
     }
@@ -134,20 +134,18 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
             ivLock.isVisible = false
             trackList.isVisible = true
 
-            tracksAdapter.tracks = it.toMutableList()
+            tracksAdapter.submitList(it)
         }
-        viewModel.removeTrackEvent.observe(viewLifecycleOwner) { id ->
-            tracksAdapter.removeTask(id)
-            if (tracksAdapter.tracks.isEmpty()) {
+        viewModel.removeTrackEvent.observe(viewLifecycleOwner) { (position, isTracksEmpty) ->
+            tracksAdapter.notifyItemRemoved(position)
+            if (isTracksEmpty) {
                 emptyListTv.isVisible = true
                 trackList.isVisible = false
             }
         }
         viewModel.trackDisplayModeEvent.observe(viewLifecycleOwner) { trackAndDisplayMode ->
             when (trackAndDisplayMode.first) {
-                getString(R.string.pref_value_track_display_mode_addresses_list), getString(R.string.pref_value_track_display_mode_map) -> {
-                    displayTrackWith(trackAndDisplayMode.first, trackAndDisplayMode.second)
-                }
+                getString(R.string.pref_value_track_display_mode_addresses_list), getString(R.string.pref_value_track_display_mode_map) -> displayTrackWith(trackAndDisplayMode.first, trackAndDisplayMode.second)
                 getString(R.string.pref_value_track_display_mode_none) -> showDialogMapOrAddresses(trackAndDisplayMode.second)
             }
         }
@@ -179,11 +177,11 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
 
             authenticator.get().authenticate()
         } else {
-            viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true)
+            viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true, gpsService?.traceBeginningTime)
         }
     }
 
-    private fun showCascadeMenu(trackId: Long) {
+    private fun showCascadeMenu(trackId: Long, position: Int) {
         val popupMenu = CascadePopupMenu(requireContext(), requireView())
         popupMenu.menu.apply {
             MenuCompat.setGroupDividerEnabled(this, true)
@@ -225,7 +223,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
                 it.add(R.string.yes)
                     .setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_toast_success, null)))
                     .setOnMenuItemClickListener {
-                        viewModel.removeTrack(trackId)
+                        viewModel.removeTrack(trackId, position)
                         true
                     }
 

@@ -5,6 +5,10 @@ package dev.liinahamari.follower.interactors
 import android.content.Context
 import android.location.Geocoder
 import android.net.Uri
+import android.util.Log
+import androidx.paging.PagedList
+import androidx.paging.RxPagedListBuilder
+import com.google.gson.Gson
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.WayPoint
@@ -18,8 +22,6 @@ import dev.liinahamari.follower.model.TrackDao
 import dev.liinahamari.follower.model.WayPointDao
 import dev.liinahamari.follower.screens.address_trace.MapPointer
 import dev.liinahamari.follower.screens.track_list.TrackTitle
-import dev.liinahamari.follower.screens.track_list.TrackUi
-import com.google.gson.Gson
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -36,7 +38,7 @@ class TrackInteractor @Inject constructor(
     private val gson: Gson
 ) {
     fun deleteTrack(trackId: Long): Single<DeleteTrackResult> = trackDao.delete(trackId)
-        .toSingleDefault<DeleteTrackResult> (DeleteTrackResult.Success)
+        .toSingleDefault<DeleteTrackResult>(DeleteTrackResult.Success)
         .onErrorReturn { DeleteTrackResult.DatabaseCorruptionError }
         .doOnError { logger.e("track|wayPoints deleting", error = it) }
         .compose(baseComposers.applySingleSchedulers())
@@ -77,17 +79,25 @@ class TrackInteractor @Inject constructor(
 
     fun removeTrack(taskId: Long): Single<RemoveTrackResult> = trackDao.delete(taskId)
         .andThen(wayPointDao.delete(taskId))
-        .toSingleDefault<RemoveTrackResult>(RemoveTrackResult.Success)
+        .toSingle {  trackDao.getCount() == 0 }
+        .map<RemoveTrackResult> { RemoveTrackResult.Success(it) }
         .onErrorReturn { RemoveTrackResult.DatabaseCorruptionError }
         .compose(baseComposers.applySingleSchedulers())
 
     /** @param isTracking -- hides last track if true*/
-    fun fetchTracks(isTracking: Boolean): Single<FetchTracksResult> = trackDao.getAllTracksWithWayPoints()
-        .map { if (isTracking) it.dropLast(1) else it }
-        .map { it.map { track -> TrackUi(id = track.track.time, title = track.track.title) } }
+    fun fetchTracks(isTracking: Boolean, trackIdToExclude: Long?): Observable<FetchTracksResult> = RxPagedListBuilder(
+        trackDao.getAll(), PagedList.Config.Builder()
+            .setPageSize(30)
+            .setInitialLoadSizeHint(30)
+            .setPrefetchDistance(10)
+            .setEnablePlaceholders(false)
+            .build()
+    ).buildObservable()
+        .map { if (isTracking) it.apply { removeIf { track -> track.time == trackIdToExclude } } else it }
         .map { if (it.isEmpty()) FetchTracksResult.SuccessEmpty else FetchTracksResult.Success(it) }
         .onErrorReturn { FetchTracksResult.DatabaseCorruptionError }
-        .compose(baseComposers.applySingleSchedulers())
+        .compose(baseComposers.applyObservableSchedulers())
+        .doOnError { it.printStackTrace() }
 
     /*todo: caching list of fetched tracks as a field?*/
     /*TODO: rethink!*/
@@ -95,7 +105,7 @@ class TrackInteractor @Inject constructor(
         .map {
             context.getUriForInternalFile(
                 context.createFileIfNotExist(
-                    fileName = it.track.title+fileExtension,
+                    fileName = it.track.title + fileExtension,
                     dirName = "TempTracksToShare"
                 )
                     .apply {
@@ -125,12 +135,12 @@ sealed class DeleteTrackResult {
 }
 
 sealed class RemoveTrackResult {
-    object Success : RemoveTrackResult()
+    data class Success(val isTracksEmpty: Boolean) : RemoveTrackResult()
     object DatabaseCorruptionError : RemoveTrackResult()
 }
 
 sealed class FetchTracksResult {
-    data class Success(val tracks: List<TrackUi>) : FetchTracksResult()
+    data class Success(val tracks: PagedList<Track>) : FetchTracksResult()
     object SuccessEmpty : FetchTracksResult()
     object DatabaseCorruptionError : FetchTracksResult()
 }
