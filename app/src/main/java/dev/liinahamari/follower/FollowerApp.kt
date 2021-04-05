@@ -24,12 +24,15 @@ import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import io.reactivex.internal.functions.Functions
 import io.reactivex.plugins.RxJavaPlugins
+import net.gotev.uploadservice.UploadServiceConfig
 import org.acra.*
 import org.acra.annotation.*
 import org.acra.data.StringFormat
 import java.util.*
 import java.util.concurrent.Executors
 import javax.inject.Inject
+
+private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
 
 /*TODO: test PROD with R8 enabled*/
 @AcraCore(buildConfigClass = BuildConfig::class, reportFormat = StringFormat.JSON)
@@ -59,12 +62,20 @@ class FollowerApp : Application() {
         preferencesRepository.applyDefaultPreferences().blockingAwait() /*todo: to splash screen?*/
         setupOsmdroid()
         setupNotificationChannels()
+        setupFtpUploadingService()
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
     }
+
+    private fun setupFtpUploadingService() = UploadServiceConfig.initialize(
+        context = this,
+        defaultNotificationChannel = FTP_FILE_UPLOAD_SERVICE_ID,
+        debug = BuildConfig.DEBUG
+    )
 
     private fun setupNotificationChannels() {
         notificationManager.createNotificationChannel(NotificationChannel(AutoTrackingSchedulingService.CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
         notificationManager.createNotificationChannel(NotificationChannel(LocationTrackingService.CHANNEL_ID, "Auto tracking scheduling", NotificationManager.IMPORTANCE_DEFAULT))
+        notificationManager.createNotificationChannel(NotificationChannel(FTP_FILE_UPLOAD_SERVICE_ID, "FTP file uploading", NotificationManager.IMPORTANCE_LOW))
     }
 
     private fun setupWorkManager() = WorkManager.initialize(applicationContext,

@@ -141,4 +141,9 @@
     <string name="error_opening_settings">Unable to open the settings, please do it manually</string>
     <string name="title_battery_usage_settings">Battery optimization settings</string>
     <string name="title_disable_battery_optimization">Disable battery optimization</string>
+    <string name="title_pick_a_file">Pick a file</string>
+    <string name="hint_password">password</string>
+    <string name="login">login</string>
+    <string name="server_url">server url</string>
+    <string name="title_send">Send</string>
 </resources>

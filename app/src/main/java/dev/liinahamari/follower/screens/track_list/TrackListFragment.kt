@@ -25,6 +25,7 @@ import dev.liinahamari.follower.ext.adaptToNightModeState
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.screens.logs.TEXT_TYPE
+import dev.liinahamari.follower.screens.sharing.SharingFragment
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import com.jakewharton.rxbinding3.view.clicks
 import dagger.Lazy
@@ -36,6 +37,7 @@ import javax.inject.Inject
 
 private const val EXT_JSON = ".json"
 private const val EXT_TXT = ".txt"
+private const val FTP = "ftp"
 
 @BiometricScope
 class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
@@ -213,6 +215,11 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
                             viewModel.createSharedJsonFileForTrack(trackId, EXT_TXT)
                             true
                         }
+                }
+
+                it.add(FTP).setOnMenuItemClickListener {
+                    SharingFragment().show(childFragmentManager, SharingFragment::class.java.simpleName)
+                    true
                 }
 
                 it.setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_share, null)))

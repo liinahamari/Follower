@@ -101,4 +101,9 @@
     <string name="title_battery_usage_settings">Настройки оптимизации заряда батареи</string>
     <string name="title_disable_battery_optimization">Отключить оптимизацию заряда батареи</string>
     <string name="title_scheduling">Планирование автотрекинга</string>
+    <string name="title_pick_a_file">Выберите файл</string>
+    <string name="hint_password">пароль</string>
+    <string name="login">логин</string>
+    <string name="server_url">url сервера</string>
+    <string name="title_send">Отправить</string>
 </resources>
