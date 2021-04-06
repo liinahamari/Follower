@@ -1,8 +1,7 @@
 Base on article [How To Set Up vsftpd for a User's Directory on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-set-up-vsftpd-for-a-user-s-directory-on-ubuntu-18-04)
 
 * Create new droplet with Ubuntu 18.04 on board;
-* ```
-sudo apt update && sudo apt upgrade
+* ```sudo apt update && sudo apt upgrade
 sudo apt install vsftpd
 sudo cp /etc/vsftpd.conf /etc/vsftpd.conf.orig
 sudo ufw enable
@@ -16,14 +15,14 @@ sudo mkdir /home/ftp_user/ftp
 sudo chown nobody:nogroup /home/ftp_user/ftp
 sudo chmod a-w /home/ftp_user/ftp
 
-# optional -- for testing\verification purposes
-# sudo ls -la /home/ftp_user/ftp
+// optional -- for testing\verification purposes
+// sudo ls -la /home/ftp_user/ftp
 
 sudo mkdir /home/ftp_user/ftp/files
 sudo chown ftp_user:ftp_user /home/ftp_user/ftp/files
 
-# optional -- for testing purposes
-# echo "vsftpd test file" | sudo tee /home/ftp_user/ftp/files/test.txt
+// optional -- for testing purposes
+// echo "vsftpd test file" | sudo tee /home/ftp_user/ftp/files/test.txt
 
 ```
 
@@ -46,13 +45,13 @@ userlist_deny=NO
 * ```echo "ftp_user" | sudo tee -a /etc/vsftpd.userlist
 sudo systemctl restart vsftpd
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/vsftpd.pem -out /etc/ssl/private/vsftpd.pem 
-# enter credentials for certificate
+// enter credentials for certificate
 ```
 
 * in /etc/vsftpd.conf comment lines:
 ``` 
-# rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
-# rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+> # rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+> # rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
 ```
 
 and add new ones:
