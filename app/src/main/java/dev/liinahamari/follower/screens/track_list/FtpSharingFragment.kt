@@ -36,7 +36,7 @@ import javax.inject.Inject
 
 const val ARG_TRACK_ID = "SharingFragment.ARG_TRACK_ID"
 
-class SharingFragment : BaseDialogFragment() {
+class FtpSharingFragment : BaseDialogFragment() {
     private val viewModel by viewModels<FtpSharingViewModel> { viewModelFactory }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = super.onCreateDialog(savedInstanceState).apply { requestWindowFeature(Window.FEATURE_NO_TITLE) }

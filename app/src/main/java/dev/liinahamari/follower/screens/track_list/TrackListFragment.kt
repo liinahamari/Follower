@@ -217,9 +217,9 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
                 }
 
                 it.add(FTP).setOnMenuItemClickListener {
-                    SharingFragment()
+                    FtpSharingFragment()
                         .apply { arguments = bundleOf(ARG_TRACK_ID to trackId) }
-                        .show(childFragmentManager, SharingFragment::class.java.simpleName)
+                        .show(childFragmentManager, FtpSharingFragment::class.java.simpleName)
                     true
                 }
 
