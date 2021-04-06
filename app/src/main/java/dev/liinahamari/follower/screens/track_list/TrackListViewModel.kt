@@ -18,9 +18,6 @@ import javax.inject.Inject
 typealias TrackTitle = String
 
 class TrackListViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val preferencesRepository: PreferencesRepository) : BaseViewModel() {
-    private val _errorEvent = SingleLiveEvent<Int>()
-    val errorEvent: LiveData<Int> get() = _errorEvent
-
     private val _nonEmptyTrackListEvent = SingleLiveEvent<List<TrackUi>>()
     val nonEmptyTrackListEvent: LiveData<List<TrackUi>> get() = _nonEmptyTrackListEvent
 
@@ -32,9 +29,6 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
 
     private val _shareJsonEvent = SingleLiveEvent<Pair<Uri, TrackTitle>>()
     val shareJsonEvent: LiveData<Pair<Uri, TrackTitle>> get() = _shareJsonEvent
-
-    private val _shareJsonFtpEvent = SingleLiveEvent<String>()
-    val shareJsonFtpEvent: LiveData<String> get() = _shareJsonFtpEvent
 
     private val _removeTrackEvent = SingleLiveEvent<Long>()
     val removeTrackEvent: LiveData<Long> get() = _removeTrackEvent
@@ -76,15 +70,6 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
         disposable += trackInteractor.getTrackJsonFile(trackId, fileExtension).subscribe(Consumer {
             when (it) {
                 is SharedTrackResult.Success -> _shareJsonEvent.value = it.trackJsonAndTitle
-                is SharedTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
-            }
-        })
-    }
-
-    fun createSharedJsonFileForTrackFotFtpSharing(trackId: Long) {
-        disposable += trackInteractor.getTrackJsonFile(trackId, EXT_JSON).subscribe(Consumer {
-            when (it) {
-                is SharedTrackResult.Success -> _shareJsonFtpEvent.value = it.trackJsonAndTitle.first.toString()
                 is SharedTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
             }
         })

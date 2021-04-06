@@ -23,8 +23,10 @@ open class BaseDialogFragment: DialogFragment() {
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setupClicks()
+        setupViewModelSubscriptions()
     }
 
+    protected open fun setupViewModelSubscriptions() = Unit
     protected open fun setupClicks() = Unit
 
     override fun onAttach(context: Context) {

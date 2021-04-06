@@ -1,6 +1,5 @@
 package dev.liinahamari.follower.screens.track_list
 
-import android.app.Dialog
 import android.app.Service
 import android.content.*
 import android.os.Bundle
@@ -30,7 +29,7 @@ import dev.liinahamari.follower.screens.sharing.SharingFragment
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import com.jakewharton.rxbinding3.view.clicks
 import dagger.Lazy
-import dev.liinahamari.follower.screens.sharing.ARG_TRACK_FILE_URI
+import dev.liinahamari.follower.screens.sharing.ARG_TRACK_ID
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
@@ -53,15 +52,6 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
     private fun showMenu(id: Long) = showCascadeMenu(id)
-
-    /*todo to app module*/
-    private val loadingDialog by lazy {
-        Dialog(requireActivity(), R.style.DialogNoPaddingNoTitle).apply {
-            setContentView(R.layout.dialog_saving)
-            setCancelable(false)
-            setCanceledOnTouchOutside(false)
-        }
-    }
 
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
@@ -135,9 +125,6 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
 
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner) { errorMessage ->
-            if (loadingDialog.isShowing) {
-                loadingDialog.dismiss()
-            }
             errorToast(getString(errorMessage))
         }
         viewModel.emptyTrackListEvent.observe(viewLifecycleOwner) {
@@ -166,14 +153,6 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
                 }
                 getString(R.string.pref_value_track_display_mode_none) -> showDialogMapOrAddresses(trackAndDisplayMode.second)
             }
-        }
-        viewModel.shareJsonFtpEvent.observe(viewLifecycleOwner) { jsonUri ->
-            if (loadingDialog.isShowing) {
-                loadingDialog.dismiss()
-            }
-            SharingFragment()
-                .apply { arguments = bundleOf(ARG_TRACK_FILE_URI to jsonUri) }
-                .show(childFragmentManager, SharingFragment::class.java.simpleName)
         }
         viewModel.shareJsonEvent.observe(viewLifecycleOwner) { trackJsonAndName ->
             Intent(Intent.ACTION_SEND).apply {
@@ -240,10 +219,9 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
                 }
 
                 it.add(FTP).setOnMenuItemClickListener {
-                    if (loadingDialog.isShowing.not()) {
-                        loadingDialog.show()
-                    }
-                    viewModel.createSharedJsonFileForTrackFotFtpSharing(trackId)
+                    SharingFragment()
+                        .apply { arguments = bundleOf(ARG_TRACK_ID to trackId) }
+                        .show(childFragmentManager, SharingFragment::class.java.simpleName)
                     true
                 }
 
