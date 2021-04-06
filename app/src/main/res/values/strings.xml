@@ -150,4 +150,5 @@
     <string name="error_user_cancelled_upload">User cancelled upload</string>
     <string name="toast_upload_started">Upload started</string>
     <string name="toast_upload_succeed">File has been successfully uploaded!</string>
+    <string name="hind_remote_path">remote path</string>
 </resources>

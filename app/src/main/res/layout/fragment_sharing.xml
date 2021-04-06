@@ -51,11 +51,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:hint="@string/hint_password"
+        android:hint="@string/hind_remote_path"
         android:paddingStart="4dp"
         android:paddingEnd="4dp"
         app:endIconMode="clear_text"
         app:hintAnimationEnabled="true"
+        app:hintEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/remotePathEt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textUri" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="@string/hint_password"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        app:hintAnimationEnabled="true"
+        app:endIconMode="password_toggle"
         app:hintEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -69,6 +88,8 @@
     <Button
         android:id="@+id/sendButton"
         android:enabled="false"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/title_send"

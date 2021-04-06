@@ -110,4 +110,5 @@
     <string name="error_user_cancelled_upload">Загрузка файла отменена пользователем</string>
     <string name="toast_upload_started">Загрузка начата</string>
     <string name="toast_upload_succeed">Файл успешно загружен на сервер!</string>
+    <string name="hind_remote_path">удаленный путь</string>
 </resources>
