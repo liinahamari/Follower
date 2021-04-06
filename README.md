@@ -1,6 +1,7 @@
 ## Features and problems:
 ###     [Drawing routes with OpenStreetMap osmdroid](articles/osmdroidSetup.md)
 ###     [Sharing file dedicated to internal usage](articles/sharingInternalFile.md)
+###     [Establishing FTP server with a DigitalOcean droplet](articles/establishingFtpServer.md)
 
 // todo articles: GC, Java memory model, memory leaks
 
