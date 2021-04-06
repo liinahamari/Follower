@@ -52,7 +52,7 @@ class SharingFragment : BaseDialogFragment() {
         FTPUploadRequest(requireContext(), serverInputEt.text.toString(), 21/*todo 40_001?*/)
             .useSSL(true)
             .setUsernameAndPassword(loginInputEt.text.toString(), passwordInputEt.text.toString())
-            .addFileToUpload(jsonUri, "/home/ftp_user/ftp/files/")
+            .addFileToUpload(jsonUri, remotePathEt.text.toString())
             .subscribe(requireActivity(), viewLifecycleOwner, delegate = object : RequestObserverDelegate {
                 override fun onError(context: Context, uploadInfo: UploadInfo, exception: Throwable) {
                     when (exception) {
@@ -74,6 +74,13 @@ class SharingFragment : BaseDialogFragment() {
     }
 
     override fun setupClicks() {
+        if (BuildConfig.DEBUG) {
+            serverInputEt.setText(BuildConfig.TEST_FTP_SERVER_ADDRESS)
+            loginInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_LOGIN)
+            passwordInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_PASSWORD)
+            remotePathEt.setText(BuildConfig.TEST_FTP_SERVER_REMOTE_PATH)
+        }
+
         subscriptions += sendButton.clicks()
             .throttleFirst()
             .subscribe {
@@ -82,8 +89,8 @@ class SharingFragment : BaseDialogFragment() {
                 infoToast(getString(R.string.toast_upload_started))
             }
         subscriptions += Observable
-            .combineLatest(serverInputEt.textChanges().map { it.toString() }, loginInputEt.textChanges().map { it.toString() }, passwordInputEt.textChanges().map { it.toString() },
-                { t1: String, t2: String, t3: String -> t1.isNotBlank() && t2.isNotBlank() && t3.isNotBlank() })
+            .combineLatest(serverInputEt.textChanges().map { it.toString() }, loginInputEt.textChanges().map { it.toString() }, passwordInputEt.textChanges().map { it.toString() }, remotePathEt.textChanges().map { it.toString() },
+                { t1: String, t2: String, t3: String , t4: String -> t1.isNotBlank() && t2.isNotBlank() && t3.isNotBlank() && t4.isNotBlank() })
             .subscribe {
                 sendButton.isEnabled = it
             }

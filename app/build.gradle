@@ -35,6 +35,11 @@ android {
 
     buildTypes {
         debug {
+            buildConfigField "String", "TEST_FTP_SERVER_ADDRESS" , testFtpAddress
+            buildConfigField "String", "TEST_FTP_SERVER_USER_LOGIN" , testFtpLogin
+            buildConfigField "String", "TEST_FTP_SERVER_USER_PASSWORD" , testFtpPassword
+            buildConfigField "String", "TEST_FTP_SERVER_REMOTE_PATH" , testFtpRemotePath
+
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             testProguardFile 'test-proguard-rules.pro'
@@ -172,4 +177,25 @@ dependencies {
 
 kapt {
     correctErrorTypes true
+}
+
+static def getTestFtpAddress(){
+    Properties props = new Properties()
+    props.load(new FileInputStream(new File('secrets.properties')))
+    return props['TEST_FTP_SERVER_ADDRESS']
+}
+static def getTestFtpLogin(){
+    Properties props = new Properties()
+    props.load(new FileInputStream(new File('secrets.properties')))
+    return props['TEST_FTP_SERVER_USER_LOGIN']
+}
+static def getTestFtpPassword(){
+    Properties props = new Properties()
+    props.load(new FileInputStream(new File('secrets.properties')))
+    return props['TEST_FTP_SERVER_USER_PASSWORD']
+}
+static def getTestFtpRemotePath(){
+    Properties props = new Properties()
+    props.load(new FileInputStream(new File('secrets.properties')))
+    return props['TEST_FTP_SERVER_REMOTE_PATH']
 }
