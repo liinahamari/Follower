@@ -1,4 +1,4 @@
-package dev.liinahamari.follower.screens.sharing
+package dev.liinahamari.follower.screens.track_list
 
 import android.app.Dialog
 import android.content.Context
@@ -22,7 +22,6 @@ import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.helper.SingleLiveEvent
 import dev.liinahamari.follower.interactors.SharedTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
-import dev.liinahamari.follower.screens.track_list.EXT_JSON
 import io.reactivex.Observable
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.plusAssign

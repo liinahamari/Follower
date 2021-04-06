@@ -11,7 +11,7 @@ import dev.liinahamari.follower.screens.tracking_control.TrackingControlViewMode
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
-import dev.liinahamari.follower.screens.sharing.FtpSharingViewModel
+import dev.liinahamari.follower.screens.track_list.FtpSharingViewModel
 
 @Module
 abstract class ViewModelBuilderModule {
