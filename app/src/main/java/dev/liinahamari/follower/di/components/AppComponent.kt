@@ -7,6 +7,7 @@ import dev.liinahamari.follower.screens.logs.LogsFragment
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import dagger.BindsInstance
 import dagger.Component
+import dev.liinahamari.follower.base.BaseDialogFragment
 import dev.liinahamari.follower.di.modules.*
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import javax.inject.Singleton
@@ -35,6 +36,7 @@ interface AppComponent {
 
     fun inject(fragment: BaseFragment)
     fun inject(fragment: LogsFragment)
+    fun inject(fragment: BaseDialogFragment)
     fun inject(app: FollowerApp)
     fun inject(service: LocationTrackingService)
     fun inject(activity: MainActivity)

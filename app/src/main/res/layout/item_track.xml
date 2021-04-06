@@ -35,7 +35,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toEndOf="@id/markerIv"
-                app:layout_constraintEnd_toStartOf="@id/trackTimeTv"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginStart="31dp"
@@ -43,17 +42,6 @@
                 android:textSize="16sp"
                 tools:text="Some task" />
 
-            <TextView
-                android:id="@+id/trackTimeTv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toEndOf="@id/trackDescriptionTv"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginStart="31dp"
-                android:text="@{track.time}"
-                android:textSize="16sp"
-                tools:text="01 May 2020 05:55" />
         </androidx.constraintlayout.widget.ConstraintLayout>
         <View
             android:layout_width="match_parent"

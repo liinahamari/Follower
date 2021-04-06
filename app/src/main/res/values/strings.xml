@@ -146,4 +146,8 @@
     <string name="login">login</string>
     <string name="server_url">server url</string>
     <string name="title_send">Send</string>
+    <string name="error_upload_error">Upload error with response code: %s</string>
+    <string name="error_user_cancelled_upload">User cancelled upload</string>
+    <string name="toast_upload_started">Upload started</string>
+    <string name="toast_upload_succeed">File has been successfully uploaded!</string>
 </resources>

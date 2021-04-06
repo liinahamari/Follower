@@ -42,6 +42,7 @@ private const val PACKAGE_SAMSUNG_DEVICE_CARE = "com.samsung.android.lool"
 private const val CLASS_SAMSUNG_BATTERY_ACTIVITY_S10 = "com.samsung.android.sm.battery.ui.BatteryActivity"
 private const val CLASS_SAMSUNG_BATTERY_ACTIVITY_S7 = "com.samsung.android.sm.ui.battery.BatteryActivity"
 
+/* todo add clear cache option */
 @BiometricScope
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
     @Inject lateinit var authenticator: Lazy<Authenticator>

@@ -106,4 +106,8 @@
     <string name="login">логин</string>
     <string name="server_url">url сервера</string>
     <string name="title_send">Отправить</string>
+    <string name="error_upload_error">Ошибка загрузки файла с кодом ответа: %s</string>
+    <string name="error_user_cancelled_upload">Загрузка файла отменена пользователем</string>
+    <string name="toast_upload_started">Загрузка начата</string>
+    <string name="toast_upload_succeed">Файл успешно загружен на сервер!</string>
 </resources>

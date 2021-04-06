@@ -5,9 +5,9 @@ import androidx.lifecycle.LiveData
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
-import dev.liinahamari.follower.interactors.SharedTrackResult
 import dev.liinahamari.follower.interactors.FetchTracksResult
 import dev.liinahamari.follower.interactors.RemoveTrackResult
+import dev.liinahamari.follower.interactors.SharedTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.model.TrackDisplayModeResult
@@ -32,6 +32,9 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
 
     private val _shareJsonEvent = SingleLiveEvent<Pair<Uri, TrackTitle>>()
     val shareJsonEvent: LiveData<Pair<Uri, TrackTitle>> get() = _shareJsonEvent
+
+    private val _shareJsonFtpEvent = SingleLiveEvent<String>()
+    val shareJsonFtpEvent: LiveData<String> get() = _shareJsonFtpEvent
 
     private val _removeTrackEvent = SingleLiveEvent<Long>()
     val removeTrackEvent: LiveData<Long> get() = _removeTrackEvent
@@ -73,6 +76,15 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
         disposable += trackInteractor.getTrackJsonFile(trackId, fileExtension).subscribe(Consumer {
             when (it) {
                 is SharedTrackResult.Success -> _shareJsonEvent.value = it.trackJsonAndTitle
+                is SharedTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
+            }
+        })
+    }
+
+    fun createSharedJsonFileForTrackFotFtpSharing(trackId: Long) {
+        disposable += trackInteractor.getTrackJsonFile(trackId, EXT_JSON).subscribe(Consumer {
+            when (it) {
+                is SharedTrackResult.Success -> _shareJsonFtpEvent.value = it.trackJsonAndTitle.first.toString()
                 is SharedTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
             }
         })
