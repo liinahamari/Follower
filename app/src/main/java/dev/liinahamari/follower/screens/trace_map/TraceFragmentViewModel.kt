@@ -21,9 +21,6 @@ class TraceFragmentViewModel @Inject constructor(private val roadBuildingInterac
     private val _getTrackAsMarkerSet = SingleLiveEvent<TrackUi.Markers>()
     val getTrackAsMarkerSet: LiveData<TrackUi.Markers> get() = _getTrackAsMarkerSet
 
-    private val _errorEvent = SingleLiveEvent<Int>()
-    val errorEvent: LiveData<Int> get() = _errorEvent
-
     fun getTrack(trackId: Long) {
         disposable += roadBuildingInteractor.getRoad(trackId)
             .subscribe(Consumer {

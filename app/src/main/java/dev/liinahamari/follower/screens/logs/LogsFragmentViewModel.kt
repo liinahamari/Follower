@@ -18,9 +18,6 @@ class LogsFragmentViewModel @Inject constructor(private val loggerInteractor: Lo
     private val _emptyLogListEvent = SingleLiveEvent<Any>()
     val emptyLogListEvent: LiveData<Any> get() = _emptyLogListEvent
 
-    private val _errorEvent = SingleLiveEvent<Int>()
-    val errorEvent: LiveData<Int> get() = _errorEvent
-
     private val _displayLogsEvent = SingleLiveEvent<List<LogUi>>()
     val displayLogsEvent: LiveData<List<LogUi>> get() = _displayLogsEvent
 

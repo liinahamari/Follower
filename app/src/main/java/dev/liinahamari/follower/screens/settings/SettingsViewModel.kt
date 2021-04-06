@@ -13,8 +13,6 @@ class SettingsViewModel @Inject constructor(private val prefInteractor: Settings
                                             private val autoTrackingSchedulingUseCase: AutoTrackingSchedulingUseCase,
                                             private val biometricValidationUseCase: BiometricAvailabilityValidationUseCase
 ) : BaseViewModel() {
-    private val _errorEvent = SingleLiveEvent<Int>()
-    val errorEvent: LiveData<Int> get() = _errorEvent
 
     private val _successfulSchedulingEvent = SingleLiveEvent<Int>()
     val successfulSchedulingEvent: LiveData<Int> get() = _successfulSchedulingEvent

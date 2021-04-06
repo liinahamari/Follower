@@ -16,9 +16,6 @@ class AddressTraceViewModel @Inject constructor(private val trackInteractor: Tra
     private val _loadingEvent = SingleLiveEvent<Boolean>()
     val loadingEvent: LiveData<Boolean> get() = _loadingEvent
 
-    private val _errorEvent = SingleLiveEvent<Int>()
-    val errorEvent: LiveData<Int> get() = _errorEvent
-
     fun getAddressTrace(id: Long) {
         disposable += trackInteractor.getAddressesList(id)
             .subscribe {
