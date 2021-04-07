@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.view.SubMenu
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuCompat
@@ -15,6 +16,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
+import com.jakewharton.rxbinding3.view.clicks
+import dagger.Lazy
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BoundFragment
@@ -26,11 +29,8 @@ import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.screens.logs.TEXT_TYPE
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
-import com.jakewharton.rxbinding3.view.clicks
-import dagger.Lazy
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
-import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import me.saket.cascade.CascadePopupMenu
 import javax.inject.Inject
 
@@ -39,7 +39,7 @@ private const val EXT_TXT = ".txt"
 private const val FTP = "ftp"
 
 @BiometricScope
-class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
+class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPreferences.OnSharedPreferenceChangeListener {
     @Inject lateinit var sharedPreferences: SharedPreferences
     @Inject lateinit var authenticator: Lazy<Authenticator>
 
@@ -47,6 +47,10 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
 
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
     private val tracksAdapter = TrackListAdapter(::showMenu, ::getTrackDisplayMode)
+
+    private val pickFiles = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+        viewModel.importTracks(it, gpsService!!.isTracking.value!!)
+    }
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
     private fun showMenu(id: Long) = showCascadeMenu(id)
@@ -60,6 +64,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
                     onSuccessfulAuth = { viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true) })
             )
             .inject(this)
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     private fun showDialogMapOrAddresses(trackId: Long) {
@@ -108,17 +113,26 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
     override fun onDetach() {
         super.onDetach()
         gpsService = null
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupTrackList()
+    override fun setupClicks() {
+        subscriptions += importFab.clicks()
+            .throttleFirst()
+            .subscribe {
+                pickFiles.launch(arrayOf("*/*")) //todo investigate how to filter by extension
+            }
 
         if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
             subscriptions += ivLock.clicks()
                 .throttleFirst()
                 .subscribe { authenticator.get().authenticate() }
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupTrackList()
     }
 
     override fun setupViewModelSubscriptions() {
@@ -246,5 +260,11 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list) {
             }
         }
         popupMenu.show()
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        if (key == getString(R.string.pref_theme)) {
+            tracksAdapter.notifyDataSetChanged()
+        }
     }
 }

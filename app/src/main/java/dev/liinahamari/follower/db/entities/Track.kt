@@ -4,4 +4,4 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class Track(@PrimaryKey val time: Long, val title: String)
+data class Track(@PrimaryKey val time: Long, val title: String, val isImported: Boolean = false)

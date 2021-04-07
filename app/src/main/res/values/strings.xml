@@ -151,4 +151,5 @@
     <string name="toast_upload_started">Upload started</string>
     <string name="toast_upload_succeed">File has been successfully uploaded!</string>
     <string name="hind_remote_path">remote path</string>
+    <string name="error_parsing_json">Definately, you have chosen wrong file to parse!</string>
 </resources>

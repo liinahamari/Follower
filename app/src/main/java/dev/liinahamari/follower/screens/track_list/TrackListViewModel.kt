@@ -5,10 +5,7 @@ import androidx.lifecycle.LiveData
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
-import dev.liinahamari.follower.interactors.FetchTracksResult
-import dev.liinahamari.follower.interactors.RemoveTrackResult
-import dev.liinahamari.follower.interactors.SharedTrackResult
-import dev.liinahamari.follower.interactors.TrackInteractor
+import dev.liinahamari.follower.interactors.*
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.model.TrackDisplayModeResult
 import io.reactivex.functions.Consumer
@@ -71,6 +68,16 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
             when (it) {
                 is SharedTrackResult.Success -> _shareJsonEvent.value = it.trackJsonAndTitle
                 is SharedTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
+            }
+        })
+    }
+
+    fun importTracks(uri: Uri, isTracking: Boolean) {
+        disposable += trackInteractor.importTracks(uri, isTracking).subscribe(Consumer {
+            when (it) {
+                is ImportTrackResult.Success -> _nonEmptyTrackListEvent.value = it.tracks
+                is ImportTrackResult.ParsingError -> _errorEvent.value = R.string.error_parsing_json
+                is ImportTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
             }
         })
     }

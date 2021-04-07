@@ -5,15 +5,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import dev.liinahamari.follower.ext.throttleFirst
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.longClicks
 import dev.liinahamari.follower.databinding.ItemTrackBinding
+import dev.liinahamari.follower.ext.adaptToNightModeState
+import dev.liinahamari.follower.ext.throttleFirst
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.extensions.LayoutContainer
 
-class TrackListAdapter(private val longClickCallback: (id: Long) -> Unit, private val clickCallback: (id: Long) -> Unit) : RecyclerView.Adapter<TrackListAdapter.ViewHolder>() {
+class TrackListAdapter(
+    private val longClickCallback: (id: Long) -> Unit,
+    private val clickCallback: (id: Long) -> Unit
+) : RecyclerView.Adapter<TrackListAdapter.ViewHolder>(){
     private val clicks = CompositeDisposable()
     var tracks: MutableList<TrackUi> = mutableListOf()
         set(value) {
@@ -22,12 +26,18 @@ class TrackListAdapter(private val longClickCallback: (id: Long) -> Unit, privat
         }
 
     fun removeTask(id: Long) = tracks.remove(tracks.first { it.id == id }).also { notifyDataSetChanged() }
+
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) = clicks.clear()
     override fun getItemCount() = tracks.size
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(ItemTrackBinding.inflate(LayoutInflater.from(parent.context), parent, false).root)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding?.track = tracks[position]
+        if (tracks[position].isImported) {
+            with(holder.binding!!.importedIv) {
+                context.adaptToNightModeState(drawable)
+            }
+        }
         clicks += holder.itemView.longClicks()
             .throttleFirst()
             .map { tracks[position].id }

@@ -16,3 +16,6 @@
   public static void checkReturnedValueIsNotNull(java.lang.Object, java.lang.String, java.lang.String);
   public static void throwUninitializedPropertyAccessException(java.lang.String);
 }
+
+-keepclassmembernames class dev.liinahamari.follower.model.TrackJson
+-keepclassmembernames class dev.liinahamari.follower.model.WayPointJson

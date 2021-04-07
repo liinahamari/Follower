@@ -2,7 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:id="@+id/emptyListTv"
@@ -28,5 +29,17 @@
         android:layout_gravity="center"
         android:src="@drawable/ic_baseline_lock"
         android:contentDescription="LOCK_ICON"
+        tools:ignore="HardcodedText" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/importFab"
+        android:layout_width="wrap_content"
+        android:layout_margin="16dp"
+        app:tint="@color/white"
+        app:backgroundTint="@color/purple_500"
+        app:srcCompat="@drawable/ic_download"
+        android:layout_height="wrap_content"
+        android:contentDescription="trackListFab"
+        android:layout_gravity="bottom|end"
         tools:ignore="HardcodedText" />
 </FrameLayout>
