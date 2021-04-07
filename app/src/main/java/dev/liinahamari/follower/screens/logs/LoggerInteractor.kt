@@ -28,7 +28,7 @@ const val FILE_PROVIDER_META = ".fileprovider"
 const val ZIPPED_LOGS_FILE_NAME = "logs.zip"
 
 /** Be sure what it is matching pattern in use of FlightRecorder class*/
-private val LOG_PATTERN_REGEX = "$SEPARATOR(\\w)$SEPARATOR\\s+(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}:\\d{3})\\s$SEPARATOR(\\w+)$SEPARATOR:\\s+((.|\n|\t)*)".toRegex()
+private val LOG_PATTERN_REGEX = "$SEPARATOR(\\w)$SEPARATOR\\s+(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}:\\d{3})\\s$SEPARATOR([\\d\\w\\s-_]*)$SEPARATOR:\\s+((.|\n|\t)*)".toRegex()
 
 class LoggerInteractor @Inject constructor(
     @Named(APP_CONTEXT) private val context: Context,
