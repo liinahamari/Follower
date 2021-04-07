@@ -41,21 +41,22 @@ class LogsFragmentViewModel @Inject constructor(private val loggerInteractor: Lo
         }
     }
 
-    fun sortLogs(showType: ShowType) {
-        disposable += loggerInteractor.sortLogs(showType).subscribe { sortedLogs ->
+    fun sortLogs(filterModes: List<FilterMode>) {
+        disposable += loggerInteractor.sortLogs(filterModes).subscribe { sortedLogs ->
             when (sortedLogs) {
-                is SortResult.Success -> {
+                is GetRecordResult.Success -> {
                     _displayLogsEvent.value = sortedLogs.logs
                     _loadingEvent.value = false
                 }
-                is SortResult.Error -> {
+                is GetRecordResult.IOError -> {
                     _errorEvent.value = R.string.io_error
                     _loadingEvent.value = false
                 }
-                is SortResult.EmptyList -> {
+                is GetRecordResult.EmptyList -> {
                     _emptyLogListEvent.call()
                     _loadingEvent.value = false
                 }
+                is GetRecordResult.InProgress -> _loadingEvent.value = true
             }
         }
     }

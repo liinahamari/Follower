@@ -18,19 +18,19 @@ abstract class BaseService: Service() {
 
     @CallSuper
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        logger.i { "${this.javaClass.simpleName} onStartCommand()" }
+        logger.lifecycle { "${this.javaClass.simpleName} onStartCommand()" }
         return super.onStartCommand(intent, flags, startId)
     }
 
     @CallSuper
     override fun onCreate() {
         (applicationContext as FollowerApp).appComponent.inject(this)
-        logger.i { "${this.javaClass.simpleName} creating..." }
+        logger.lifecycle { "${this.javaClass.simpleName} creating..." }
     }
 
     @CallSuper
     override fun onDestroy() {
-        logger.i { "${this.javaClass.simpleName} destroyed" }
+        logger.lifecycle { "${this.javaClass.simpleName} destroyed" }
         subscriptions.clear()
     }
 

@@ -153,4 +153,5 @@
     <string name="hind_remote_path">remote path</string>
     <string name="error_parsing_json">Definately, you have chosen wrong file to parse!</string>
     <string name="error_track_already_exists">Track already presented!</string>
+    <string name="title_hide_lifecycle_event">Hide lifecycle events</string>
 </resources>

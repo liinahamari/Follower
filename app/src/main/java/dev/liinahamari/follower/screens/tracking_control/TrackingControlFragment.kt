@@ -111,7 +111,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
             .throttleFirst(750L)
             .subscribe {
                 val permissions = mutableListOf(PERMISSION_LOCATION)
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     permissions.add(PERMISSION_BACKGROUND_LOCATION)
                 }
                 if (hasAllPermissions(permissions)) {
@@ -135,6 +135,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                             }
 
                             input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_track) { _, text ->
+                                /*TODO compare amount of points stored in filed and saved in the database. mismatch tracked*/
                                 startService(
                                     LocationTrackingService::class.java,
                                     action = ACTION_RENAME_TRACK_AND_STOP_TRACKING,

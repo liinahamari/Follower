@@ -21,8 +21,8 @@ import kotlinx.android.synthetic.main.item_error_log.*
 private const val LOG_TYPE_INFO = 1
 private const val LOG_TYPE_ERROR = 2
 
-enum class ShowType {
-    ALL, ERRORS_ONLY, NON_MAIN_THREAD_ONLY, NOT_MAIN_THREAD_ERRORS
+enum class FilterMode {
+    ALL, SHOW_ERRORS, SHOW_NON_MAIN_THREAD, HIDE_LIFECYCLE
 }
 
 class LogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {

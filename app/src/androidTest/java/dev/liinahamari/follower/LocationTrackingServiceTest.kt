@@ -9,13 +9,13 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ServiceTestRule
+import dagger.Module
 import dev.liinahamari.follower.db.TracksDb
-import com.example.follower.di.components.DaggerAppComponent
+import dev.liinahamari.follower.di.components.DaggerAppComponent
 import dev.liinahamari.follower.di.modules.DatabaseModule
 import dev.liinahamari.follower.di.modules.ServiceModule
 import dev.liinahamari.follower.services.location_tracking.ACTION_START_TRACKING
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
-import dagger.Module
 import junit.framework.TestCase.assertNotNull
 import org.junit.Rule
 import org.junit.Test

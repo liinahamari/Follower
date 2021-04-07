@@ -12,6 +12,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.jakewharton.rxbinding3.appcompat.navigationClicks
+import com.jakewharton.rxbinding3.view.clicks
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseFragment
@@ -19,8 +21,6 @@ import dev.liinahamari.follower.di.modules.UID
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
-import com.jakewharton.rxbinding3.appcompat.navigationClicks
-import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_logs.*
@@ -32,6 +32,7 @@ const val MY_EMAIL = "l1bills@protonmail.com"
 private const val MESSAGE_TITLE = "Follower Logs of "
 const val TEXT_TYPE = "text/plain"
 
+/*TODO shall be opened from Settings*/
 class LogsFragment : BaseFragment(R.layout.fragment_logs) {
     @Inject
     @Named(UID)
@@ -114,6 +115,11 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
 
     override fun setupClicks() {
         subscriptions += Observable.combineLatest(
+            logsToolbar.menu.findItem(R.id.hideLifecycleEvents)
+                .clicks()
+                .doOnNext { logsToolbar.menu.findItem(R.id.hideLifecycleEvents).isChecked = logsToolbar.menu.findItem(R.id.hideLifecycleEvents).isChecked.not() }
+                .map { logsToolbar.menu.findItem(R.id.hideLifecycleEvents).isChecked }
+                .startWith(false),
             logsToolbar.menu.findItem(R.id.onlyErrors)
                 .clicks()
                 .doOnNext { logsToolbar.menu.findItem(R.id.onlyErrors).isChecked = logsToolbar.menu.findItem(R.id.onlyErrors).isChecked.not() }
@@ -124,18 +130,21 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
                 .doOnNext { logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked = logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked.not() }
                 .map { logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked }
                 .startWith(false),
-            { onlyErrors: Boolean, nonMainThread: Boolean -> onlyErrors to nonMainThread }
+            { hideLifecycleEvents: Boolean, onlyErrors: Boolean, nonMainThread: Boolean -> mutableListOf<FilterMode>().apply {
+                    if (onlyErrors) {
+                        add(FilterMode.SHOW_ERRORS)
+                    }
+                    if (hideLifecycleEvents) {
+                        add(FilterMode.HIDE_LIFECYCLE)
+                    }
+                    if (nonMainThread) {
+                        add(FilterMode.SHOW_NON_MAIN_THREAD)
+                    }
+            } }
         )
             .skip(1)
             .subscribe {
-                val showType = when {
-                    it.first.not() && it.second.not() -> ShowType.ALL
-                    it.first && it.second -> ShowType.NOT_MAIN_THREAD_ERRORS
-                    it.first && it.second.not() -> ShowType.ERRORS_ONLY
-                    it.first.not() && it.second -> ShowType.NON_MAIN_THREAD_ONLY
-                    else -> throw IllegalStateException()
-                }
-                viewModel.sortLogs(showType)
+                viewModel.sortLogs(it)
             }
 
         subscriptions += logsToolbar.menu.findItem(R.id.sendLogs)

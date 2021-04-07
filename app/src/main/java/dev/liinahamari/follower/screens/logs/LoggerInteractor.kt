@@ -14,7 +14,6 @@ import dev.liinahamari.follower.helper.SEPARATOR
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Single
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
@@ -36,8 +35,6 @@ class LoggerInteractor @Inject constructor(
     private val baseComposers: BaseComposers,
     @param:Named(DEBUG_LOGS_STORAGE_FILE) private val logFile: File
 ) {
-    private lateinit var logsCache: List<LogUi>
-
     fun getEntireRecord(): Observable<GetRecordResult> = Observable.fromCallable { logger.getEntireRecord() }
         .concatMapIterable { it.split("\n\n".toRegex()).filter { line -> line.isNotBlank() } }
         .map {
@@ -54,12 +51,12 @@ class LoggerInteractor @Inject constructor(
                 LogUi.InfoLog(
                     message = it,
                     time = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING).parse(time)!!.time,
-                    thread = thread
+                    thread = thread,
+                    priority = FlightRecorder.Priority.valueOf(priority)
                 )
             }
         }
         .toList()
-        .doOnSuccess { logsCache = it }
         .toObservable()
         .delaySubscription(750, TimeUnit.MILLISECONDS)
         .compose(baseComposers.applyObservableSchedulers())
@@ -67,16 +64,24 @@ class LoggerInteractor @Inject constructor(
         .onErrorReturn { GetRecordResult.IOError }
         .startWith(GetRecordResult.InProgress)
 
-    fun sortLogs(showType: ShowType): Single<SortResult> = Single.fromCallable {
-            when (showType) {
-                ShowType.ALL -> logsCache
-                ShowType.NON_MAIN_THREAD_ONLY -> logsCache.filter { it.thread != "main" }
-                ShowType.ERRORS_ONLY -> logsCache.filterIsInstance<LogUi.ErrorLog>()
-                ShowType.NOT_MAIN_THREAD_ERRORS -> logsCache.filterIsInstance<LogUi.ErrorLog>().filter { it.thread != "main" }
-            }
-        }.map { if(it.isNotEmpty()) SortResult.Success(it) else SortResult.EmptyList }
-        .onErrorReturn { SortResult.Error }
-        .compose(baseComposers.applySingleSchedulers())
+    fun sortLogs(filterModes: List<FilterMode>): Observable<GetRecordResult> = getEntireRecord()
+        .map {
+            if (it is GetRecordResult.Success) {
+                var logs = it.logs
+                if (filterModes.contains(FilterMode.SHOW_NON_MAIN_THREAD)) {
+                    logs = logs.filter { logUi -> logUi.thread != "main" }
+                }
+                if (filterModes.contains(FilterMode.SHOW_ERRORS)) {
+                    logs = logs.filterIsInstance<LogUi.ErrorLog>()
+                }
+                if (filterModes.contains(FilterMode.HIDE_LIFECYCLE)) {
+                    logs = logs.filter { logUi -> (logUi is LogUi.ErrorLog) || (logUi is LogUi.InfoLog && logUi.priority != FlightRecorder.Priority.L) }
+                }
+                return@map if(logs.isNotEmpty()) GetRecordResult.Success(logs) else GetRecordResult.EmptyList
+            }  else return@map it
+        }
+        .compose(baseComposers.applyObservableSchedulers())
+        .startWith(GetRecordResult.InProgress)
 
     fun clearEntireRecord(): Observable<ClearRecordResult> = Observable.fromCallable {
         kotlin.runCatching { logFile.writeText("") }.isSuccess
@@ -127,12 +132,6 @@ sealed class GetRecordResult {
     object InProgress : GetRecordResult()
     data class Success(val logs: List<LogUi>) : GetRecordResult()
     object IOError : GetRecordResult()
-}
-
-sealed class SortResult {
-    data class Success(val logs: List<LogUi>) : SortResult()
-    object EmptyList : SortResult()
-    object Error : SortResult()
 }
 
 sealed class ClearRecordResult {
