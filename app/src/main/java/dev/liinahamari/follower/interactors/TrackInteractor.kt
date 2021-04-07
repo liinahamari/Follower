@@ -28,7 +28,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import org.apache.commons.lang3.SerializationException
-import java.lang.RuntimeException
+import java.lang.Exception
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -136,7 +136,17 @@ class TrackInteractor @Inject constructor(
             it.bufferedReader().readText()
         }
     }
-        .map { gson.fromJson(it, TrackJson::class.java) }
+        .map {
+            try {
+                gson.fromJson(it, TrackJson::class.java).also { track ->
+                    if (track.time == 0L || track.wayPoints.isEmpty() || track.wayPoints.any { wp -> wp.time == 0L || wp.trackId < 1 }) {
+                        throw SerializationException()
+                    }
+                }
+            } catch (e: Exception) {
+                throw SerializationException()
+            }
+        }
         .map {
             TrackWithWayPoints(Track(it.time, it.title, true), it.wayPoints.map { WayPoint(trackId = it.trackId, provider = it.provider, longitude = it.longitude, latitude = it.latitude, time = it.time) })
         }
@@ -150,7 +160,11 @@ class TrackInteractor @Inject constructor(
         }
         .onErrorReturn {
             logger.e("Track import", it)
-            ImportTrackResult.ParsingError
+            when (it) {
+                is SerializationException -> ImportTrackResult.ParsingError
+                else -> ImportTrackResult.CommonError
+            }
+
         }
         .compose(baseComposers.applySingleSchedulers())
 }
@@ -164,6 +178,7 @@ sealed class ImportTrackResult {
     data class Success(val tracks: List<TrackUi>) : ImportTrackResult()
     object DatabaseCorruptionError : ImportTrackResult()
     object ParsingError : ImportTrackResult()
+    object CommonError : ImportTrackResult()
 }
 
 sealed class GetAddressesResult {
