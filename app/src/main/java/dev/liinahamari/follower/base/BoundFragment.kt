@@ -20,7 +20,7 @@ abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes)
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             if (className.className.endsWith(getBindingTarget().simpleName)) {
-                logger.i { "ServiceConnection (${this::class.java.simpleName}): connected" }
+                logger.lifecycle { "ServiceConnection (${this::class.java.simpleName}): connected" }
                 isServiceBound = true
                 onServiceConnected(service)
             }
@@ -29,7 +29,7 @@ abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes)
         /*calling if Service have been crashed or killed in order to free resources*/
         override fun onServiceDisconnected(name: ComponentName) {
             if (name.className.endsWith(LocationTrackingService::class.java.simpleName)) {
-                logger.i { "ServiceConnection: disconnected" }
+                logger.lifecycle { "ServiceConnection: disconnected" }
                 isServiceBound = false
                 onServiceDisconnected()
             }
@@ -40,7 +40,7 @@ abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes)
     override fun onStart() {
         super.onStart()
         requireActivity().bindService(Intent(requireActivity(), getBindingTarget()), serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
-            .also { logger.i { "(${this::class.java.simpleName}) Service bound ($it) from onStart()" } }
+            .also { logger.lifecycle { "(${this::class.java.simpleName}) Service bound ($it) from onStart()" } }
     }
 
     @CallSuper

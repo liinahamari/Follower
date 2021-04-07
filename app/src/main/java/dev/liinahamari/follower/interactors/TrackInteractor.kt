@@ -147,7 +147,7 @@ class TrackInteractor @Inject constructor(
         }.flatMap { trackJson ->
             trackDao.getAllIds()
                 .flatMap { ids ->
-                    if (ids.none { it == trackJson.time }) Single.just(trackJson) else throw EntityAlreadyPresentedError()
+                    if (ids.none { it == trackJson.time }) Single.just(trackJson) else throw EntityAlreadyPresentedError() //TODO. future feature: update dialog
                 }
         }.map {
             TrackWithWayPoints(Track(it.time, it.title, true), it.wayPoints.map { wp -> WayPoint(trackId = wp.trackId, provider = wp.provider, longitude = wp.longitude, latitude = wp.latitude, time = wp.time) })

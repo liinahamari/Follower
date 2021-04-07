@@ -2,7 +2,6 @@ package dev.liinahamari.follower.services.location_tracking
 
 import android.app.Notification
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
@@ -12,12 +11,13 @@ import android.os.IBinder
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
+import dev.liinahamari.follower.base.BaseService
+import dev.liinahamari.follower.base.FOREGROUND_ID_LOCATION_TRACKING
 import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.toWayPoint
 import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
-import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.interactors.SaveTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
 import dev.liinahamari.follower.screens.tracking_control.UploadTrackInteractor
@@ -30,24 +30,21 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-private const val FOREGROUND_SERVICE_ID = 123
 const val ACTION_START_TRACKING = "BackgroundTracker.action_start_tracking"
 const val ACTION_DISCARD_TRACK = "BackgroundTracker.action_discard_track"
 const val ACTION_RENAME_TRACK_AND_STOP_TRACKING = "BackgroundTracker.action_rename_track"
 const val ARG_AUTO_SAVE = "BackgroundTracker.arg_auto_save"
 
-class LocationTrackingService : Service() {
+class LocationTrackingService : BaseService() {
     companion object {
         const val CHANNEL_ID = "GPS_CHANNEL"
     }
 
-    private val disposable = CompositeDisposable()
     private val syncDisposable = CompositeDisposable()
     var traceBeginningTime: Long? = null
     var isTrackEmpty = true
 
     @Inject lateinit var prefInteractor: LocationPreferenceInteractor
-    @Inject lateinit var logger: FlightRecorder
     @Inject lateinit var locationManager: LocationManager
     @Inject lateinit var trackInteractor: TrackInteractor
     @Inject lateinit var uploadTrackInteractor: UploadTrackInteractor
@@ -58,7 +55,7 @@ class LocationTrackingService : Service() {
     val isTracking = BehaviorSubject.createDefault(false)
     val wayPointsCounter = BehaviorSubject.createDefault(0)
 
-    override fun onBind(intent: Intent): IBinder = binder
+    override fun onBind(intent: Intent?): IBinder = binder
 
     private fun createNotification(wayPointsCounter: Int): Notification.Builder = Notification.Builder(applicationContext, CHANNEL_ID)
         .setContentText(getString(R.string.title_tracking))
@@ -68,13 +65,13 @@ class LocationTrackingService : Service() {
     inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
             logger.i { "Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
-            disposable += trackInteractor.saveWayPoint(location.toWayPoint(traceBeginningTime!!)).subscribe {
+            subscriptions += trackInteractor.saveWayPoint(location.toWayPoint(traceBeginningTime!!)).subscribe {
                 val wp = wayPointsCounter.value!!.inc()
                 wayPointsCounter.onNext(wp)
                 if (isTrackEmpty && wp > 1) {
                     isTrackEmpty = false
                 }
-                notificationManager.notify(FOREGROUND_SERVICE_ID, createNotification(wp).build())
+                notificationManager.notify(FOREGROUND_ID_LOCATION_TRACKING, createNotification(wp).build())
             }
         }
 
@@ -84,6 +81,7 @@ class LocationTrackingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         when (intent.action) {
             ACTION_RENAME_TRACK_AND_STOP_TRACKING -> renameTrackAndStopTracking(intent.extras?.getCharSequence(ARG_AUTO_SAVE, null))
             ACTION_START_TRACKING -> startTracking()
@@ -93,22 +91,22 @@ class LocationTrackingService : Service() {
     }
 
     private fun discardTrack() {
-        disposable += trackInteractor.deleteTrack(traceBeginningTime!!)/*todo delete on server*/
+        subscriptions += trackInteractor.deleteTrack(traceBeginningTime!!)/*todo delete on server*/
             .subscribe({ stopTracking() }, { stopTracking() })
     }
 
     override fun onCreate() {
+        super.onCreate()
         (application as FollowerApp).appComponent.inject(this)
-        logger.i { "${javaClass.simpleName} onCreate()" }
     }
 
     /*TODO handle deleting or save unsaved track when system kills service*/
     override fun onDestroy() {
+        super.onDestroy()
+
         /* to prevent leaks dispose all the subscriptions here (in case system kills service to free the resources)*/
-        logger.d { "${javaClass.simpleName} onDestroy()" }
         stopForeground(true)
         isTracking.onNext(false)
-        disposable.clear()
         syncDisposable.clear()
         kotlin.runCatching { locationManager.removeUpdates(locationListener) }
     }
@@ -130,7 +128,7 @@ class LocationTrackingService : Service() {
 
     private fun renameTrackAndStopTracking(title: CharSequence?) {
         if (title != null) {
-            disposable += trackInteractor.renameTrack(Track(traceBeginningTime!!, title.toString()))
+            subscriptions += trackInteractor.renameTrack(Track(traceBeginningTime!!, title.toString()))
                 .subscribe { saveResult ->
                     when (saveResult) {
                         is SaveTrackResult.Success -> successToast(R.string.toast_track_saved) /*todo check availability of toasts from service in latest versions*/
@@ -143,7 +141,7 @@ class LocationTrackingService : Service() {
     }
 
     private fun startTracking() {
-        startForeground(FOREGROUND_SERVICE_ID, createNotification(0).build())
+        startForeground(FOREGROUND_ID_LOCATION_TRACKING, createNotification(0).build())
 
         val timeUpdateInterval = (prefInteractor.getTimeIntervalBetweenUpdates()
             .blockingGet() as GetTimeIntervalResult.Success).timeInterval
@@ -157,7 +155,7 @@ class LocationTrackingService : Service() {
             isTrackEmpty = true
             traceBeginningTime = System.currentTimeMillis()
 
-            disposable += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toReadableDate())).subscribe({}, {
+            subscriptions += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toReadableDate())).subscribe({}, {
                 logger.e("failed to initially save track!", error = it)
             })
 

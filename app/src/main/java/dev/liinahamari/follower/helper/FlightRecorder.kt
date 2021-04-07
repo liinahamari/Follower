@@ -23,7 +23,12 @@ class FlightRecorder(private val logStorage: File, private val baseComposers: Ba
     private fun String.toLogMessage(priority: Priority) = "${getPriorityPattern(priority)}  ${now()} $SEPARATOR${Thread.currentThread().name}$SEPARATOR: $this\n\n"
 
     enum class Priority {
-        I, D, W, E, WTF
+        I,
+        D,
+        W,
+        E,
+        WTF,
+        L /*lifecycle*/
     }
 
     @VisibleForTesting
@@ -42,6 +47,7 @@ class FlightRecorder(private val logStorage: File, private val baseComposers: Ba
         }
     }
 
+    fun lifecycle(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.L, toPrintInLogcat)
     fun i(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.I, toPrintInLogcat)
     fun d(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.D, toPrintInLogcat)
     fun w(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.W, toPrintInLogcat)

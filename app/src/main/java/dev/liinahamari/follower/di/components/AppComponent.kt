@@ -8,6 +8,7 @@ import dev.liinahamari.follower.services.location_tracking.LocationTrackingServi
 import dagger.BindsInstance
 import dagger.Component
 import dev.liinahamari.follower.base.BaseDialogFragment
+import dev.liinahamari.follower.base.BaseService
 import dev.liinahamari.follower.di.modules.*
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import javax.inject.Singleton
@@ -34,6 +35,7 @@ interface AppComponent {
     fun roadBuildingComponent(): RoadBuildingComponent
     fun trackingControlComponent(module: TrackingControlModule): TrackingControlComponent
 
+    fun inject(service: BaseService)
     fun inject(fragment: BaseFragment)
     fun inject(fragment: LogsFragment)
     fun inject(fragment: BaseDialogFragment)
