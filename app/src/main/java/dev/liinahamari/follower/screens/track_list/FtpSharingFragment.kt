@@ -44,7 +44,7 @@ class FtpSharingFragment : BaseDialogFragment() {
 
     override fun setupViewModelSubscriptions() {
         viewModel.shareJsonFtpEvent.observe(viewLifecycleOwner) { jsonUri -> uploadFile(jsonUri) }
-        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
+        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
     }
 
     private fun uploadFile(jsonUri: String) {
@@ -55,7 +55,7 @@ class FtpSharingFragment : BaseDialogFragment() {
             .subscribe(requireActivity(), viewLifecycleOwner, delegate = object : RequestObserverDelegate {
                 override fun onError(context: Context, uploadInfo: UploadInfo, exception: Throwable) {
                     when (exception) {
-                        is UserCancelledUploadException -> errorToast(getString(R.string.error_user_cancelled_upload))
+                        is UserCancelledUploadException -> errorToast(R.string.error_user_cancelled_upload)
                         is UploadError -> errorToast(String.format(getString(R.string.error_upload_error), exception.serverResponse))
                         else -> errorToast(uploadInfo.toString())
                     }
@@ -63,7 +63,7 @@ class FtpSharingFragment : BaseDialogFragment() {
                 }
 
                 override fun onSuccess(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse) {
-                    successToast(getString(R.string.toast_upload_succeed))
+                    successToast(R.string.toast_upload_succeed)
                     dismiss()
                 }
                 override fun onCompleted(context: Context, uploadInfo: UploadInfo) = Unit
@@ -85,7 +85,7 @@ class FtpSharingFragment : BaseDialogFragment() {
             .subscribe {
                 val trackId = arguments?.getLong(ARG_TRACK_ID, -1L)!!
                 viewModel.createSharedJsonFileForTrackFotFtpSharing(trackId)
-                infoToast(getString(R.string.toast_upload_started))
+                infoToast(R.string.toast_upload_started)
             }
         subscriptions += Observable
             .combineLatest(serverInputEt.textChanges().map { it.toString() }, loginInputEt.textChanges().map { it.toString() }, passwordInputEt.textChanges().map { it.toString() }, remotePathEt.textChanges().map { it.toString() },

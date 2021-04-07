@@ -9,10 +9,6 @@ import android.location.LocationManager
 import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
-import android.os.Looper
-import android.util.Log
-import androidx.annotation.MainThread
-import androidx.core.content.ContextCompat
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
@@ -137,8 +133,8 @@ class LocationTrackingService : Service() {
             disposable += trackInteractor.renameTrack(Track(traceBeginningTime!!, title.toString()))
                 .subscribe { saveResult ->
                     when (saveResult) {
-                        is SaveTrackResult.Success -> successToast(getString(R.string.toast_track_saved)) /*todo check availability of toasts from service in latest versions*/
-                        is SaveTrackResult.DatabaseCorruptionError -> errorToast(getString(R.string.error_couldnt_save_track))
+                        is SaveTrackResult.Success -> successToast(R.string.toast_track_saved) /*todo check availability of toasts from service in latest versions*/
+                        is SaveTrackResult.DatabaseCorruptionError -> errorToast(R.string.error_couldnt_save_track)
                     }
                 }
         }

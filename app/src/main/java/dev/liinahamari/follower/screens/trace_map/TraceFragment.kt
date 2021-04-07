@@ -30,7 +30,7 @@ class TraceFragment : MapFragment() {
     }
 
     override fun setupViewModelSubscriptions() {
-        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
+        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
 
         viewModel.getTrackAsLineEvent.observe(viewLifecycleOwner, {
             map.overlays.add(it.road)

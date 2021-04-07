@@ -64,7 +64,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         if (it.values.all { accepted -> accepted }) {
             viewModel.scheduleAutoTracking()
         } else {
-            errorToast(getString(R.string.error_location_permission_denied))
+            errorToast(R.string.error_location_permission_denied)
             findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_auto_tracking))?.isChecked = false
             prefs.writeBooleanOf(getString(R.string.pref_enable_auto_tracking), false)
         }
@@ -74,7 +74,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         if (it.resultCode == RESULT_OK) {
             findPreference<SwitchPreferenceCompat>(getString(R.string.pref_battery_optimization))!!.isChecked = true
             prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), true)
-            successToast(getString(R.string.optimization_successful))
+            successToast(R.string.optimization_successful)
         } else {
             findPreference<SwitchPreferenceCompat>(getString(R.string.pref_battery_optimization))!!.isChecked = false
             prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), false)
@@ -116,9 +116,9 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 isEnabled = false
             }
         })
-        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
-        viewModel.successfulSchedulingEvent.observe(viewLifecycleOwner, { infoToast(getString(it)) })
-        viewModel.autoTrackingCancellingEvent.observe(viewLifecycleOwner, { infoToast(getString(it)) })
+        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
+        viewModel.successfulSchedulingEvent.observe(viewLifecycleOwner, { infoToast(it) })
+        viewModel.autoTrackingCancellingEvent.observe(viewLifecycleOwner, { infoToast(it) })
         viewModel.resetToDefaultsEvent.observe(viewLifecycleOwner, { requireActivity().recreate() })
     }
 
@@ -201,7 +201,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            errorToast(getString(R.string.error_opening_settings))
+            errorToast(R.string.error_opening_settings)
         }
     }
 

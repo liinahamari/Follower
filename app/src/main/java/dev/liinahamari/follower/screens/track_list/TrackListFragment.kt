@@ -137,7 +137,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
 
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner) { errorMessage ->
-            errorToast(getString(errorMessage))
+            errorToast(errorMessage)
         }
         viewModel.emptyTrackListEvent.observe(viewLifecycleOwner) {
             emptyListTv.isVisible = true

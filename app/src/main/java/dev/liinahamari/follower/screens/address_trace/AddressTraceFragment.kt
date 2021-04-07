@@ -36,7 +36,7 @@ class AddressTraceFragment : BaseFragment(R.layout.fragment_address_trace) {
 
     override fun setupViewModelSubscriptions() {
         viewModel.loadingEvent.observe(viewLifecycleOwner, { progressBar.isVisible = it })
-        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(getString(it)) })
+        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
         viewModel.getAddressesEvent.observe(viewLifecycleOwner, { adapter.addresses = it })
     }
 

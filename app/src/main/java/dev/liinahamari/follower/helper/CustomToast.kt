@@ -14,6 +14,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
@@ -24,13 +25,17 @@ private const val DEFAULT_TOAST_DURATION = LENGTH_LONG
 private const val DEFAULT_TEXT_COLOR = R.color.white
 
 object CustomToast {
-    fun Context.errorToast(message: String) = custom(this, message, R.drawable.ic_toast_error, resources.getColor(R.color.errorColor)).show()
-    fun Context.infoToast(message: String) = custom(this, message, R.drawable.ic_toast_info, resources.getColor(R.color.teal_200)).show()
-    fun Context.successToast(message: String) = custom(this, message, R.drawable.ic_toast_success, resources.getColor(R.color.successColor)).show()
+    fun Context.errorToast(@StringRes message: Int) = custom(this, getString(message), R.drawable.ic_toast_error, resources.getColor(R.color.errorColor)).show()
+    fun Context.infoToast(@StringRes message: Int) = custom(this, getString(message), R.drawable.ic_toast_info, resources.getColor(R.color.teal_200)).show()
+    fun Context.successToast(@StringRes message: Int) = custom(this, getString(message), R.drawable.ic_toast_success, resources.getColor(R.color.successColor)).show()
 
     fun Fragment.errorToast(message: String) = custom(requireActivity(), message, R.drawable.ic_toast_error, resources.getColor(R.color.errorColor)).show()
     fun Fragment.infoToast(message: String) = custom(requireActivity(), message, R.drawable.ic_toast_info, resources.getColor(R.color.teal_200)).show()
     fun Fragment.successToast(message: String) = custom(requireActivity(), message, R.drawable.ic_toast_success, resources.getColor(R.color.successColor)).show()
+
+    fun Fragment.errorToast(@StringRes message: Int) = custom(requireActivity(), getString(message), R.drawable.ic_toast_error, resources.getColor(R.color.errorColor)).show()
+    fun Fragment.infoToast(@StringRes message: Int) = custom(requireActivity(), getString(message), R.drawable.ic_toast_info, resources.getColor(R.color.teal_200)).show()
+    fun Fragment.successToast(@StringRes message: Int) = custom(requireActivity(), getString(message), R.drawable.ic_toast_success, resources.getColor(R.color.successColor)).show()
 
     @SuppressLint("ShowToast", "InflateParams")
     fun custom(context: Context, message: String, @DrawableRes icon: Int, @ColorInt tintColor: Int): Toast = Toast.makeText(context, "", DEFAULT_TOAST_DURATION).apply {

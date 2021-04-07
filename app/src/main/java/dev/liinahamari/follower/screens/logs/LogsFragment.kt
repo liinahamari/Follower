@@ -65,7 +65,7 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
     override fun setupViewModelSubscriptions() {
         super.setupViewModelSubscriptions()
 
-        viewModel.errorEvent.observe(this, { errorToast(getString(it)) })
+        viewModel.errorEvent.observe(this, { errorToast(it) })
 
         viewModel.emptyLogListEvent.observe(this, {
             emptyLogsTv.isVisible = true
@@ -104,9 +104,9 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
         @Suppress("DEPRECATION") super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == FILE_SENDING_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                successToast(getString(R.string.sending_logs_successful))
+                successToast(R.string.sending_logs_successful)
             } else {
-                errorToast(getString(R.string.error_sending_logs_unsuccessful))
+                errorToast(R.string.error_sending_logs_unsuccessful)
             }
             viewModel.deleteZippedLogs()
         }
