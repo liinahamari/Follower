@@ -10,6 +10,9 @@ import io.reactivex.Single
 
 @Dao
 interface TrackDao {
+    @Query("SELECT time FROM track")
+    fun getAllIds(): Single<List<Long>>
+
     @Query("SELECT * FROM track")
     fun getAll(): Single<List<Track>>
 

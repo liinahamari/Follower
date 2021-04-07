@@ -5,7 +5,6 @@ package dev.liinahamari.follower.interactors
 import android.content.Context
 import android.location.Geocoder
 import android.net.Uri
-import android.util.Log
 import com.google.gson.Gson
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.db.entities.Track
@@ -27,8 +26,6 @@ import dev.liinahamari.follower.screens.track_list.TrackUi
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
-import org.apache.commons.lang3.SerializationException
-import java.lang.Exception
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -138,35 +135,39 @@ class TrackInteractor @Inject constructor(
     }
         .map {
             try {
-                gson.fromJson(it, TrackJson::class.java).also { track ->
-                    if (track.time == 0L || track.wayPoints.isEmpty() || track.wayPoints.any { wp -> wp.time == 0L || wp.trackId < 1 }) {
-                        throw SerializationException()
+                gson.fromJson(it, TrackJson::class.java)
+                    .also { track ->
+                        if (track.time == 0L || track.wayPoints.isEmpty() || track.wayPoints.any { wp -> wp.time == 0L || wp.trackId < 1 }) {
+                            throw JsonParsingException()
+                        }
                     }
-                }
             } catch (e: Exception) {
-                throw SerializationException()
+                throw JsonParsingException()
             }
-        }
-        .map {
-            TrackWithWayPoints(Track(it.time, it.title, true), it.wayPoints.map { WayPoint(trackId = it.trackId, provider = it.provider, longitude = it.longitude, latitude = it.latitude, time = it.time) })
-        }
-        .flatMap { track -> saveTrack(track.track).flatMapCompletable { saveWayPoints(track.wayPoints) }.andThen(fetchTracks(isTracking)) }
-        .map {
+        }.flatMap { trackJson ->
+            trackDao.getAllIds()
+                .flatMap { ids ->
+                    if (ids.none { it == trackJson.time }) Single.just(trackJson) else throw EntityAlreadyPresentedError()
+                }
+        }.map {
+            TrackWithWayPoints(Track(it.time, it.title, true), it.wayPoints.map { wp -> WayPoint(trackId = wp.trackId, provider = wp.provider, longitude = wp.longitude, latitude = wp.latitude, time = wp.time) })
+        }.flatMap { track ->
+            saveTrack(track.track).flatMapCompletable { saveWayPoints(track.wayPoints) }.andThen(fetchTracks(isTracking))
+        }.map {
             when (it) {
                 is FetchTracksResult.Success -> ImportTrackResult.Success(it.tracks)
                 is FetchTracksResult.DatabaseCorruptionError -> ImportTrackResult.DatabaseCorruptionError
                 is FetchTracksResult.SuccessEmpty -> throw RuntimeException()
             }
-        }
-        .onErrorReturn {
+        }.onErrorReturn {
             logger.e("Track import", it)
             when (it) {
-                is SerializationException -> ImportTrackResult.ParsingError
+                is JsonParsingException -> ImportTrackResult.ParsingError
+                is EntityAlreadyPresentedError -> ImportTrackResult.EntityAlreadyPresentedError
                 else -> ImportTrackResult.CommonError
             }
 
-        }
-        .compose(baseComposers.applySingleSchedulers())
+        }.compose(baseComposers.applySingleSchedulers())
 }
 
 sealed class SaveTrackResult {
@@ -178,6 +179,7 @@ sealed class ImportTrackResult {
     data class Success(val tracks: List<TrackUi>) : ImportTrackResult()
     object DatabaseCorruptionError : ImportTrackResult()
     object ParsingError : ImportTrackResult()
+    object EntityAlreadyPresentedError : ImportTrackResult()
     object CommonError : ImportTrackResult()
 }
 
@@ -207,3 +209,6 @@ sealed class SharedTrackResult {
     data class Success(val trackJsonAndTitle: Pair<Uri, TrackTitle>) : SharedTrackResult()
     object DatabaseCorruptionError : SharedTrackResult()
 }
+
+class EntityAlreadyPresentedError : Exception()
+class JsonParsingException : Exception()

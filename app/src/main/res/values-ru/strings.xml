@@ -112,4 +112,5 @@
     <string name="toast_upload_succeed">Файл успешно загружен на сервер!</string>
     <string name="hind_remote_path">удаленный путь</string>
     <string name="error_parsing_json">Скорее всего, Вы выбрали неверный файл для парсинга!</string>
+    <string name="error_track_already_exists">Маршрут уже представлен!</string>
 </resources>

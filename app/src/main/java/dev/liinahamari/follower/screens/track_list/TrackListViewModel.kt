@@ -79,6 +79,7 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
                 is ImportTrackResult.ParsingError -> _errorEvent.value = R.string.error_parsing_json
                 is ImportTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
                 is ImportTrackResult.CommonError -> _errorEvent.value = R.string.error_unexpected
+                is ImportTrackResult.EntityAlreadyPresentedError -> _errorEvent.value = R.string.error_track_already_exists
             }
         })
     }
