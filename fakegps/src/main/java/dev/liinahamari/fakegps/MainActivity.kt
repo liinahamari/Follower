@@ -8,7 +8,10 @@ import android.content.pm.PackageManager
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.jakewharton.rxbinding3.view.clicks
@@ -17,13 +20,21 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 import java.util.concurrent.TimeUnit
 
+private const val FAKE_GEOLOCATION_INTERVAL = 3L
 private const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
-private const val CODE_PERMISSION_LOCATION = 101
+@RequiresApi(Build.VERSION_CODES.Q) const val PERMISSION_BACKGROUND_LOCATION = Manifest.permission.ACCESS_BACKGROUND_LOCATION
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
+    private val geoPermission = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (it.values.all { accepted -> accepted }) {
+            startMockingLocation()
+        } else {
+            throw java.lang.RuntimeException()
+        }
+    }
+
     private var lat = 55.75578
     private var lon = 37.61786
 
@@ -61,24 +72,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         locationManager.addTestProvider(LocationManager.GPS_PROVIDER, false, false, false, false, true, true, true, Criteria.POWER_LOW, Criteria.ACCURACY_FINE)
         locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true)
 
-        if (hasPermission(PERMISSION_LOCATION)) {
+        val permissions = mutableListOf(PERMISSION_LOCATION)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            permissions.add(PERMISSION_BACKGROUND_LOCATION)
+        }
+        if (hasAllPermissions(permissions)) {
             startMockingLocation()
         } else {
-            requestPermissions(arrayOf(PERMISSION_LOCATION), CODE_PERMISSION_LOCATION)
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CODE_PERMISSION_LOCATION) {
-            handleUsersReactionToPermission(
-                permissionToHandle = PERMISSION_LOCATION,
-                allPermissions = permissions,
-                doIfAllowed = { startMockingLocation() },
-                doIfDenied = { throw RuntimeException() },
-                doIfNeverAskAgain = { throw RuntimeException() }
-            )
+            geoPermission.launch(permissions.toTypedArray())
         }
     }
 
@@ -92,7 +93,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     @SuppressLint("MissingPermission")
     private fun startMockingLocation() {
-        mockDisposable += Observable.interval(3, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
+        mockDisposable += Observable.interval(FAKE_GEOLOCATION_INTERVAL, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
             .map {
                 Location(LocationManager.GPS_PROVIDER)
                     .apply {
@@ -113,20 +114,5 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 }
 
-fun Activity.handleUsersReactionToPermission(permissionToHandle: String, allPermissions: Array<out String>, doIfDenied: () -> Unit, doIfAllowed: () -> Unit, doIfNeverAskAgain: () -> Unit) {
-    if (allPermissions.contains(permissionToHandle)) {
-        if (shouldShowRequestPermissionRationale(permissionToHandle)) {
-            doIfDenied()
-        } else {
-            if (hasPermission(permissionToHandle)) {
-                doIfAllowed()
-            } else {
-                doIfNeverAskAgain()
-            }
-        }
-    }
-}
-
-fun Activity.hasPermission(permission: String) = ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
-
 fun Observable<Unit>.throttleFirst(skipDurationMillis: Long = 500L): Observable<Unit> = compose { it.throttleFirst(skipDurationMillis, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()) }
+fun Activity.hasAllPermissions(permissions: List<String>): Boolean = permissions.all { ActivityCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
