@@ -41,8 +41,7 @@ class TrackInteractor @Inject constructor(
     fun deleteTrack(trackId: Long): Single<DeleteTrackResult> = trackDao.delete(trackId)
         .toSingleDefault<DeleteTrackResult>(DeleteTrackResult.Success)
         .onErrorReturn { DeleteTrackResult.DatabaseCorruptionError }
-        .doOnError { logger.e("track|wayPoints deleting", error = it) }
-        .compose(baseComposers.applySingleSchedulers())
+        .compose(baseComposers.applySingleSchedulers("track|wayPoints deleting"))
 
     fun saveWayPoint(wp: WayPoint): Completable = wayPointDao.insert(wp)
         .compose(baseComposers.applyCompletableSchedulers())
@@ -160,14 +159,13 @@ class TrackInteractor @Inject constructor(
                 is FetchTracksResult.SuccessEmpty -> throw RuntimeException()
             }
         }.onErrorReturn {
-            logger.e("Track import", it)
             when (it) {
                 is JsonParsingException -> ImportTrackResult.ParsingError
                 is EntityAlreadyPresentedError -> ImportTrackResult.EntityAlreadyPresentedError
                 else -> ImportTrackResult.CommonError
             }
 
-        }.compose(baseComposers.applySingleSchedulers())
+        }.compose(baseComposers.applySingleSchedulers("Track import"))
 }
 
 sealed class SaveTrackResult {

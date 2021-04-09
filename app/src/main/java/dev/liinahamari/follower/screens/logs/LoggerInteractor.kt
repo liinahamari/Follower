@@ -117,8 +117,7 @@ class LoggerInteractor @Inject constructor(
         .startWith(CreateZipLogsFileResult.InProgress)
 
     fun deleteZippedLogs(): Completable = Completable.fromCallable { File(ZIPPED_LOGS_FILE_NAME, DEBUG_LOGS_DIR).delete() }
-        .compose(baseComposers.applyCompletableSchedulers())
-        .doOnError { logger.e("deteling $ZIPPED_LOGS_FILE_NAME", it) }
+        .compose(baseComposers.applyCompletableSchedulers("Deleting $ZIPPED_LOGS_FILE_NAME"))
 }
 
 sealed class CreateZipLogsFileResult {

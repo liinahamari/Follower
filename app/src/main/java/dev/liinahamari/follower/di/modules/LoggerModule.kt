@@ -17,7 +17,7 @@ const val DEBUG_LOGS_STORAGE_FILE = "tape.log"
 class LoggerModule {
     @Provides
     @Singleton
-    fun provideLogger(@Named(DEBUG_LOGS_STORAGE_FILE) file: File, baseComposers: BaseComposers): FlightRecorder = FlightRecorder(file, baseComposers)
+    fun provideLogger(@Named(DEBUG_LOGS_STORAGE_FILE) file: File): FlightRecorder = FlightRecorder(file)
 
     @Provides
     @Singleton

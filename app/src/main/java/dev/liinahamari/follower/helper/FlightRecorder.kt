@@ -4,17 +4,21 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.ext.now
-import dev.liinahamari.follower.helper.rx.BaseComposers
 import io.reactivex.Completable
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.TimeUnit
 
 const val SEPARATOR = "/"
 
-class FlightRecorder(private val logStorage: File, private val baseComposers: BaseComposers) {
+class FlightRecorder(private val logStorage: File) {
     private val isDebug = BuildConfig.DEBUG
-    var TAPE_VOLUME = 10 * 1024 * 1024  /** 10 MB **/
+
+    /** 10 MB **/
+    var TAPE_VOLUME = 10 * 1024 * 1024
 
     companion object {
         fun getPriorityPattern(priority: Priority) = "$SEPARATOR${priority.name}$SEPARATOR"
@@ -32,13 +36,20 @@ class FlightRecorder(private val logStorage: File, private val baseComposers: Ba
     }
 
     @VisibleForTesting
-    fun printLogAndWriteToFile(logMessage: String, priority: Priority, toPrintInLogcat: Boolean) {
+    fun printLogAndWriteToFile(
+        logMessage: String,
+        priority: Priority,
+        toPrintInLogcat: Boolean,
+        subscribeOn: Scheduler = Schedulers.io() /*for testing purposes/injecting issue*/,
+        observeOn: Scheduler = AndroidSchedulers.mainThread() /*for testing purposes/injecting issue*/
+    ) {
         with(logMessage.toLogMessage(priority)) {
             clearBeginningOfLogFileIfNeeded(this)
 
             Completable.fromCallable { logStorage.appendText(this) }
                 .timeout(5, TimeUnit.SECONDS)
-                .compose(baseComposers.applyCompletableSchedulers())
+                .subscribeOn(subscribeOn)
+                .observeOn(observeOn)
                 .subscribe()
 
             if (toPrintInLogcat && isDebug) {
@@ -54,7 +65,7 @@ class FlightRecorder(private val logStorage: File, private val baseComposers: Ba
     fun wtf(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.WTF, toPrintInLogcat)
 
     fun e(label: String, error: Throwable, toPrintInLogcat: Boolean = true) {
-        val errorMessage = error.stackTrace.joinToString(separator = "\n\t", prefix = "label: $label\n${error.message}\n", postfix = "\n$SEPARATOR${Thread.currentThread().name}$SEPARATOR")
+        val errorMessage = error.stackTrace.joinToString(separator = "\n\t", prefix = "label: $label\n${error.message}\n")
         printLogAndWriteToFile(errorMessage, Priority.E, toPrintInLogcat)
         if (toPrintInLogcat) {
             error.printStackTrace()
