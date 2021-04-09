@@ -5,7 +5,9 @@ import android.os.Looper.getMainLooper
 import dev.liinahamari.follower.ext.toLogMessage
 import dev.liinahamari.follower.ext.yellow
 import io.reactivex.schedulers.Schedulers
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -16,12 +18,30 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class FlightRecorderTest {
     private val logFile = createTempFile()
-    private val flightRecorder = FlightRecorder(logFile, subscribeOn = Schedulers.trampoline(), observeOn = Schedulers.trampoline())
+    private val logger = FlightRecorder(logFile, subscribeOn = Schedulers.trampoline(), observeOn = Schedulers.trampoline())
+
+    @Before
+    fun setup() {
+        shadowOf(getMainLooper()).idle()
+    }
+
+    @After
+    fun tearDown() {
+        logFile.writeText("")
+        assertEquals(0, logFile.length())
+    }
+
+    @Test
+    fun `is writing to file`() {
+        assertEquals(0, logFile.length())
+        val text = "some_text"
+        logger.i { text }
+        assert(logFile.length() > 0)
+        assertEquals(text.toLogMessage(FlightRecorder.Priority.I).toByteArray().size.toLong(), logFile.length())
+    }
 
     @Test
     fun overwriting() {
-        shadowOf(getMainLooper()).idle()
-
         val stringToLog = """
             log_string_01
             log_string_02
@@ -47,16 +67,16 @@ class FlightRecorderTest {
 
         println("Initial string consist of $initialLoadSize bytes".yellow())
         println()
-        flightRecorder.TAPE_VOLUME = initialLoadSize
+        logger.tapeVolume = initialLoadSize
 
-        flightRecorder.i { stringToLog }
+        logger.i { stringToLog }
         assertEquals(initialLoadSize.toLong(), logFile.length())
         println("Initial text in file:".yellow())
         println(logFile.readText())
         println()
 
         val newLine = "______________________________________________SOME_LARGE_AMOUNT_OF_TEXT____________________________________________"
-        flightRecorder.i { newLine }
+        logger.i { newLine }
         assertEquals(initialLoadSize.toLong(), logFile.length())
         println("Text in file after overwriting:".yellow())
         println(logFile.readText())

@@ -3,7 +3,6 @@ package dev.liinahamari.follower.helper
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import dev.liinahamari.follower.BuildConfig
-import dev.liinahamari.follower.ext.now
 import dev.liinahamari.follower.ext.toLogMessage
 import io.reactivex.Completable
 import io.reactivex.Scheduler
@@ -16,12 +15,12 @@ import java.util.concurrent.TimeUnit
 const val SEPARATOR = "/"
 
 class FlightRecorder(private val logStorage: File,
-                     private val subscribeOn: Scheduler = Schedulers.io() /*for testing purposes/injecting issue*/,
-                     private val observeOn: Scheduler = AndroidSchedulers.mainThread() /*for testing purposes/injecting issue*/) {
+                     private val subscribeOn: Scheduler = Schedulers.io() /*for testing purposes/injecting issue \ can't be injecting in case of cyclic initialization problem of BaseComposers*/,
+                     private val observeOn: Scheduler = AndroidSchedulers.mainThread() /*for testing purposes/injecting issue \ can't be injecting in case of cyclic initialization problem of BaseComposers*/) {
     private val isDebug = BuildConfig.DEBUG
 
     /** 10 MB **/
-    var TAPE_VOLUME = 10 * 1024 * 1024
+    var tapeVolume = 10 * 1024 * 1024
 
     companion object {
         fun getPriorityPattern(priority: Priority) = "$SEPARATOR${priority.name}$SEPARATOR"
@@ -79,7 +78,7 @@ class FlightRecorder(private val logStorage: File,
 
     private fun clearBeginningOfLogFileIfNeeded(what: String) {
         val newDataSize = what.toByteArray().size
-        if ((logStorage.length() + newDataSize.toLong()) > TAPE_VOLUME) {
+        if ((logStorage.length() + newDataSize.toLong()) > tapeVolume) {
             val dataToRemain = logStorage.readBytes().drop(newDataSize).toByteArray()
             logStorage.writeBytes(dataToRemain)
         }
