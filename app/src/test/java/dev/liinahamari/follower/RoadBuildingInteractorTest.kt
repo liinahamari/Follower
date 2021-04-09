@@ -8,6 +8,7 @@ import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.WayPoint
 import dev.liinahamari.follower.ext.getDefaultSharedPreferences
 import dev.liinahamari.follower.ext.writeStringOf
+import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.helper.rx.TestSchedulers
 import dev.liinahamari.follower.model.PreferencesRepository
@@ -28,10 +29,11 @@ private const val MOCKED_TRACK_ID = 1L
 @Config(sdk = [Build.VERSION_CODES.O_MR1])
 @RunWith(RobolectricTestRunner::class)
 class RoadBuildingInteractorTest {
+    private val logger = FlightRecorder(createTempFile())
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val sharedPrefs = context.getDefaultSharedPreferences()
     private val prefTrackRepresentationId = context.getString(R.string.pref_track_representation)
-    private val baseComposers = BaseComposers(TestSchedulers())
+    private val baseComposers = BaseComposers(TestSchedulers(), logger)
     private lateinit var db: TracksDb
     private lateinit var trackDao: TrackDao
     private lateinit var wayPointDao: WayPointDao

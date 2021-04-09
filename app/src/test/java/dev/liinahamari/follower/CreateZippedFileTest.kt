@@ -38,10 +38,11 @@ Ex omnium iuvaret patrioque vis. Ea pri aliquam nonumes comprehensam, cu nam mut
 @Config(sdk = [Build.VERSION_CODES.O_MR1])
 @RunWith(RobolectricTestRunner::class)
 class CreateZippedFileTest {
-    private val context: Context = InstrumentationRegistry.getInstrumentation().context
-    private val composers = BaseComposers(TestSchedulers())
     private val logsFile = createTempFile()
-    private val logsInteractor = LoggerInteractor(context, FlightRecorder(logsFile, composers), composers, logsFile)
+    private val logger = FlightRecorder(logsFile)
+    private val context: Context = InstrumentationRegistry.getInstrumentation().context
+    private val composers = BaseComposers(TestSchedulers(), logger)
+    private val logsInteractor = LoggerInteractor(context, logger, composers, logsFile)
 
     @Before
     fun `fill File with some noise`() = logsFile.writeText(LOREM)

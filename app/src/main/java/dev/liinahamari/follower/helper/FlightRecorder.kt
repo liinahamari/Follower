@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.ext.now
+import dev.liinahamari.follower.ext.toLogMessage
 import io.reactivex.Completable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -14,7 +15,9 @@ import java.util.concurrent.TimeUnit
 
 const val SEPARATOR = "/"
 
-class FlightRecorder(private val logStorage: File) {
+class FlightRecorder(private val logStorage: File,
+                     private val subscribeOn: Scheduler = Schedulers.io() /*for testing purposes/injecting issue*/,
+                     private val observeOn: Scheduler = AndroidSchedulers.mainThread() /*for testing purposes/injecting issue*/) {
     private val isDebug = BuildConfig.DEBUG
 
     /** 10 MB **/
@@ -23,8 +26,6 @@ class FlightRecorder(private val logStorage: File) {
     companion object {
         fun getPriorityPattern(priority: Priority) = "$SEPARATOR${priority.name}$SEPARATOR"
     }
-
-    private fun String.toLogMessage(priority: Priority) = "${getPriorityPattern(priority)}  ${now()} $SEPARATOR${Thread.currentThread().name}$SEPARATOR: $this\n\n"
 
     enum class Priority {
         I,
@@ -39,10 +40,7 @@ class FlightRecorder(private val logStorage: File) {
     fun printLogAndWriteToFile(
         logMessage: String,
         priority: Priority,
-        toPrintInLogcat: Boolean,
-        subscribeOn: Scheduler = Schedulers.io() /*for testing purposes/injecting issue*/,
-        observeOn: Scheduler = AndroidSchedulers.mainThread() /*for testing purposes/injecting issue*/
-    ) {
+        toPrintInLogcat: Boolean) {
         with(logMessage.toLogMessage(priority)) {
             clearBeginningOfLogFileIfNeeded(this)
 
