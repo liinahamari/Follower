@@ -40,7 +40,7 @@ android {
             buildConfigField "String", "TEST_FTP_SERVER_USER_PASSWORD" , testFtpPassword
             buildConfigField "String", "TEST_FTP_SERVER_REMOTE_PATH" , testFtpRemotePath
 
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             testProguardFile 'test-proguard-rules.pro'
         }
@@ -160,9 +160,10 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.4'
 
     /* RETROFIT & NETWORK */
-    implementation "com.squareup.retrofit2:retrofit:2.9.0"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:2.9.0"
-    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    def retrofit = '2.9.0'
+    implementation "com.squareup.retrofit2:retrofit:$retrofit"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit"
     implementation 'com.squareup.okhttp3:logging-interceptor:4.8.1'
     implementation "com.facebook.stetho:stetho-okhttp3:1.5.1"
 

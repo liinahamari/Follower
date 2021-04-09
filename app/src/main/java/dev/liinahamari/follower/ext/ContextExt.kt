@@ -21,24 +21,7 @@ import dev.liinahamari.follower.screens.logs.FILE_PROVIDER_META
 import java.io.File
 import java.util.*
 
-fun Configuration.getLocalesLanguage(): String = locales[0].language
-
-/** On first launch getSavedAppLocale() returns null, and then app seek corresponding to device provided locale to apply the corresponding translations.
- * If device has unsupported locale (such as German), application applies English locale */
-fun Context.provideUpdatedContextWithNewLocale(
-    persistedLanguage: String? = kotlin.runCatching { getSavedAppLocale() }.getOrNull(),
-    defaultLocale: String? = null
-): Context {
-    val locales = resources.getStringArray(R.array.supported_locales)
-    val newLocale = Locale(locales.firstOrNull { it == persistedLanguage } ?: locales.firstOrNull { it == defaultLocale } ?: Locale.UK.language)
-    saveAppLocale(newLocale.language)
-    Locale.setDefault(newLocale)
-    return createConfigurationContext(Configuration().apply { setLocale(newLocale) })
-}
-
 fun Context.getDefaultSharedPreferences(): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-private fun Context.getSavedAppLocale(): String = getDefaultSharedPreferences().getStringOf(getString(R.string.pref_lang))!!
-private fun Context.saveAppLocale(newLocale: String) = getDefaultSharedPreferences().writeStringOf(getString(R.string.pref_lang), newLocale)
 
 @Suppress(
     "DEPRECATION"
@@ -54,20 +37,6 @@ fun Fragment.startService(serviceClass: Class<out Service>, bundle: Bundle? = nu
 })
 
 fun Fragment.stopService(serviceClass: Class<out Service>) = requireActivity().application.stopService(Intent(requireActivity().applicationContext, serviceClass))
-
-private fun Context.createDirIfNotExist(dirName: String) = File(filesDir, dirName).apply {
-    if (exists().not()) {
-        mkdir()
-    }
-}
-
-fun Context.createFileIfNotExist(fileName: String, dirName: String) = File(createDirIfNotExist(dirName), fileName).apply {
-    if (exists().not()) {
-        createNewFile()
-    }
-}
-
-fun Context.getUriForInternalFile(file: File): Uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + FILE_PROVIDER_META, file)
 
 fun Context.isIgnoringBatteryOptimizations() = (getSystemService(Context.POWER_SERVICE) as PowerManager?)?.isIgnoringBatteryOptimizations(packageName) == true
 fun Fragment.isIgnoringBatteryOptimizations() = (requireActivity().getSystemService(Context.POWER_SERVICE) as PowerManager?)?.isIgnoringBatteryOptimizations(requireActivity().packageName) == true
