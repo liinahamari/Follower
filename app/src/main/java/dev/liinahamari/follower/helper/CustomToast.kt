@@ -29,6 +29,10 @@ object CustomToast {
     fun Context.infoToast(@StringRes message: Int) = custom(this, getString(message), R.drawable.ic_toast_info, resources.getColor(R.color.teal_200)).show()
     fun Context.successToast(@StringRes message: Int) = custom(this, getString(message), R.drawable.ic_toast_success, resources.getColor(R.color.successColor)).show()
 
+    fun Context.errorToast(message: String) = custom(this, message, R.drawable.ic_toast_error, resources.getColor(R.color.errorColor)).show()
+    fun Context.infoToast(message: String) = custom(this, message, R.drawable.ic_toast_info, resources.getColor(R.color.teal_200)).show()
+    fun Context.successToast(message: String) = custom(this, message, R.drawable.ic_toast_success, resources.getColor(R.color.successColor)).show()
+
     fun Fragment.errorToast(message: String) = custom(requireActivity(), message, R.drawable.ic_toast_error, resources.getColor(R.color.errorColor)).show()
     fun Fragment.infoToast(message: String) = custom(requireActivity(), message, R.drawable.ic_toast_info, resources.getColor(R.color.teal_200)).show()
     fun Fragment.successToast(message: String) = custom(requireActivity(), message, R.drawable.ic_toast_success, resources.getColor(R.color.successColor)).show()
