@@ -20,6 +20,7 @@
     <string name="pref_lang" translatable="false">pref_lang</string>
     <string name="pref_battery_optimization_settings" translatable="false">pref_battery_optimization_settings</string>
     <string name="pref_min_distance" translatable="false">pref_min_distance</string>
+    <string name="pref_root_is_ok" translatable="false">pref_root_is_ok</string>
     <string name="pref_min_location_update_interval" translatable="false">pref_min_location_update_interval</string>
     <string name="pref_track_representation" translatable="false">pref_track_representation</string>
     <string name="pref_marker_set" translatable="false">pref_set</string>
@@ -154,4 +155,7 @@
     <string name="error_parsing_json">Definately, you have chosen wrong file to parse!</string>
     <string name="error_track_already_exists">Track already presented!</string>
     <string name="title_hide_lifecycle_event">Hide lifecycle events</string>
+    <string name="title_root_detected">It seems what your phone is rooted!</string>
+    <string name="summary_root_detected">If so, there\'s ABSOLUTELY NO WARRANTY your data will remain secure and integral.</string>
+    <string name="title_i_accept_risks">I accept risks</string>
 </resources>

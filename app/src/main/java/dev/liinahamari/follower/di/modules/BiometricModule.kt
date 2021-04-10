@@ -7,6 +7,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import com.scottyab.rootbeer.RootBeer
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.di.scopes.BiometricScope
 import dev.liinahamari.follower.helper.FlightRecorder
@@ -20,6 +21,7 @@ import javax.crypto.SecretKey
 import javax.inject.Named
 
 private const val KEY_NAME = "biometric.keyName"
+const val IS_ROOTED_BOOL = "isDeviceRooted"
 
 /*TODO investigate DaggerLazy*/
 /*TODO support PINs*/
@@ -88,6 +90,11 @@ class BiometricModule(private val activity: FragmentActivity, private val onSucc
         override fun onAuthenticationSuccessful() = onSuccessfulAuth.invoke().also { logger.i { "biometric auth succeed" } }
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) = onFailedAuth.invoke().also { logger.i { "biometric auth error. errorCode: $errorCode, errString: $errString" } }
     }
+
+    @BiometricScope
+    @Provides
+    @Named(IS_ROOTED_BOOL)
+    fun provideRootChecker(rootBeer: RootBeer): Boolean = rootBeer.isRooted
 }
 
 @BiometricScope

@@ -24,6 +24,7 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
                 sharedPreferences.writeBooleanOf(context.getString(R.string.pref_battery_optimization), context.isIgnoringBatteryOptimizations())
 
                 sharedPreferences.writeBooleanOf(context.getString(R.string.pref_acra_disable), true)
+                sharedPreferences.writeBooleanOf(context.getString(R.string.pref_root_is_ok), false)
                 sharedPreferences.writeStringOf(context.getString(R.string.pref_uid), UUID.randomUUID().toString())
 
                 PreferenceManager.setDefaultValues(context, R.xml.preferences, false)

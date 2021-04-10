@@ -12,6 +12,7 @@ import dev.liinahamari.follower.helper.rx.BaseSchedulerProvider
 import dev.liinahamari.follower.helper.rx.SchedulersProvider
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.scottyab.rootbeer.RootBeer
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
@@ -26,6 +27,10 @@ const val UID = "userID"
 
 @Module
 class AppModule {
+    @Provides
+    @Singleton
+    fun provideRootBeer(@Named(APP_CONTEXT) context: Context): RootBeer = RootBeer(context)
+
     @Provides
     @Singleton
     @Named(APP_CONTEXT)

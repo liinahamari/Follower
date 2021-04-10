@@ -50,13 +50,18 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     @Inject lateinit var prefs: SharedPreferences
     @Inject lateinit var logger: FlightRecorder
 
-    @Inject
-    @Named(DIALOG_LOADING)
-    lateinit var loadingDialog: Dialog
+    @JvmField
+    @Named(IS_ROOTED_BOOL)
+    @Inject var isRooted: Boolean = false
 
-    @Inject
+    @Named(DIALOG_LOADING)
+    @Inject lateinit var loadingDialog: Dialog
+
     @Named(DIALOG_RESET_TO_DEFAULTS)
-    lateinit var resetDialog: Dialog
+    @Inject lateinit var resetDialog: Dialog
+
+    @Named(DIALOG_ROOT_DETECTED)
+    @Inject lateinit var rootDetectionDialog: Lazy<Dialog>
 
     private var themeId = -1
 
@@ -137,7 +142,19 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     }
                 )
             )
-            .settingsComponent(SettingsModule(activity = requireActivity(), resetToDefaults = ::resetToDefaults))
+            .settingsComponent(SettingsModule(
+                activity = requireActivity(),
+                resetToDefaults = ::resetToDefaults,
+                onAcceptDeviceRooted = {
+                    prefs.writeBooleanOf(getString(R.string.pref_root_is_ok), true)
+                    prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), true)
+                    findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true
+                },
+                onDeclineDeviceRooted = {
+                    prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), false)
+                    findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false
+                })
+            )
             .inject(this)
 
         super.onAttach(context)
@@ -233,6 +250,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 }
                 requireActivity().recreate()
             }
+            /*FIXME inconsistency with permissions*/
             getString(R.string.pref_enable_auto_tracking) -> {
                 if (sharedPreferences.getBooleanOf(key)) {
                     val permissions = mutableListOf(PERMISSION_LOCATION)
@@ -249,8 +267,12 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 }
             }
             getString(R.string.pref_enable_biometric_protection) -> {
-                if (sharedPreferences.getBooleanOf(key).not()) {
-                    authenticator.get().authenticate()
+                if (isRooted.not() || (isRooted && sharedPreferences.getBooleanOf(getString(R.string.pref_root_is_ok)))) {
+                    if (sharedPreferences.getBooleanOf(key).not()) {
+                        authenticator.get().authenticate()
+                    }
+                } else {
+                    rootDetectionDialog.get().show()
                 }
             }
             getString(R.string.pref_acra_enable) -> sharedPreferences.writeBooleanOf(getString(R.string.pref_acra_disable), sharedPreferences.getBooleanOf(key).not())

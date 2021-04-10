@@ -114,4 +114,7 @@
     <string name="error_parsing_json">Скорее всего, Вы выбрали неверный файл для парсинга!</string>
     <string name="error_track_already_exists">Маршрут уже представлен!</string>
     <string name="title_hide_lifecycle_event">Скрывать события жизненного цикла</string>
+    <string name="title_root_detected">Похоже, Ваш телефон рутован.</string>
+    <string name="summary_root_detected">Если так, то нет АБСОЛЮТНО НИКАКИХ гарантий, что Ваши данные будут в безопасности.</string>
+    <string name="title_i_accept_risks">Я принимаю риски</string>
 </resources>

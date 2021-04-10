@@ -110,6 +110,7 @@ dependencies {
     implementation "me.saket.cascade:cascade:1.3.0"
     implementation 'com.github.anrwatchdog:anrwatchdog:1.4.0'
     implementation "net.gotev:uploadservice-ftp:4.5.2"
+    implementation 'com.scottyab:rootbeer-lib:0.0.8'
 
     /* DATABASE-RELATED */
     def room_version = "2.2.6"
