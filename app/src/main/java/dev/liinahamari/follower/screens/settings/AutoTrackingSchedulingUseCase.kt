@@ -59,7 +59,7 @@ class AutoTrackingSchedulingUseCase constructor(
             .doOnSuccess {
                 if (isTimeBetweenTwoTimes(it.first, it.second, nowHoursAndMinutesOnly())) {
                     if (context.isServiceRunning(LocationTrackingService::class.java).not()) {
-                        context.applicationContext.startService(Intent(context.applicationContext, LocationTrackingService::class.java).apply {
+                        context.applicationContext.startForegroundService(Intent(context.applicationContext, LocationTrackingService::class.java).apply {
                             action = ACTION_START_TRACKING
                         })
                     } else {

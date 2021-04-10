@@ -43,7 +43,7 @@ class TrackingControlModule(private val activity: FragmentActivity) {
         .setTitle(context.getString(R.string.app_name))
         .setMessage(R.string.message_you_have_no_waypoints)
         .setPositiveButton(context.getString(R.string.title_stop_tracking)) { _, _ ->
-            context.startService(Intent(context, LocationTrackingService::class.java)
+            context.startForegroundService(Intent(context, LocationTrackingService::class.java)
                 .apply { action = ACTION_DISCARD_TRACK })
         }
         .setNegativeButton(context.getString(R.string.title_continue), null)

@@ -24,7 +24,7 @@ import dev.liinahamari.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
 import dev.liinahamari.follower.di.modules.DIALOG_RATE_MY_APP
 import dev.liinahamari.follower.di.modules.TrackingControlModule
 import dev.liinahamari.follower.ext.hasAllPermissions
-import dev.liinahamari.follower.ext.startService
+import dev.liinahamari.follower.ext.startForegroundService
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.services.location_tracking.*
@@ -57,7 +57,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
 
     private val geoPermission = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         if (it.values.all { accepted -> accepted }) {
-            startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
+            startForegroundService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
         } else {
             locationPermissionExplanationDialog.show()
         }
@@ -115,7 +115,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                     permissions.add(PERMISSION_BACKGROUND_LOCATION)
                 }
                 if (hasAllPermissions(permissions)) {
-                    startService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
+                    startForegroundService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
                 } else {
                     geoPermission.launch(permissions.toTypedArray())
                 }
@@ -131,12 +131,12 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                         MaterialDialog(requireContext()).show {
                             cancelable(false)
                             negativeButton(res = R.string.discard) {
-                                startService(LocationTrackingService::class.java, action = ACTION_DISCARD_TRACK)
+                                startForegroundService(LocationTrackingService::class.java, action = ACTION_DISCARD_TRACK)
                             }
 
                             input(prefill = gpsService!!.trackBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_track) { _, text ->
 
-                                startService(
+                                startForegroundService(
                                     LocationTrackingService::class.java,
                                     action = ACTION_RENAME_TRACK_AND_STOP_TRACKING,
                                     bundle = Bundle().apply {

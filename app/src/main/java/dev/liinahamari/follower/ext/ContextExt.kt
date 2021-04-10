@@ -31,7 +31,7 @@ fun Context.isServiceRunning(serviceClass: Class<*>) = (getSystemService(Context
 
 fun FragmentActivity.openAppSettings() = startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${BuildConfig.APPLICATION_ID}")))
 
-fun Fragment.startService(serviceClass: Class<out Service>, bundle: Bundle? = null, action: String? = null) = requireActivity().applicationContext.startService(Intent(requireActivity().applicationContext, serviceClass).apply {
+fun Fragment.startForegroundService(serviceClass: Class<out Service>, bundle: Bundle? = null, action: String? = null) = requireActivity().applicationContext.startForegroundService(Intent(requireActivity().applicationContext, serviceClass).apply {
     bundle?.let { putExtras(it) }
     action?.let { this.action = action }
 })

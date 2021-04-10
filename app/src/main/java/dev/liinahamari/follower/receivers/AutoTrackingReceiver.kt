@@ -29,6 +29,6 @@ class AutoTrackingReceiver : BroadcastReceiver() {
             ActionMode.ACTION_MODE_STOP.name -> context.applicationContext.stopService(Intent(context.applicationContext, LocationTrackingService::class.java))
             else -> throw IllegalStateException()
         }
-        context.applicationContext.startService(Intent(context.applicationContext, AutoTrackingSchedulingService::class.java))
+        context.applicationContext.startForegroundService(Intent(context.applicationContext, AutoTrackingSchedulingService::class.java))
     }
 }

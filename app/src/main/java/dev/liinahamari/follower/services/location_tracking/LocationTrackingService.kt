@@ -58,8 +58,9 @@ class LocationTrackingService : BaseService() {
     override fun onBind(intent: Intent?): IBinder = binder
 
     private fun createNotification(wayPointsCounter: Int): Notification.Builder = Notification.Builder(applicationContext, CHANNEL_ID)
-        .setContentText(getString(R.string.title_tracking))
-        .setSubText(String.format(getString(R.string.title_way_points_collected), wayPointsCounter))
+        .setContentTitle(getString(R.string.title_tracking))
+        .setContentText(String.format(getString(R.string.title_way_points_collected), wayPointsCounter))
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
         .setAutoCancel(false)
 
     inner class LocationListener : android.location.LocationListener {
@@ -82,6 +83,7 @@ class LocationTrackingService : BaseService() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        startForeground(FOREGROUND_ID_LOCATION_TRACKING, createNotification(wayPointsCounter.value!!).build())
         when (intent.action) {
             ACTION_RENAME_TRACK_AND_STOP_TRACKING -> renameTrackAndStopTracking(intent.extras?.getCharSequence(ARG_AUTO_SAVE, null))
             ACTION_START_TRACKING -> startTracking()
@@ -112,17 +114,18 @@ class LocationTrackingService : BaseService() {
     }
 
     private fun stopTracking() {
+        stopForeground(true)
         if (::locationManager.isInitialized) {
             try {
                 locationManager.removeUpdates(locationListener)
             } catch (ex: Exception) {
                 logger.e(label = "Failed to remove location listeners", error = ex)
             } finally {
-                    isTracking.onNext(false) /* ? */
-                    syncDisposable.clear()
-                    wayPointsCounter.onNext(0)
+                isTracking.onNext(false) /* ? */
+                syncDisposable.clear()
+                wayPointsCounter.onNext(0)
             }
-        }
+        }   
         stopSelf()
     }
 
@@ -152,9 +155,6 @@ class LocationTrackingService : BaseService() {
     }
 
     private fun startTracking() {
-        /*TODO investigate why doesn't work*/
-        startForeground(FOREGROUND_ID_LOCATION_TRACKING, createNotification(0).build())
-
         val timeUpdateInterval = (prefInteractor.getTimeIntervalBetweenUpdates()
             .blockingGet() as GetTimeIntervalResult.Success).timeInterval
 

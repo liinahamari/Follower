@@ -73,8 +73,8 @@ class FollowerApp : Application() {
     )
 
     private fun setupNotificationChannels() {
-        notificationManager.createNotificationChannel(NotificationChannel(AutoTrackingSchedulingService.CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_DEFAULT))
-        notificationManager.createNotificationChannel(NotificationChannel(LocationTrackingService.CHANNEL_ID, "Auto tracking scheduling", NotificationManager.IMPORTANCE_DEFAULT))
+        notificationManager.createNotificationChannel(NotificationChannel(AutoTrackingSchedulingService.CHANNEL_ID, "Auto tracking scheduling", NotificationManager.IMPORTANCE_DEFAULT))
+        notificationManager.createNotificationChannel(NotificationChannel(LocationTrackingService.CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_LOW))
         notificationManager.createNotificationChannel(NotificationChannel(FTP_FILE_UPLOAD_SERVICE_ID, "FTP file uploading", NotificationManager.IMPORTANCE_LOW))
     }
 
