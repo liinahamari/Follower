@@ -49,6 +49,11 @@ class TrackInteractor @Inject constructor(
     private fun saveWayPoints(wp: List<WayPoint>): Completable = wayPointDao.insertAll(wp)
         .compose(baseComposers.applyCompletableSchedulers())
 
+    /** To validate equity of waypoints put in database and in the field of LocationTrackingService (issue with database) */
+    fun getWayPointsById(trackId: Long): Single<Int> = wayPointDao.validateWpAmount(trackId)
+        .map { it.size }
+        .compose(baseComposers.applySingleSchedulers())
+
     fun renameTrack(track: Track): Single<SaveTrackResult> = trackDao.update(track)
         .toSingleDefault<SaveTrackResult>(SaveTrackResult.Success)
         .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }

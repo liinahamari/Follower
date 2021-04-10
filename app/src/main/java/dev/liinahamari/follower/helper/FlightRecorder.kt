@@ -62,7 +62,7 @@ class FlightRecorder(private val logStorage: File,
     fun wtf(toPrintInLogcat: Boolean = true, what: () -> String) = printLogAndWriteToFile(what.invoke(), Priority.WTF, toPrintInLogcat)
 
     fun e(label: String, error: Throwable, toPrintInLogcat: Boolean = true) {
-        val errorMessage = error.stackTrace.joinToString(separator = "\n\t", prefix = "label: $label\n${error.message}\n")
+        val errorMessage = error.stackTrace.joinToString(separator = "\n\t", prefix = "label: $label\n${error.message}\n\t")
         printLogAndWriteToFile(errorMessage, Priority.E, toPrintInLogcat)
         if (toPrintInLogcat) {
             error.printStackTrace()

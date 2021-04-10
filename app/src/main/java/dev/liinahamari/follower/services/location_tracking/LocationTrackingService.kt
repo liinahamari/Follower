@@ -41,7 +41,7 @@ class LocationTrackingService : BaseService() {
     }
 
     private val syncDisposable = CompositeDisposable()
-    var traceBeginningTime: Long? = null
+    var trackBeginningTime: Long? = null
     var isTrackEmpty = true
 
     @Inject lateinit var prefInteractor: LocationPreferenceInteractor
@@ -65,7 +65,7 @@ class LocationTrackingService : BaseService() {
     inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
             logger.i { "Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
-            subscriptions += trackInteractor.saveWayPoint(location.toWayPoint(traceBeginningTime!!)).subscribe {
+            subscriptions += trackInteractor.saveWayPoint(location.toWayPoint(trackBeginningTime!!)).subscribe {
                 val wp = wayPointsCounter.value!!.inc()
                 wayPointsCounter.onNext(wp)
                 if (isTrackEmpty && wp > 1) {
@@ -91,7 +91,7 @@ class LocationTrackingService : BaseService() {
     }
 
     private fun discardTrack() {
-        subscriptions += trackInteractor.deleteTrack(traceBeginningTime!!)/*todo delete on server*/
+        subscriptions += trackInteractor.deleteTrack(trackBeginningTime!!)/*todo delete on server*/
             .subscribe({ stopTracking() }, { stopTracking() })
     }
 
@@ -118,9 +118,9 @@ class LocationTrackingService : BaseService() {
             } catch (ex: Exception) {
                 logger.e(label = "Failed to remove location listeners", error = ex)
             } finally {
-                isTracking.onNext(false) /* ? */
-                syncDisposable.clear()
-                wayPointsCounter.onNext(0)
+                    isTracking.onNext(false) /* ? */
+                    syncDisposable.clear()
+                    wayPointsCounter.onNext(0)
             }
         }
         stopSelf()
@@ -128,7 +128,7 @@ class LocationTrackingService : BaseService() {
 
     private fun renameTrackAndStopTracking(title: CharSequence?) {
         if (title != null) {
-            subscriptions += trackInteractor.renameTrack(Track(traceBeginningTime!!, title.toString()))
+            subscriptions += trackInteractor.renameTrack(Track(trackBeginningTime!!, title.toString()))
                 .subscribe { saveResult ->
                     when (saveResult) {
                         is SaveTrackResult.Success -> successToast(R.string.toast_track_saved) /*todo check availability of toasts from service in latest versions*/
@@ -136,11 +136,23 @@ class LocationTrackingService : BaseService() {
                     }
                 }
         }
-        uploadTrackInteractor.uploadTrack(traceBeginningTime!!) /*process needed to be reflected in UI*/
-        stopTracking()
+        uploadTrackInteractor.uploadTrack(trackBeginningTime!!) /*process needed to be reflected in UI -?- */
+
+        /** for integrity testing purposes */
+        subscriptions += trackInteractor.getWayPointsById(trackBeginningTime!!)
+            .subscribe { wpAmountInDb ->
+                if (wayPointsCounter.value != wpAmountInDb) {
+                    with("!WayPoints mismatch! actual (${wayPointsCounter.value}), database ($wpAmountInDb)") {
+                        logger.e(this, RuntimeException())
+                        errorToast(this)
+                    }
+                }
+                stopTracking()
+            }
     }
 
     private fun startTracking() {
+        /*TODO investigate why doesn't work*/
         startForeground(FOREGROUND_ID_LOCATION_TRACKING, createNotification(0).build())
 
         val timeUpdateInterval = (prefInteractor.getTimeIntervalBetweenUpdates()
@@ -153,9 +165,9 @@ class LocationTrackingService : BaseService() {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeUpdateInterval, distanceBetweenUpdates, locationListener)
             isTracking.onNext(true)
             isTrackEmpty = true
-            traceBeginningTime = System.currentTimeMillis()
+            trackBeginningTime = System.currentTimeMillis()
 
-            subscriptions += trackInteractor.saveTrack(Track(traceBeginningTime!!, traceBeginningTime!!.toReadableDate())).subscribe({}, {
+            subscriptions += trackInteractor.saveTrack(Track(trackBeginningTime!!, trackBeginningTime!!.toReadableDate())).subscribe({}, {
                 logger.e("failed to initially save track!", error = it)
             })
 
@@ -164,7 +176,7 @@ class LocationTrackingService : BaseService() {
                         Observable.interval(15, TimeUnit.SECONDS) else Observable.interval(10, TimeUnit.MINUTES)
                     )
                 .observeOn(Schedulers.newThread())
-                .doOnNext { uploadTrackInteractor.uploadTrack(traceBeginningTime!!) }
+                .doOnNext { uploadTrackInteractor.uploadTrack(trackBeginningTime!!) }
                 .subscribe()
 
         } catch (ex: SecurityException) {

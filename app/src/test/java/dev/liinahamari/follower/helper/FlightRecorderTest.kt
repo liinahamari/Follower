@@ -81,6 +81,4 @@ class FlightRecorderTest {
         println("Text in file after overwriting:".yellow())
         println(logFile.readText())
     }
-
-
 }

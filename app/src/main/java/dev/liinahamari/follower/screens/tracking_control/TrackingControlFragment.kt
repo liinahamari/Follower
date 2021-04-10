@@ -15,6 +15,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
+import com.jakewharton.rxbinding3.view.clicks
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BoundFragment
@@ -22,8 +23,10 @@ import dev.liinahamari.follower.di.modules.DIALOG_EMPTY_WAYPOINTS
 import dev.liinahamari.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
 import dev.liinahamari.follower.di.modules.DIALOG_RATE_MY_APP
 import dev.liinahamari.follower.di.modules.TrackingControlModule
-import com.jakewharton.rxbinding3.view.clicks
-import dev.liinahamari.follower.ext.*
+import dev.liinahamari.follower.ext.hasAllPermissions
+import dev.liinahamari.follower.ext.startService
+import dev.liinahamari.follower.ext.throttleFirst
+import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.services.location_tracking.*
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
@@ -41,17 +44,14 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
     private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
     private val boundServiceDisposables = CompositeDisposable()
 
-    @Inject
     @Named(DIALOG_PERMISSION_EXPLANATION)
-    lateinit var locationPermissionExplanationDialog: AlertDialog
+    @Inject lateinit var locationPermissionExplanationDialog: AlertDialog
 
-    @Inject
     @Named(DIALOG_EMPTY_WAYPOINTS)
-    lateinit var emptyWayPointsDialog: AlertDialog
+    @Inject lateinit var emptyWayPointsDialog: AlertDialog
 
-    @Inject
     @Named(DIALOG_RATE_MY_APP)
-    lateinit var rateMyAppDialog: DialogFragment
+    @Inject lateinit var rateMyAppDialog: DialogFragment
 
     private var gpsService: LocationTrackingService? = null
 
@@ -134,8 +134,8 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                                 startService(LocationTrackingService::class.java, action = ACTION_DISCARD_TRACK)
                             }
 
-                            input(prefill = gpsService!!.traceBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_track) { _, text ->
-                                /*TODO compare amount of points stored in filed and saved in the database. mismatch tracked*/
+                            input(prefill = gpsService!!.trackBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_track) { _, text ->
+
                                 startService(
                                     LocationTrackingService::class.java,
                                     action = ACTION_RENAME_TRACK_AND_STOP_TRACKING,
