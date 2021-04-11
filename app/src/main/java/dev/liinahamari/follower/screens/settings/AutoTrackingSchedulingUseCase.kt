@@ -3,6 +3,7 @@ package dev.liinahamari.follower.screens.settings
 import android.app.AlarmManager
 import android.app.AlarmManager.RTC_WAKEUP
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_NO_CREATE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
@@ -35,16 +36,16 @@ class AutoTrackingSchedulingUseCase constructor(
             PendingIntent.getBroadcast(
                 context.applicationContext,
                 AutoTrackingReceiver.ActionMode.ACTION_MODE_START.ordinal,
-                Intent(context.applicationContext, AutoTrackingReceiver::class.java),
-                0
+                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_START, context.applicationContext),
+                FLAG_NO_CREATE
             )
         )
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context.applicationContext,
                 AutoTrackingReceiver.ActionMode.ACTION_MODE_STOP.ordinal,
-                Intent(context.applicationContext, AutoTrackingReceiver::class.java),
-                0
+                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_STOP, context.applicationContext),
+                FLAG_NO_CREATE
             )
         )
     }.toSingleDefault<CancelAutoTrackingResult>(CancelAutoTrackingResult.Success)
