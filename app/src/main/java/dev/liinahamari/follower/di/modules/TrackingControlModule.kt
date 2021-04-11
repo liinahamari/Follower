@@ -6,15 +6,15 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.Module
+import dagger.Provides
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.ext.openAppSettings
 import dev.liinahamari.follower.screens.tracking_control.RateMyAppDialog
 import dev.liinahamari.follower.screens.tracking_control.TrackingControlScope
 import dev.liinahamari.follower.services.location_tracking.ACTION_DISCARD_TRACK
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dagger.Module
-import dagger.Provides
 import javax.inject.Named
 
 const val DIALOG_RATE_MY_APP = "tracking_controls_rate_my_app"

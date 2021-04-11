@@ -125,7 +125,7 @@ class LocationTrackingService : BaseService() {
                 syncDisposable.clear()
                 wayPointsCounter.onNext(0)
             }
-        }   
+        }
         stopSelf()
     }
 

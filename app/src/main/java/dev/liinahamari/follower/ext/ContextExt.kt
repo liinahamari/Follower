@@ -5,23 +5,13 @@ import android.app.ActivityManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.preference.PreferenceManager
 import dev.liinahamari.follower.BuildConfig
-import dev.liinahamari.follower.R
-import dev.liinahamari.follower.screens.logs.FILE_PROVIDER_META
-import java.io.File
-import java.util.*
-
-fun Context.getDefaultSharedPreferences(): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
 @Suppress(
     "DEPRECATION"

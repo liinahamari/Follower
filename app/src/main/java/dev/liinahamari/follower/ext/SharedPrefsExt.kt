@@ -2,7 +2,10 @@ package dev.liinahamari.follower.ext
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import dev.liinahamari.follower.R
+
+fun Context.getDefaultSharedPreferences(): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
 fun SharedPreferences.getBooleanOf(keyToValue: String) = getBoolean(keyToValue, false)
 fun SharedPreferences.getStringOf(keyToValue: String) = getString(keyToValue, null)

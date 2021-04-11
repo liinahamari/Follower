@@ -7,7 +7,7 @@ import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.screens.logs.FILE_PROVIDER_META
 import java.io.File
 
-private fun Context.createDirIfNotExist(dirName: String) = File(filesDir, dirName).apply {
+fun Context.createDirIfNotExist(dirName: String) = File(filesDir, dirName).apply {
     if (exists().not()) {
         mkdir()
     }

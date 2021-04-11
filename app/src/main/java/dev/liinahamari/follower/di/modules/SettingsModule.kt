@@ -5,12 +5,10 @@ import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AlertDialog
-import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.Module
 import dagger.Provides
 import dev.liinahamari.follower.R
-import dev.liinahamari.follower.ext.writeBooleanOf
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.screens.settings.BiometricAvailabilityValidationUseCase
 import dev.liinahamari.follower.screens.settings.SettingsPrefsInteractor
@@ -22,7 +20,12 @@ const val DIALOG_LOADING = "loading"
 const val DIALOG_ROOT_DETECTED = "root_detected"
 
 @Module
-class SettingsModule(private val activity: Activity, private val resetToDefaults: () -> Unit, private val onAcceptDeviceRooted: () -> Unit, private val onDeclineDeviceRooted: () -> Unit) {
+class SettingsModule(
+    private val activity: Activity,
+    private val resetToDefaults: () -> Unit,
+    private val onAcceptDeviceRooted: () -> Unit,
+    private val onDeclineDeviceRooted: () -> Unit
+) {
     @Provides
     @SettingsScope
     @Named(DIALOG_RESET_TO_DEFAULTS)

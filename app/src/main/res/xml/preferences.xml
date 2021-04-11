@@ -117,6 +117,7 @@
         <SwitchPreferenceCompat
             android:title="@string/title_disable_battery_optimization"
             app:defaultValue="false"
+            android:icon="@drawable/ic_battery"
             android:key="@string/pref_battery_optimization" />
 
         <Preference
