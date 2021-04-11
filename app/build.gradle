@@ -29,7 +29,7 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-
+        resConfigs "en", "ru"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
