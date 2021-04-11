@@ -24,7 +24,9 @@ class AutoTrackingSchedulingService : BaseService() {
     }
 
     private fun createNotification(): Notification.Builder = Notification.Builder(applicationContext, CHANNEL_ID)
-        .setContentText(getString(R.string.title_scheduling))
+        .setContentTitle(getString(R.string.title_scheduling))
+        .setContentText("")
+        .setSmallIcon(R.drawable.alarm)
         .setAutoCancel(false)
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -32,9 +34,11 @@ class AutoTrackingSchedulingService : BaseService() {
         subscriptions += autoTrackingSchedulingUseCase.setupStartAndStop().subscribe({
             logger.i { "${this.javaClass.name} scheduling successful" }
             stopForeground(true) /*todo check it's working*/
+            stopSelf()
         }, {
             logger.e("Auto-tracking scheduling", it)
             stopForeground(true)
+            stopSelf()
         })
         return START_STICKY
     }

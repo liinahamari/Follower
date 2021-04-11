@@ -278,12 +278,15 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             getString(R.string.pref_acra_enable) -> sharedPreferences.writeBooleanOf(getString(R.string.pref_acra_disable), sharedPreferences.getBooleanOf(key).not())
 
             getString(R.string.pref_tracking_start_time), getString(R.string.pref_tracking_stop_time) -> viewModel.scheduleAutoTracking()
+
+//            getString(R.string.pref_purge_cache) -> viewModel.purgeMapCache() /*        SqlTileWriter().purgeCache()*/
         }
     }
 
     private fun changeDrawableColors() {
         with(requireContext()) {
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_battery_optimization_settings))?.icon)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_battery_optimization))?.icon)
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_theme))?.icon)
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_lang))?.icon)
             adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_report_bug))?.icon)
