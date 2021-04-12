@@ -5,7 +5,9 @@
 
     <uses-feature
         android:name="android.hardware.location.gps"
-        android:required="true" />
+        android:required="true"
+        tools:ignore="UnsupportedTvHardware" />
+
     <uses-feature android:name="android.hardware.location.network" />
 
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
@@ -39,6 +41,8 @@
         <uses-library
             android:name="android.test.mock"
             android:required="false" />
+
+        <activity android:name=".screens.crash_screen.CrashStackTraceActivity" />
 
         <activity android:name=".screens.MainActivity">
             <intent-filter>
@@ -80,7 +84,6 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".receivers.AutoTrackingReceiver"
             android:enabled="true"

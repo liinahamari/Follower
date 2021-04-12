@@ -45,6 +45,11 @@ android {
             testProguardFile 'test-proguard-rules.pro'
         }
         release {
+            buildConfigField "String", "TEST_FTP_SERVER_ADDRESS" , ""
+            buildConfigField "String", "TEST_FTP_SERVER_USER_LOGIN" , ""
+            buildConfigField "String", "TEST_FTP_SERVER_USER_PASSWORD" , ""
+            buildConfigField "String", "TEST_FTP_SERVER_REMOTE_PATH" , ""
+
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             testProguardFile 'test-proguard-rules.pro'

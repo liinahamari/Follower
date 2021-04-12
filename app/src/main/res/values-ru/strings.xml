@@ -117,4 +117,5 @@
     <string name="title_root_detected">Похоже, Ваш телефон рутован.</string>
     <string name="summary_root_detected">Если так, то нет АБСОЛЮТНО НИКАКИХ гарантий, что Ваши данные будут в безопасности.</string>
     <string name="title_i_accept_risks">Я принимаю риски</string>
+    <string name="title_app_crashed">Приложение некорректно завершило работу в %s потоке (versionCode: %s)</string>
 </resources>

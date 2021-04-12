@@ -1,4 +1,5 @@
 @file:Suppress("NonConstantResourceId")
+
 package dev.liinahamari.follower
 
 import android.app.Application
@@ -19,6 +20,7 @@ import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.model.PersistedLocaleResult
 import dev.liinahamari.follower.model.PreferencesRepository
+import dev.liinahamari.follower.screens.crash_screen.CrashStackTraceActivity
 import dev.liinahamari.follower.screens.logs.MY_EMAIL
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
@@ -31,6 +33,7 @@ import org.acra.data.StringFormat
 import java.util.*
 import java.util.concurrent.Executors
 import javax.inject.Inject
+import kotlin.system.exitProcess
 
 private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
 
@@ -42,7 +45,7 @@ private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
     basicAuthPassword = "y0uRpa$\$w0rd", // optional
     httpMethod = HttpSender.Method.POST)
 */
-@AcraToast(resText=R.string.acra_toast_text, length = Toast.LENGTH_LONG)
+@AcraToast(resText = R.string.acra_toast_text, length = Toast.LENGTH_LONG)
 @AcraScheduler(requiresNetworkType = JobInfo.NETWORK_TYPE_ANY/*fixme: debug/prod distinction*/, requiresBatteryNotLow = true)
 @AcraMailSender(mailTo = MY_EMAIL) /*FIXME: temporary solution*/
 class FollowerApp : Application() {
@@ -50,6 +53,7 @@ class FollowerApp : Application() {
     @Inject lateinit var workerFactory: WorkerFactory
     @Inject lateinit var logger: FlightRecorder
     @Inject lateinit var notificationManager: NotificationManager
+
     lateinit var appComponent: AppComponent
     private val anrWatchDog = ANRWatchDog(2000)
 
@@ -64,6 +68,20 @@ class FollowerApp : Application() {
         setupNotificationChannels()
         setupFtpUploadingService()
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
+        setupCrashStackTraceScreen()
+    }
+
+    /*TODO: in some release version should be excluded or be optional*/
+    private fun setupCrashStackTraceScreen() = Thread.setDefaultUncaughtExceptionHandler { thread, error ->
+        logger.e("App Crash catch", error, false)
+
+        try {
+            startActivity(CrashStackTraceActivity.newIntent(this, thread.name, error))
+        } catch (e: Exception) {
+            logger.e("UncaughtExceptionHandler", e)
+        } finally {
+            exitProcess(1)
+        }
     }
 
     private fun setupFtpUploadingService() = UploadServiceConfig.initialize(
@@ -79,13 +97,14 @@ class FollowerApp : Application() {
         notificationManager.createNotificationChannel(NotificationChannel(FTP_FILE_UPLOAD_SERVICE_ID, "FTP file uploading", NotificationManager.IMPORTANCE_LOW))
     }
 
-    private fun setupWorkManager() = WorkManager.initialize(applicationContext,
-            androidx.work.Configuration.Builder()
-                .setWorkerFactory(workerFactory)
-                .setMinimumLoggingLevel(INFO)
-                .setExecutor(Executors.newSingleThreadExecutor())
-                .build()
-        )
+    private fun setupWorkManager() = WorkManager.initialize(
+        applicationContext,
+        androidx.work.Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .setMinimumLoggingLevel(INFO)
+            .setExecutor(Executors.newSingleThreadExecutor())
+            .build()
+    )
 
     private fun setupAnrWatchDog() = anrWatchDog
         .setANRListener { error ->
