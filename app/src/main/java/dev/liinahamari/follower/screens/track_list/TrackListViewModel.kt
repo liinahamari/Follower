@@ -8,8 +8,8 @@ import dev.liinahamari.follower.helper.SingleLiveEvent
 import dev.liinahamari.follower.interactors.*
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.model.TrackDisplayModeResult
-import io.reactivex.functions.Consumer
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.functions.Consumer
+import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
 typealias TrackTitle = String

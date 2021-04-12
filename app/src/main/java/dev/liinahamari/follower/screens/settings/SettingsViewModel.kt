@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
-import io.reactivex.functions.Consumer
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.functions.Consumer
+import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
 @SettingsScope

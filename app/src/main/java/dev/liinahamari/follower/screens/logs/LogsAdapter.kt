@@ -8,13 +8,13 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.doOnLayout
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.jakewharton.rxbinding4.view.clicks
 import dev.liinahamari.follower.R
-import com.jakewharton.rxbinding3.view.clicks
 import dev.liinahamari.follower.databinding.ItemErrorLogBinding
 import dev.liinahamari.follower.databinding.ItemInfoLogBinding
 import dev.liinahamari.follower.ext.throttleFirst
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_error_log.*
 

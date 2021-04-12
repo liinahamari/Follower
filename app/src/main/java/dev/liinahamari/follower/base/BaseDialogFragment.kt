@@ -8,7 +8,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.helper.FlightRecorder
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import javax.inject.Inject
 
 open class BaseDialogFragment: DialogFragment() {

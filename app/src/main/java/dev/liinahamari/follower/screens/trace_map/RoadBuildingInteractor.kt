@@ -8,7 +8,7 @@ import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.model.PersistedTrackResult
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.model.TrackDao
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.BoundingBox

@@ -6,7 +6,7 @@ import android.os.IBinder
 import androidx.annotation.CallSuper
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.helper.FlightRecorder
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import javax.inject.Inject
 
 const val FOREGROUND_ID_AUTO_TRACKING_SCHEDULING = 111

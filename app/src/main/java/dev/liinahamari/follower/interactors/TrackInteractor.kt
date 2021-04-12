@@ -23,9 +23,9 @@ import dev.liinahamari.follower.model.WayPointJson
 import dev.liinahamari.follower.screens.address_trace.MapPointer
 import dev.liinahamari.follower.screens.track_list.TrackTitle
 import dev.liinahamari.follower.screens.track_list.TrackUi
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -82,7 +82,7 @@ class TrackInteractor @Inject constructor(
         .doOnNext { logger.i { "getAddresses trimmed size: ${it.size}" } }
         .map<GetAddressesResult> { GetAddressesResult.Success(it) }
         .onErrorReturn { GetAddressesResult.DatabaseCorruptionError }
-        .startWith(GetAddressesResult.Loading)
+        .startWithItem(GetAddressesResult.Loading)
         .compose(baseComposers.applyObservableSchedulers())
 
     fun removeTrack(taskId: Long): Single<RemoveTrackResult> = trackDao.delete(taskId)

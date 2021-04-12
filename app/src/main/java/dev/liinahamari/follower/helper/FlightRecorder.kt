@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.ext.toLogMessage
-import io.reactivex.Completable
-import io.reactivex.Scheduler
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.TimeUnit

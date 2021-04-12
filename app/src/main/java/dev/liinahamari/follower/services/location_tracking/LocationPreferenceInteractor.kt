@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.di.modules.APP_CONTEXT
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 import javax.inject.Named
 

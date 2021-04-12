@@ -5,8 +5,8 @@ import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.TrackWithWayPoints
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 @Dao
 interface TrackDao {

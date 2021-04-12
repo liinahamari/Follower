@@ -4,7 +4,7 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.helper.rx.TestSchedulers
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -46,7 +46,7 @@ class BaseComposersTest {
                 it
             }
             .compose(baseComposers.applySingleSchedulers(label))
-            .onErrorResumeNext(Single.just(true))
+            .onErrorResumeWith(Single.just(true))
             .subscribe()
 
         assert(logger.getEntireRecord().isNotBlank())

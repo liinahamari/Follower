@@ -12,8 +12,8 @@ import dev.liinahamari.follower.ext.createFileIfNotExist
 import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.helper.SEPARATOR
 import dev.liinahamari.follower.helper.rx.BaseComposers
-import io.reactivex.Completable
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
@@ -62,7 +62,7 @@ class LoggerInteractor @Inject constructor(
         .compose(baseComposers.applyObservableSchedulers())
         .map { if (it.isNotEmpty()) GetRecordResult.Success(it) else GetRecordResult.EmptyList }
         .onErrorReturn { GetRecordResult.IOError }
-        .startWith(GetRecordResult.InProgress)
+        .startWithItem(GetRecordResult.InProgress)
 
     fun sortLogs(filterModes: List<FilterMode>): Observable<GetRecordResult> = getEntireRecord()
         .map {
@@ -81,7 +81,7 @@ class LoggerInteractor @Inject constructor(
             }  else return@map it
         }
         .compose(baseComposers.applyObservableSchedulers())
-        .startWith(GetRecordResult.InProgress)
+        .startWithItem(GetRecordResult.InProgress)
 
     fun clearEntireRecord(): Observable<ClearRecordResult> = Observable.fromCallable {
         kotlin.runCatching { logFile.writeText("") }.isSuccess
@@ -90,7 +90,7 @@ class LoggerInteractor @Inject constructor(
         .compose(baseComposers.applyObservableSchedulers())
         .map { if (it) ClearRecordResult.Success else ClearRecordResult.IOError }
         .onErrorReturn { ClearRecordResult.IOError }
-        .startWith(ClearRecordResult.InProgress)
+        .startWithItem(ClearRecordResult.InProgress)
 
     fun createZippedLogsFile(): Observable<CreateZipLogsFileResult> = Observable.just(BuildConfig.APPLICATION_ID + FILE_PROVIDER_META)
         .map { authority ->
@@ -114,7 +114,7 @@ class LoggerInteractor @Inject constructor(
             it.printStackTrace()
             CreateZipLogsFileResult.IOError
         }
-        .startWith(CreateZipLogsFileResult.InProgress)
+        .startWithItem(CreateZipLogsFileResult.InProgress)
 
     fun deleteZippedLogs(): Completable = Completable.fromCallable { File(ZIPPED_LOGS_FILE_NAME, DEBUG_LOGS_DIR).delete() }
         .compose(baseComposers.applyCompletableSchedulers("Deleting $ZIPPED_LOGS_FILE_NAME"))

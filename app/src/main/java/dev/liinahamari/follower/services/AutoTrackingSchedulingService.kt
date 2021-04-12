@@ -7,8 +7,8 @@ import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseService
 import dev.liinahamari.follower.base.FOREGROUND_ID_AUTO_TRACKING_SCHEDULING
 import dev.liinahamari.follower.screens.settings.AutoTrackingSchedulingUseCase
-import io.reactivex.rxkotlin.plusAssign
 import javax.inject.Inject
+import io.reactivex.rxjava3.kotlin.plusAssign
 
 class AutoTrackingSchedulingService : BaseService() {
     companion object {

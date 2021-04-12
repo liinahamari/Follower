@@ -6,7 +6,7 @@ import dev.liinahamari.follower.base.BaseViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
 import dev.liinahamari.follower.interactors.GetAddressesResult
 import dev.liinahamari.follower.interactors.TrackInteractor
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
 class AddressTraceViewModel @Inject constructor(private val trackInteractor: TrackInteractor) : BaseViewModel() {

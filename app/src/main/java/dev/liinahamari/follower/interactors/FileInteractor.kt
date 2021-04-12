@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import dev.liinahamari.follower.di.modules.APP_CONTEXT
 import dev.liinahamari.follower.helper.rx.BaseComposers
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 import javax.inject.Named
 

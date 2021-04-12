@@ -9,8 +9,8 @@ import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
-import com.jakewharton.rxbinding3.view.clicks
-import com.jakewharton.rxbinding3.widget.textChanges
+import com.jakewharton.rxbinding4.view.clicks
+import com.jakewharton.rxbinding4.widget.textChanges
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseDialogFragment
@@ -22,9 +22,9 @@ import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.helper.SingleLiveEvent
 import dev.liinahamari.follower.interactors.SharedTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
-import io.reactivex.Observable
-import io.reactivex.functions.Consumer
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.functions.Consumer
+import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_sharing.*
 import net.gotev.uploadservice.data.UploadInfo
 import net.gotev.uploadservice.exceptions.UploadError

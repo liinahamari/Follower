@@ -5,7 +5,7 @@ import dev.liinahamari.follower.db.entities.TrackWithWayPoints
 import dev.liinahamari.follower.db.entities.WayPoint
 import dev.liinahamari.follower.helper.ErrorMessageFactory
 import dev.liinahamari.follower.helper.rx.BaseComposers
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 
 class ServerServiceInteractor constructor(

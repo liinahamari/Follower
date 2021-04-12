@@ -2,14 +2,14 @@ package dev.liinahamari.follower.workers
 
 import android.content.Context
 import androidx.work.ListenableWorker
-import androidx.work.RxWorker
 import androidx.work.WorkerParameters
+import androidx.work.rxjava3.RxWorker
 import dev.liinahamari.follower.di.modules.ChildWorkerFactory
 import dev.liinahamari.follower.model.TrackDao
 import dev.liinahamari.follower.networking.ServerService
 import dev.liinahamari.follower.networking.ServerTrack
 import dev.liinahamari.follower.screens.tracking_control.WORKER_EXTRA_TRACK_ID
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 import javax.inject.Provider
 

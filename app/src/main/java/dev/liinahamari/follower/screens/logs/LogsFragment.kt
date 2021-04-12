@@ -12,8 +12,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.jakewharton.rxbinding3.appcompat.navigationClicks
-import com.jakewharton.rxbinding3.view.clicks
+import com.jakewharton.rxbinding4.appcompat.navigationClicks
+import com.jakewharton.rxbinding4.view.clicks
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseFragment
@@ -21,8 +21,8 @@ import dev.liinahamari.follower.di.modules.UID
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
-import io.reactivex.Observable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_logs.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -119,17 +119,17 @@ class LogsFragment : BaseFragment(R.layout.fragment_logs) {
                 .clicks()
                 .doOnNext { logsToolbar.menu.findItem(R.id.hideLifecycleEvents).isChecked = logsToolbar.menu.findItem(R.id.hideLifecycleEvents).isChecked.not() }
                 .map { logsToolbar.menu.findItem(R.id.hideLifecycleEvents).isChecked }
-                .startWith(false),
+                .startWithItem(false),
             logsToolbar.menu.findItem(R.id.onlyErrors)
                 .clicks()
                 .doOnNext { logsToolbar.menu.findItem(R.id.onlyErrors).isChecked = logsToolbar.menu.findItem(R.id.onlyErrors).isChecked.not() }
                 .map { logsToolbar.menu.findItem(R.id.onlyErrors).isChecked }
-                .startWith(false),
+                .startWithItem(false),
             logsToolbar.menu.findItem(R.id.nonMainThreadOnly)
                 .clicks()
                 .doOnNext { logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked = logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked.not() }
                 .map { logsToolbar.menu.findItem(R.id.nonMainThreadOnly).isChecked }
-                .startWith(false),
+                .startWithItem(false),
             { hideLifecycleEvents: Boolean, onlyErrors: Boolean, nonMainThread: Boolean -> mutableListOf<FilterMode>().apply {
                     if (onlyErrors) {
                         add(FilterMode.SHOW_ERRORS)

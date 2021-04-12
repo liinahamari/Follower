@@ -16,7 +16,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
-import com.jakewharton.rxbinding3.view.clicks
+import com.jakewharton.rxbinding4.view.clicks
 import dagger.Lazy
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
@@ -29,7 +29,7 @@ import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.screens.logs.TEXT_TYPE
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
 import me.saket.cascade.CascadePopupMenu
 import javax.inject.Inject

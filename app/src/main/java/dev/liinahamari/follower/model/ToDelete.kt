@@ -7,8 +7,8 @@ import dev.liinahamari.follower.R
 import dev.liinahamari.follower.di.modules.APP_CONTEXT
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.ext.*
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named

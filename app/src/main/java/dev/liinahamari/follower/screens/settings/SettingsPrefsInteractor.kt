@@ -9,7 +9,7 @@ import dev.liinahamari.follower.ext.writeStringOf
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.services.location_tracking.DEFAULT_LOCATION_UPDATE_INTERVAL
 import dev.liinahamari.follower.services.location_tracking.DEFAULT_TIME_UPDATE_INTERVAL
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 
@@ -33,7 +33,7 @@ class SettingsPrefsInteractor constructor(
         .compose(baseComposers.applyObservableSchedulers())
         .map<ResetToDefaultsState> { ResetToDefaultsState.Success }
         .onErrorReturn { ResetToDefaultsState.Failure }
-        .startWith(ResetToDefaultsState.Loading)
+        .startWithItem(ResetToDefaultsState.Loading)
 }
 
 sealed class ResetToDefaultsState {

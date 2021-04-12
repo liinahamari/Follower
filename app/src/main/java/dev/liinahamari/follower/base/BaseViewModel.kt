@@ -3,7 +3,7 @@ package dev.liinahamari.follower.base
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 open class BaseViewModel: ViewModel() {
     protected val disposable = CompositeDisposable()

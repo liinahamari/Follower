@@ -1,7 +1,7 @@
 package dev.liinahamari.follower.ext
 
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
 import java.util.concurrent.TimeUnit
 
 /** Only for RxView elements!*/

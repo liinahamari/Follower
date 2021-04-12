@@ -21,12 +21,11 @@ import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.interactors.SaveTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
 import dev.liinahamari.follower.screens.tracking_control.UploadTrackInteractor
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
-import java.util.*
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 

@@ -12,8 +12,8 @@ import dev.liinahamari.follower.di.modules.APP_CONTEXT
 import dev.liinahamari.follower.ext.getBooleanOf
 import dev.liinahamari.follower.helper.SingleLiveEvent
 import dev.liinahamari.follower.helper.rx.BaseComposers
-import io.reactivex.Single
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 import javax.inject.Named
 

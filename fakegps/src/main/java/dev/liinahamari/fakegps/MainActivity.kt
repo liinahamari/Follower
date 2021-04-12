@@ -14,11 +14,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.jakewharton.rxbinding3.view.clicks
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import com.jakewharton.rxbinding4.view.clicks
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.concurrent.TimeUnit
 
@@ -108,8 +108,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             .subscribe { newLocation ->
                 locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, newLocation)
-//                    LocationServices.getFusedLocationProviderClient(this).setMockMode(true)
-//                    LocationServices.getFusedLocationProviderClient(this).setMockLocation(newLocation)
             }
     }
 }

@@ -5,13 +5,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.jakewharton.rxbinding3.view.clicks
-import com.jakewharton.rxbinding3.view.longClicks
+import com.jakewharton.rxbinding4.view.clicks
+import com.jakewharton.rxbinding4.view.longClicks
 import dev.liinahamari.follower.databinding.ItemTrackBinding
 import dev.liinahamari.follower.ext.adaptToNightModeState
 import dev.liinahamari.follower.ext.throttleFirst
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.android.extensions.LayoutContainer
 
 class TrackListAdapter(

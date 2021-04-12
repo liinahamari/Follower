@@ -4,7 +4,7 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import dev.liinahamari.follower.ext.toLogMessage
 import dev.liinahamari.follower.ext.yellow
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before

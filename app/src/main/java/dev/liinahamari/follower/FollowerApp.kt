@@ -22,8 +22,8 @@ import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.screens.logs.MY_EMAIL
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
-import io.reactivex.internal.functions.Functions
-import io.reactivex.plugins.RxJavaPlugins
+import io.reactivex.rxjava3.internal.functions.Functions
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import net.gotev.uploadservice.UploadServiceConfig
 import org.acra.*
 import org.acra.annotation.*
@@ -59,7 +59,7 @@ class FollowerApp : Application() {
         preferencesRepository.incrementAppLaunchCounter()
         setupWorkManager()
         setupAnrWatchDog()
-        preferencesRepository.applyDefaultPreferences().blockingAwait() /*todo: to splash screen?*/
+        preferencesRepository.applyDefaultPreferences().blockingAwait()
         setupOsmdroid()
         setupNotificationChannels()
         setupFtpUploadingService()
@@ -73,6 +73,7 @@ class FollowerApp : Application() {
     )
 
     private fun setupNotificationChannels() {
+        //todo strings
         notificationManager.createNotificationChannel(NotificationChannel(AutoTrackingSchedulingService.CHANNEL_ID, "Auto tracking scheduling", NotificationManager.IMPORTANCE_DEFAULT))
         notificationManager.createNotificationChannel(NotificationChannel(LocationTrackingService.CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_LOW))
         notificationManager.createNotificationChannel(NotificationChannel(FTP_FILE_UPLOAD_SERVICE_ID, "FTP file uploading", NotificationManager.IMPORTANCE_LOW))

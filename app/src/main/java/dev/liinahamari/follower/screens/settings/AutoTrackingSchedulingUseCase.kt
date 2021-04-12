@@ -19,8 +19,8 @@ import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.receivers.AutoTrackingReceiver
 import dev.liinahamari.follower.services.location_tracking.ACTION_START_TRACKING
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 import java.util.*
 import javax.inject.Named
 
