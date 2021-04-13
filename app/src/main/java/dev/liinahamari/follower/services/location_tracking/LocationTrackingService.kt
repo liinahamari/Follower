@@ -20,6 +20,7 @@ import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.interactors.SaveTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
+import dev.liinahamari.follower.model.PreferenceRepository
 import dev.liinahamari.follower.screens.tracking_control.UploadTrackInteractor
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -43,7 +44,7 @@ class LocationTrackingService : BaseService() {
     var trackBeginningTime: Long? = null
     var isTrackEmpty = true
 
-    @Inject lateinit var prefInteractor: LocationPreferenceInteractor
+    @Inject lateinit var prefs: PreferenceRepository
     @Inject lateinit var locationManager: LocationManager
     @Inject lateinit var trackInteractor: TrackInteractor
     @Inject lateinit var uploadTrackInteractor: UploadTrackInteractor
@@ -154,11 +155,8 @@ class LocationTrackingService : BaseService() {
     }
 
     private fun startTracking() {
-        val timeUpdateInterval = (prefInteractor.getTimeIntervalBetweenUpdates()
-            .blockingGet() as GetTimeIntervalResult.Success).timeInterval
-
-        val distanceBetweenUpdates = (prefInteractor.getDistanceBetweenUpdates()
-            .blockingGet() as GetDistanceResult.Success).distanceBetweenUpdates
+        val timeUpdateInterval = prefs.minLocationUpdateInterval.blockingSingle()
+        val distanceBetweenUpdates = prefs.minDistanceBetweenUpdates.blockingSingle()
 
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, timeUpdateInterval, distanceBetweenUpdates, locationListener)

@@ -16,16 +16,15 @@ import androidx.work.WorkerFactory
 import com.github.anrwatchdog.ANRWatchDog
 import dev.liinahamari.follower.di.components.AppComponent
 import dev.liinahamari.follower.di.components.DaggerAppComponent
-import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import dev.liinahamari.follower.helper.FlightRecorder
-import dev.liinahamari.follower.model.PersistedLocaleResult
-import dev.liinahamari.follower.model.PreferencesRepository
+import dev.liinahamari.follower.model.PreferenceRepository
 import dev.liinahamari.follower.screens.crash_screen.CrashStackTraceActivity
 import dev.liinahamari.follower.screens.logs.MY_EMAIL
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import io.reactivex.rxjava3.internal.functions.Functions
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import net.gotev.uploadservice.UploadServiceConfig
 import org.acra.*
 import org.acra.annotation.*
@@ -38,6 +37,7 @@ import kotlin.system.exitProcess
 private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
 
 /*TODO: test PROD with R8 enabled*/
+@ExperimentalCoroutinesApi
 @AcraCore(buildConfigClass = BuildConfig::class, reportFormat = StringFormat.JSON)
 /*
 @AcraHttpSender(uri = "http://yourserver.com/yourscript",
@@ -49,7 +49,7 @@ private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
 @AcraScheduler(requiresNetworkType = JobInfo.NETWORK_TYPE_ANY/*fixme: debug/prod distinction*/, requiresBatteryNotLow = true)
 @AcraMailSender(mailTo = MY_EMAIL) /*FIXME: temporary solution*/
 class FollowerApp : Application() {
-    @Inject lateinit var preferencesRepository: PreferencesRepository
+    @Inject lateinit var preferencesRepository: PreferenceRepository
     @Inject lateinit var workerFactory: WorkerFactory
     @Inject lateinit var logger: FlightRecorder
     @Inject lateinit var notificationManager: NotificationManager
@@ -60,15 +60,21 @@ class FollowerApp : Application() {
     override fun onCreate() {
         setupDagger()
         super.onCreate()
-        preferencesRepository.incrementAppLaunchCounter()
+        updateLaunchCounter()
         setupWorkManager()
         setupAnrWatchDog()
-        preferencesRepository.applyDefaultPreferences().blockingAwait()
+        preferencesRepository.applyDefaultPreferences()
         setupOsmdroid()
         setupNotificationChannels()
         setupFtpUploadingService()
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
         setupCrashStackTraceScreen()
+    }
+
+    private fun updateLaunchCounter() {
+        preferencesRepository.appLaunchCounter.subscribe {
+            preferencesRepository.updateAppLaunchCounter(it.inc())
+        }
     }
 
     /*TODO: in some release version should be excluded or be optional*/
@@ -123,18 +129,19 @@ class FollowerApp : Application() {
     }
 
     override fun attachBaseContext(base: Context) {
-        super.attachBaseContext(base.provideUpdatedContextWithNewLocale(defaultLocale = Locale.getDefault().language))
+        with (preferencesRepository.language.blockingSingle()) {
+            Locale.setDefault(this)
+            super.attachBaseContext(base.createConfigurationContext(Configuration().also { it.setLocale(this) }))
+        }
+
         ACRA.init(this)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        preferencesRepository.getPersistedLocale()
-            .blockingGet().also {
-                if (it is PersistedLocaleResult.Success) {
-                    Locale.setDefault(it.locale)
-                    newConfig.setLocale(it.locale)
-                }
-            }
+        preferencesRepository.language.subscribe {
+            Locale.setDefault(it)
+            newConfig.setLocale(it)
+        }
         super.onConfigurationChanged(newConfig)
     }
 

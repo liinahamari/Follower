@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.util.BoundingBox
 import javax.inject.Inject
 
-class TraceFragment : MapFragment() {
+class TrackMapFragment : MapFragment() {
     @Inject lateinit var viewModel: TraceFragmentViewModel
 
     override fun onAttach(context: Context) = super.onAttach(context).also {

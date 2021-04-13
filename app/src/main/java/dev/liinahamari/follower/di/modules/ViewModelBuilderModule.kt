@@ -11,6 +11,8 @@ import dev.liinahamari.follower.screens.tracking_control.TrackingControlViewMode
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
+import dev.liinahamari.follower.base.MapFragment
+import dev.liinahamari.follower.screens.MainActivity
 import dev.liinahamari.follower.screens.track_list.FtpSharingViewModel
 
 @Module
@@ -19,6 +21,16 @@ abstract class ViewModelBuilderModule {
     @IntoMap
     @ViewModelKey(LogsFragmentViewModel::class)
     abstract fun logsViewModel(viewModel: LogsFragmentViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MainActivity.MainActivityViewModel::class)
+    abstract fun mainActivityViewModel(viewModel: MainActivity.MainActivityViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(MapFragment.MapFragmentViewModel::class)
+    abstract fun mapFragmentViewModel(viewModel: MapFragment.MapFragmentViewModel): ViewModel
 
     @Binds
     @IntoMap

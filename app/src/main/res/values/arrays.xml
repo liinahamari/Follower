@@ -39,8 +39,8 @@
     </string-array>
 
     <string-array name="track_display_mode_values">
-        <item>@string/pref_value_track_display_mode_none</item>
-        <item>@string/pref_value_track_display_mode_map</item>
-        <item>@string/pref_value_track_display_mode_addresses_list</item>
+        <item>@string/pref_value_pref_route_mode_none</item>
+        <item>@string/pref_value_pref_route_mode_map</item>
+        <item>@string/pref_value_pref_route_mode_addresses_list</item>
     </string-array>
 </resources>

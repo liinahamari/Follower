@@ -40,20 +40,17 @@ private const val FTP = "ftp"
 
 @BiometricScope
 class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPreferences.OnSharedPreferenceChangeListener {
-    @Inject lateinit var sharedPreferences: SharedPreferences
     @Inject lateinit var authenticator: Lazy<Authenticator>
+    private var isDarkThemeEnabled = false
 
     private var gpsService: LocationTrackingService? = null
 
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
-    private val tracksAdapter = TrackListAdapter(::showMenu, ::getTrackDisplayMode)
+    private lateinit var tracksAdapter: TrackListAdapter
 
     private val pickFiles = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
         viewModel.importTracks(it, gpsService!!.isTracking.value!!)
     }
-
-    private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
-    private fun showMenu(id: Long) = showCascadeMenu(id)
 
     override fun onAttach(context: Context) = super.onAttach(context).also {
         (context.applicationContext as FollowerApp)
@@ -64,7 +61,6 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
                     onSuccessfulAuth = { viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true) })
             )
             .inject(this)
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     private fun showDialogMapOrAddresses(trackId: Long) {
@@ -76,13 +72,13 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
                 rememberChoice = isChecked
             }
             positiveButton(R.string.title_show_map) {
-                with(getString(R.string.pref_value_track_display_mode_map)) {
+                with(getString(R.string.pref_value_pref_route_mode_map)) {
                     if (rememberChoice) viewModel.saveDisplayType(this)
                     displayTrackWith(this, trackId)
                 }
             }
             negativeButton(R.string.title_show_addresses) {
-                with(getString(R.string.pref_value_track_display_mode_addresses_list)) {
+                with(getString(R.string.pref_value_pref_route_mode_addresses_list)) {
                     if (rememberChoice) viewModel.saveDisplayType(this)
                     displayTrackWith(this, trackId)
                 }
@@ -92,8 +88,8 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
 
     private fun displayTrackWith(mode: String, trackId: Long) {
         val action: Int = when (mode) {
-            getString(R.string.pref_value_track_display_mode_map) -> R.id.action_to_map
-            getString(R.string.pref_value_track_display_mode_addresses_list) -> R.id.action_to_addresses_list
+            getString(R.string.pref_value_pref_route_mode_map) -> R.id.action_to_map
+            getString(R.string.pref_value_pref_route_mode_addresses_list) -> R.id.action_to_addresses_list
             else -> throw IllegalStateException()
         }
         NavHostFragment.findNavController(this@TrackListFragment)
@@ -113,7 +109,6 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
     override fun onDetach() {
         super.onDetach()
         gpsService = null
-        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     override fun setupClicks() {
@@ -123,7 +118,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
                 pickFiles.launch(arrayOf("*/*")) //todo investigate how to filter by extension
             }
 
-        if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
+        if (viewModel.isBiometricEnabled()) {
             subscriptions += ivLock.clicks()
                 .throttleFirst()
                 .subscribe { authenticator.get().authenticate() }
@@ -133,6 +128,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupTrackList()
+        viewModel.isDarkModeEnabled()
     }
 
     override fun setupViewModelSubscriptions() {
@@ -143,6 +139,10 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
             emptyListTv.isVisible = true
             trackList.isVisible = false
             ivLock.isVisible = false
+        }
+        viewModel.isDarkThemeEnabledEvent.observe(viewLifecycleOwner) {
+            isDarkThemeEnabled = it
+            tracksAdapter = TrackListAdapter(::showCascadeMenu, viewModel::getTrackDisplayMode, it)
         }
         viewModel.nonEmptyTrackListEvent.observe(viewLifecycleOwner) {
             emptyListTv.isVisible = false
@@ -160,10 +160,10 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
         }
         viewModel.trackDisplayModeEvent.observe(viewLifecycleOwner) { trackAndDisplayMode ->
             when (trackAndDisplayMode.first) {
-                getString(R.string.pref_value_track_display_mode_addresses_list), getString(R.string.pref_value_track_display_mode_map) -> {
+                getString(R.string.pref_value_pref_route_mode_addresses_list), getString(R.string.pref_value_pref_route_mode_map) -> {
                     displayTrackWith(trackAndDisplayMode.first, trackAndDisplayMode.second)
                 }
-                getString(R.string.pref_value_track_display_mode_none) -> showDialogMapOrAddresses(trackAndDisplayMode.second)
+                getString(R.string.pref_value_pref_route_mode_none) -> showDialogMapOrAddresses(trackAndDisplayMode.second)
             }
         }
         viewModel.shareJsonEvent.observe(viewLifecycleOwner) { trackJsonAndName ->
@@ -187,7 +187,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
     }
 
     override fun onResume() = super.onResume().also {
-        if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
+        if (viewModel.isBiometricEnabled()) {
             ivLock.isVisible = true
             trackList.isVisible = false
             emptyListTv.isVisible = false
@@ -206,12 +206,12 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
             addSubMenu(getString(R.string.title_track_representing)).also {
                     it.add(getString(R.string.title_addresses_list))
                         .setOnMenuItemClickListener {
-                            displayTrackWith(getString(R.string.pref_value_track_display_mode_addresses_list), trackId)
+                            displayTrackWith(getString(R.string.pref_value_pref_route_mode_addresses_list), trackId)
                             true
                         }
                     it.add(getString(R.string.title_map))
                         .setOnMenuItemClickListener {
-                            displayTrackWith(getString(R.string.pref_value_track_display_mode_map), trackId)
+                            displayTrackWith(getString(R.string.pref_value_pref_route_mode_map), trackId)
                             true
                         }
                 it.setIcon(R.drawable.ic_baseline_map_24)
@@ -237,22 +237,22 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
                     true
                 }
 
-                it.setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_share, null)))
+                it.setIcon(adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_share, null), isDarkThemeEnabled))
                 addShareTargets(it.addSubMenu(R.string.as_a_file))
             }
             addSubMenu(getString(R.string.delete)).also {
-                it.setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, null)))
+                it.setIcon(adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, null), isDarkThemeEnabled))
                 it.setHeaderTitle(getString(R.string.are_you_sure))
 
                 it.add(R.string.yes)
-                    .setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_toast_success, null)))
+                    .setIcon(adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_toast_success, null), isDarkThemeEnabled))
                     .setOnMenuItemClickListener {
                         viewModel.removeTrack(trackId)
                         true
                     }
 
                 it.add(getString(android.R.string.cancel))
-                    .setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_close_24, null)))
+                    .setIcon(adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_close_24, null), isDarkThemeEnabled))
                     .setOnMenuItemClickListener {
                         popupMenu.navigateBack()
                         true

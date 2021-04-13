@@ -25,10 +25,10 @@
     <string name="pref_track_representation" translatable="false">pref_track_representation</string>
     <string name="pref_marker_set" translatable="false">pref_set</string>
     <string name="pref_line" translatable="false">pref_line</string>
-    <string name="pref_track_display_mode" translatable="false">pref_track_display_mode</string>
-    <string name="pref_value_track_display_mode_none" translatable="false">pref_value_track_display_mode_none</string>
-    <string name="pref_value_track_display_mode_map" translatable="false">pref_value_track_display_mode_map</string>
-    <string name="pref_value_track_display_mode_addresses_list" translatable="false">pref_value_track_display_mode_addresses_list</string>
+    <string name="pref_route_mode" translatable="false">pref_route_mode</string>
+    <string name="pref_value_pref_route_mode_none" translatable="false">pref_value_route_mode_none</string>
+    <string name="pref_value_pref_route_mode_map" translatable="false">pref_value_route_mode_map</string>
+    <string name="pref_value_pref_route_mode_addresses_list" translatable="false">pref_value_route_mode_addresses_list</string>
     <string name="pref_enable_auto_tracking" translatable="false">pref_enable_auto_tracking</string>
     <string name="pref_reset_to_default" translatable="false">pref_reset_to_default</string>
     <string name="pref_battery_optimization" translatable="false">pref_battery_optimization</string>

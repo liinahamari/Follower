@@ -6,14 +6,11 @@ import android.app.Dialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.Preference
@@ -29,8 +26,10 @@ import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.infoToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.helper.FlightRecorder
+import dev.liinahamari.follower.model.PreferenceRepository
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_BACKGROUND_LOCATION
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_LOCATION
+import io.reactivex.rxjava3.kotlin.zipWith
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -44,10 +43,10 @@ private const val CLASS_SAMSUNG_BATTERY_ACTIVITY_S7 = "com.samsung.android.sm.ui
 
 /* todo add clear cache option */
 @BiometricScope
-class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+class SettingsFragment : PreferenceFragmentCompat() {
     @Inject lateinit var authenticator: Lazy<Authenticator>
     @Inject lateinit var viewModel: SettingsViewModel
-    @Inject lateinit var prefs: SharedPreferences
+    @Inject lateinit var prefs: PreferenceRepository
     @Inject lateinit var logger: FlightRecorder
 
     @JvmField
@@ -71,18 +70,18 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         } else {
             errorToast(R.string.error_location_permission_denied)
             findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_auto_tracking))?.isChecked = false
-            prefs.writeBooleanOf(getString(R.string.pref_enable_auto_tracking), false)
+            prefs.updateIsAutoTrackingEnabled(false)
         }
     }
 
     private val batteryOptimization = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == RESULT_OK) {
             findPreference<SwitchPreferenceCompat>(getString(R.string.pref_battery_optimization))!!.isChecked = true
-            prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), true)
+            prefs.updateIsIgnoringBatteryOptimizations(true)
             successToast(R.string.optimization_successful)
         } else {
             findPreference<SwitchPreferenceCompat>(getString(R.string.pref_battery_optimization))!!.isChecked = false
-            prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), false)
+            prefs.updateIsIgnoringBatteryOptimizations(false)
         }
     }
 
@@ -90,12 +89,10 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         super.onViewCreated(view, savedInstanceState)
         setupViewModelSubscriptions()
         viewModel.isBiometricValidationAvailable()
-        changeDrawableColors()
+        changeDrawableColors(prefs.isDarkThemeEnabled.blockingSingle())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState).also { prefs.registerOnSharedPreferenceChangeListener(this) }
-    override fun onDestroyView() = super.onDestroyView().also { prefs.unregisterOnSharedPreferenceChangeListener(this) }
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) = setPreferencesFromResource(R.xml.preferences, rootKey)
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) = setPreferencesFromResource(R.xml.preferences, rootKey) /*TODO what about runtime updates of values? if i somewhere changed settings value it should be reflected here*/
     private fun resetToDefaults() = viewModel.resetOptionsToDefaults()
 
     override fun onDisplayPreferenceDialog(preference: Preference?) {
@@ -134,11 +131,11 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 BiometricModule(requireActivity(),
                     onSuccessfulAuth = {
                         findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false
-                        prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), false)
+                        prefs.updateIsEnabledBiometricProtection(false)
                     },
                     onFailedAuth = {
                         findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true
-                        prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), true)
+                        prefs.updateIsEnabledBiometricProtection(true)
                     }
                 )
             )
@@ -146,12 +143,12 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 activity = requireActivity(),
                 resetToDefaults = ::resetToDefaults,
                 onAcceptDeviceRooted = {
-                    prefs.writeBooleanOf(getString(R.string.pref_root_is_ok), true)
-                    prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), true)
+                    prefs.updateIsRootOk(true)
+                    prefs.updateIsEnabledBiometricProtection(true)
                     findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = true
                 },
                 onDeclineDeviceRooted = {
-                    prefs.writeBooleanOf(getString(R.string.pref_enable_biometric_protection), false)
+                    prefs.updateIsEnabledBiometricProtection(false)
                     findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false
                 })
             )
@@ -159,7 +156,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
 
         super.onAttach(context)
 
-        themeId = prefs.getStringOf(getString(R.string.pref_theme))!!.toInt()
+        themeId = prefs.theme.blockingSingle()
     }
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
@@ -230,68 +227,75 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             })
         } else {
             findPreference<SwitchPreferenceCompat>(getString(R.string.pref_battery_optimization))!!.isChecked = true
-            prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), true)
+            prefs.updateIsIgnoringBatteryOptimizations(true)
         }
     }
 
-    @SuppressLint("ApplySharedPref")
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        when (key) {
-            requireContext().getString(R.string.pref_theme) -> {
-                if (sharedPreferences.getStringOf(key)!!.toInt() != themeId) {
-                    AppCompatDelegate.setDefaultNightMode(sharedPreferences.getStringOf(requireContext().getString(R.string.pref_theme))!!.toInt())
-                    changeDrawableColors()
-                }
+    fun f() {
+        prefs.theme.subscribe {
+            if (it != themeId) {
+                AppCompatDelegate.setDefaultNightMode(it)
+                changeDrawableColors(prefs.isDarkThemeEnabled.blockingSingle())
             }
-            requireContext().getString(R.string.pref_lang) -> {
-                with(Locale(sharedPreferences.getStringOf(key)!!)) {
-                    Locale.setDefault(this)
-                    @Suppress("DEPRECATION") requireActivity().resources.updateConfiguration(resources.configuration.also { it.setLocale(this) }, resources.displayMetrics)
-                }
-                requireActivity().recreate()
-            }
-            /*FIXME inconsistency with permissions*/
-            getString(R.string.pref_enable_auto_tracking) -> {
-                if (sharedPreferences.getBooleanOf(key)) {
-                    val permissions = mutableListOf(PERMISSION_LOCATION)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        permissions.add(PERMISSION_BACKGROUND_LOCATION)
-                    }
-                    if (hasAllPermissions(permissions)) {
-                        viewModel.scheduleAutoTracking()
-                    } else {
-                        geoPermission.launch(permissions.toTypedArray())
-                    }
-                } else {
-                    viewModel.cancelAutoTracking()
-                }
-            }
-            getString(R.string.pref_enable_biometric_protection) -> {
-                if (isRooted.not() || (isRooted && sharedPreferences.getBooleanOf(getString(R.string.pref_root_is_ok)))) {
-                    if (sharedPreferences.getBooleanOf(key).not()) {
-                        authenticator.get().authenticate()
-                    }
-                } else {
-                    rootDetectionDialog.get().show()
-                }
-            }
-            getString(R.string.pref_acra_enable) -> sharedPreferences.writeBooleanOf(getString(R.string.pref_acra_disable), sharedPreferences.getBooleanOf(key).not())
+        }
 
-            getString(R.string.pref_tracking_start_time), getString(R.string.pref_tracking_stop_time) -> viewModel.scheduleAutoTracking()
+        prefs.language.subscribe {
+            with(it) {
+                Locale.setDefault(this)
+                @Suppress("DEPRECATION") requireActivity().resources.updateConfiguration(resources.configuration.also { it.setLocale(this) }, resources.displayMetrics)
+            }
+            requireActivity().recreate()
+        }
+
+        prefs.isAutoTrackingEnabled.subscribe {
+            /*FIXME inconsistency with permissions*/
+            //todo show dialog - better to disable battery optimization (with library of making video suggestions!)
+            if (it) {
+                val permissions = mutableListOf(PERMISSION_LOCATION)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    permissions.add(PERMISSION_BACKGROUND_LOCATION)
+                }
+                if (hasAllPermissions(permissions)) {
+                    viewModel.scheduleAutoTracking()
+                } else {
+                    geoPermission.launch(permissions.toTypedArray())
+                }
+            } else {
+                viewModel.cancelAutoTracking()
+            }
+        }
+
+        prefs.isBiometricProtectionEnabled
+            .zipWith(prefs.isRootOk)
+            .subscribe {
+            if (isRooted.not() || (isRooted && it.second)) {
+                if (it.first.not()) {
+                    authenticator.get().authenticate()
+                }
+            } else {
+                rootDetectionDialog.get().show()
+            }
+        }
+
+        prefs.isAcraDisabled.subscribe {
+//            prefs.updateIsAcraEnabled(it.not())
+        }
+
+        prefs.autoTrackingStartTime.mergeWith(prefs.autoTrackingStopTime)
+            .subscribe { viewModel.scheduleAutoTracking() }
 
 //            getString(R.string.pref_purge_cache) -> viewModel.purgeMapCache() /*        SqlTileWriter().purgeCache()*/
-        }
     }
 
-    private fun changeDrawableColors() {
+    private fun changeDrawableColors(isDarkThemeEnabled: Boolean) {
         with(requireContext()) {
-            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_battery_optimization_settings))?.icon)
-            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_battery_optimization))?.icon)
-            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_theme))?.icon)
-            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_lang))?.icon)
-            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_report_bug))?.icon)
-            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_enable_biometric_protection))?.icon)
-            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_acra_enable))?.icon)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_battery_optimization_settings))?.icon, isDarkThemeEnabled)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_battery_optimization))?.icon, isDarkThemeEnabled)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_theme))?.icon, isDarkThemeEnabled)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_lang))?.icon, isDarkThemeEnabled)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_report_bug))?.icon, isDarkThemeEnabled)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_enable_biometric_protection))?.icon, isDarkThemeEnabled)
+            adaptToNightModeState(findPreference<Preference>(getString(R.string.pref_acra_enable))?.icon, isDarkThemeEnabled)
         }
     }
 }

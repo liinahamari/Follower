@@ -2,9 +2,7 @@ package dev.liinahamari.follower
 
 import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
-import dev.liinahamari.follower.ext.getDefaultSharedPreferences
 import dev.liinahamari.follower.ext.getLocalesLanguage
-import dev.liinahamari.follower.ext.getStringOf
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import org.junit.Assert.assertEquals
 import org.junit.Before

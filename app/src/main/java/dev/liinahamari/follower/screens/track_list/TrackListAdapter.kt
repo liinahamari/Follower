@@ -16,7 +16,8 @@ import kotlinx.android.extensions.LayoutContainer
 
 class TrackListAdapter(
     private val longClickCallback: (id: Long) -> Unit,
-    private val clickCallback: (id: Long) -> Unit
+    private val clickCallback: (id: Long) -> Unit,
+    private val isDarkThemeEnabled: Boolean
 ) : RecyclerView.Adapter<TrackListAdapter.ViewHolder>(){
     private val clicks = CompositeDisposable()
     var tracks: MutableList<TrackUi> = mutableListOf()
@@ -35,7 +36,7 @@ class TrackListAdapter(
         holder.binding?.track = tracks[position]
         if (tracks[position].isImported) {
             with(holder.binding!!.importedIv) {
-                context.adaptToNightModeState(drawable)
+                context.adaptToNightModeState(drawable, isDarkThemeEnabled)
             }
         }
         clicks += holder.itemView.longClicks()

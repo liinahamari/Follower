@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 open class BaseFragment(@LayoutRes layout: Int): Fragment(layout) {
     @Inject lateinit var logger: FlightRecorder
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+            @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
     val subscriptions = CompositeDisposable()
 

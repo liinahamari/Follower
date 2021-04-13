@@ -6,15 +6,19 @@ import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
 import dev.liinahamari.follower.interactors.*
-import dev.liinahamari.follower.model.PreferencesRepository
-import dev.liinahamari.follower.model.TrackDisplayModeResult
+import dev.liinahamari.follower.model.PreferenceRepository
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.kotlin.plusAssign
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 typealias TrackTitle = String
 
-class TrackListViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val preferencesRepository: PreferencesRepository) : BaseViewModel() {
+@ExperimentalCoroutinesApi
+class TrackListViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val preferencesRepository: PreferenceRepository) : BaseViewModel() {
+    private val _isDarkThemeEnabledEvent = SingleLiveEvent<Boolean>()
+    val isDarkThemeEnabledEvent: LiveData<Boolean> get() = _isDarkThemeEnabledEvent
+
     private val _nonEmptyTrackListEvent = SingleLiveEvent<List<TrackUi>>()
     val nonEmptyTrackListEvent: LiveData<List<TrackUi>> get() = _nonEmptyTrackListEvent
 
@@ -50,17 +54,12 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
         })
     }
 
-    fun saveDisplayType(displayMode: String) {
-        disposable += preferencesRepository.saveTrackDisplayMode(displayMode).subscribe()
-    }
+    fun saveDisplayType(displayMode: String) = preferencesRepository.updateTrackRepresentation(displayMode)
 
     fun getTrackDisplayMode(trackId: Long) {
-        disposable += preferencesRepository.getTrackDisplayMode().subscribe(Consumer {
-            when (it) {
-                is TrackDisplayModeResult.Success -> _trackDisplayModeEvent.value = it.displayMode to trackId
-                is TrackDisplayModeResult.Failure -> _errorEvent.value = R.string.error_unexpected
-            }
-        })
+        disposable += preferencesRepository.trackRepresentation.subscribe {
+            _trackDisplayModeEvent.value = it to trackId
+        }
     }
 
     fun createSharedJsonFileForTrack(trackId: Long, fileExtension: String) {
@@ -83,4 +82,12 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
             }
         })
     }
+
+    fun isDarkModeEnabled() {
+        disposable += preferencesRepository.isDarkThemeEnabled.subscribe {
+            _isDarkThemeEnabledEvent.value = it
+        }
+    }
+
+    fun isBiometricEnabled(): Boolean = preferencesRepository.isBiometricProtectionEnabled.blockingSingle()
 }

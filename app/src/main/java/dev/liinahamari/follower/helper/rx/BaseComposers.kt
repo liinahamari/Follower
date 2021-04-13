@@ -1,10 +1,7 @@
 package dev.liinahamari.follower.helper.rx
 
 import dev.liinahamari.follower.helper.FlightRecorder
-import io.reactivex.rxjava3.core.CompletableTransformer
-import io.reactivex.rxjava3.core.MaybeTransformer
-import io.reactivex.rxjava3.core.ObservableTransformer
-import io.reactivex.rxjava3.core.SingleTransformer
+import io.reactivex.rxjava3.core.*
 
 class BaseComposers constructor(private val schedulers: SchedulersProvider, private val logger: FlightRecorder) {
     fun <T> applySingleSchedulers(errorLabel: String = "meta"): SingleTransformer<T, T> =
@@ -30,6 +27,13 @@ class BaseComposers constructor(private val schedulers: SchedulersProvider, priv
 
     fun applyCompletableSchedulers(errorLabel: String = "meta"): CompletableTransformer =
         CompletableTransformer {
+            it.subscribeOn(schedulers.io())
+                .observeOn(schedulers.ui())
+                .doOnError { err -> logger.e(errorLabel, err) }
+        }
+
+    fun <T> applyFlowableSchedulers(errorLabel: String = "meta"): FlowableTransformer<T, T> =
+        FlowableTransformer<T, T> {
             it.subscribeOn(schedulers.io())
                 .observeOn(schedulers.ui())
                 .doOnError { err -> logger.e(errorLabel, err) }

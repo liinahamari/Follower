@@ -29,10 +29,10 @@
             android:title="@string/title_track_representing" />
 
         <ListPreference
-            android:defaultValue="@string/pref_value_track_display_mode_none"
+            android:defaultValue="@string/pref_value_pref_route_mode_none"
             android:entries="@array/track_display_mode"
             android:entryValues="@array/track_display_mode_values"
-            android:key="@string/pref_track_display_mode"
+            android:key="@string/pref_route_mode"
             android:summary="@string/title_map_display_model"
             android:title="@string/title_track_display_mode" />
     </PreferenceCategory>

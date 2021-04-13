@@ -38,7 +38,7 @@
 
     <fragment
         android:id="@+id/tab_map"
-        android:name="dev.liinahamari.follower.screens.trace_map.TraceFragment"
+        android:name="dev.liinahamari.follower.screens.trace_map.TrackMapFragment"
         android:label="Map"
         tools:layout="@layout/fragment_map" >
         <argument

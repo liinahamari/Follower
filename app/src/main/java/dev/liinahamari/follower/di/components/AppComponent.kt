@@ -7,6 +7,7 @@ import dev.liinahamari.follower.base.BaseDialogFragment
 import dev.liinahamari.follower.base.BaseFragment
 import dev.liinahamari.follower.base.BaseService
 import dev.liinahamari.follower.di.modules.*
+import dev.liinahamari.follower.receivers.BootReceiver
 import dev.liinahamari.follower.screens.MainActivity
 import dev.liinahamari.follower.screens.logs.LogsFragment
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
@@ -34,6 +35,7 @@ interface AppComponent {
     fun roadBuildingComponent(): RoadBuildingComponent
     fun trackingControlComponent(module: TrackingControlModule): TrackingControlComponent
 
+    fun inject(receiver: BootReceiver)
     fun inject(service: BaseService)
     fun inject(fragment: BaseFragment)
     fun inject(fragment: LogsFragment)
