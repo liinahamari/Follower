@@ -16,6 +16,7 @@ import javax.inject.Named
 private const val DEFAULT_AUTO_TRACKING_START_TIME = "09:00"
 private const val DEFAULT_AUTO_TRACKING_END_TIME = "21:00"
 
+//todo to RxSharedPreferences
 class PreferencesRepository @Inject constructor(private val sharedPreferences: SharedPreferences, @Named(APP_CONTEXT) private val context: Context, private val baseComposers: BaseComposers) {
     /** If App is launching first time, then set default preferences*/
     fun applyDefaultPreferences(): Completable = Completable.fromCallable {

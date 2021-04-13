@@ -118,4 +118,7 @@
     <string name="summary_root_detected">Если так, то нет АБСОЛЮТНО НИКАКИХ гарантий, что Ваши данные будут в безопасности.</string>
     <string name="title_i_accept_risks">Я принимаю риски</string>
     <string name="title_app_crashed">Приложение некорректно завершило работу в %s потоке (versionCode: %s)</string>
+    <string name="title_purge_cache">Очистить кэш</string>
+    <string name="toast_cache_purged_successfully">Кэш очищен успешно!</string>
+    <string name="error_cant_purge_cache">Ошибка при очистке кэша</string>
 </resources>

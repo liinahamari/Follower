@@ -9,16 +9,14 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
 @SettingsScope
-class SettingsViewModel @Inject constructor(private val prefInteractor: SettingsPrefsInteractor,
-                                            private val autoTrackingSchedulingUseCase: AutoTrackingSchedulingUseCase,
-                                            private val biometricValidationUseCase: BiometricAvailabilityValidationUseCase
+class SettingsViewModel @Inject constructor(
+    private val prefInteractor: SettingsPrefsInteractor,
+    private val autoTrackingSchedulingUseCase: AutoTrackingSchedulingUseCase,
+    private val biometricValidationUseCase: BiometricAvailabilityValidationUseCase,
+    private val purgeCacheUseCase: PurgeCacheUseCase
 ) : BaseViewModel() {
-
-    private val _successfulSchedulingEvent = SingleLiveEvent<Int>()
-    val successfulSchedulingEvent: LiveData<Int> get() = _successfulSchedulingEvent
-
-    private val _autoTrackingCancellingEvent = SingleLiveEvent<Int>()
-    val autoTrackingCancellingEvent: LiveData<Int> get() = _autoTrackingCancellingEvent
+    private val _operationSucceededEvent = SingleLiveEvent<Int>()
+    val operationSucceededEvent: LiveData<Int> get() = _operationSucceededEvent
 
     private val _resetToDefaultsEvent = SingleLiveEvent<Any>()
     val resetToDefaultsEvent: LiveData<Any> get() = _resetToDefaultsEvent
@@ -56,7 +54,7 @@ class SettingsViewModel @Inject constructor(private val prefInteractor: Settings
     fun scheduleAutoTracking() {
         disposable += autoTrackingSchedulingUseCase.setupStartAndStop().subscribe(Consumer {
             when (it) {
-                is SchedulingStartStopResult.Success -> _successfulSchedulingEvent.value = R.string.auto_tracking_scheduling_successful
+                is SchedulingStartStopResult.Success -> _operationSucceededEvent.value = R.string.auto_tracking_scheduling_successful
                 is SchedulingStartStopResult.Failure -> _errorEvent.value = R.string.error_unexpected
             }
         })
@@ -65,9 +63,27 @@ class SettingsViewModel @Inject constructor(private val prefInteractor: Settings
     fun cancelAutoTracking() {
         disposable += autoTrackingSchedulingUseCase.cancelAutoTracking().subscribe(Consumer {
             when (it) {
-                is CancelAutoTrackingResult.Success -> _autoTrackingCancellingEvent.value = R.string.auto_tracking_cancelling_successful
+                is CancelAutoTrackingResult.Success -> _operationSucceededEvent.value = R.string.auto_tracking_cancelling_successful
                 is CancelAutoTrackingResult.Failure -> _errorEvent.value = R.string.error_cant_stop_auto_tacking
             }
         })
+    }
+
+    fun purgeCache() {
+        disposable += purgeCacheUseCase.execute().subscribe {
+            when (it) {
+                is PurgeCacheResult.Progress -> {
+                    _loadingEvent.value = true
+                }
+                is PurgeCacheResult.Success -> {
+                    _loadingEvent.value = false
+                    _operationSucceededEvent.value = R.string.toast_cache_purged_successfully
+                }
+                is PurgeCacheResult.Failure -> {
+                    _loadingEvent.value = false
+                    _errorEvent.value = R.string.error_cant_purge_cache
+                }
+            }
+        }
     }
 }

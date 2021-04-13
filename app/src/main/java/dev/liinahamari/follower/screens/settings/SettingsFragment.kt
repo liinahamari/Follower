@@ -122,8 +122,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             }
         })
         viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
-        viewModel.successfulSchedulingEvent.observe(viewLifecycleOwner, { infoToast(it) })
-        viewModel.autoTrackingCancellingEvent.observe(viewLifecycleOwner, { infoToast(it) })
+        viewModel.operationSucceededEvent.observe(viewLifecycleOwner, { infoToast(it) })
         viewModel.resetToDefaultsEvent.observe(viewLifecycleOwner, { requireActivity().recreate() })
     }
 
@@ -165,6 +164,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
         if (isDetached.not()) {
             when (preference?.key) {
+                getString(R.string.pref_purge_cache) -> viewModel.purgeCache()
                 getString(R.string.pref_reset_to_default) -> resetDialog.show()
                 getString(R.string.pref_battery_optimization) -> openBatteryOptimizationDialogIfNeeded()
                 getString(R.string.pref_battery_optimization_settings) -> openBatteryOptimizationSettings()
@@ -278,8 +278,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             getString(R.string.pref_acra_enable) -> sharedPreferences.writeBooleanOf(getString(R.string.pref_acra_disable), sharedPreferences.getBooleanOf(key).not())
 
             getString(R.string.pref_tracking_start_time), getString(R.string.pref_tracking_stop_time) -> viewModel.scheduleAutoTracking()
-
-//            getString(R.string.pref_purge_cache) -> viewModel.purgeMapCache() /*        SqlTileWriter().purgeCache()*/
         }
     }
 

@@ -146,5 +146,9 @@
         <Preference
             android:key="@string/pref_reset_to_default"
             android:title="@string/title_reset_to_defaults" />
+
+        <Preference
+            android:key="@string/pref_purge_cache"
+            android:title="@string/title_purge_cache" />
     </PreferenceCategory>
 </PreferenceScreen>

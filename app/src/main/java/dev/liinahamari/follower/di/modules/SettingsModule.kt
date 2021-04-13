@@ -11,6 +11,7 @@ import dagger.Provides
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.screens.settings.BiometricAvailabilityValidationUseCase
+import dev.liinahamari.follower.screens.settings.PurgeCacheUseCase
 import dev.liinahamari.follower.screens.settings.SettingsPrefsInteractor
 import dev.liinahamari.follower.screens.settings.SettingsScope
 import javax.inject.Named
@@ -57,6 +58,10 @@ class SettingsModule(
     @Provides
     @SettingsScope
     fun provideBiometricAvailabilityValidator(@Named(APP_CONTEXT) context: Context, composers: BaseComposers): BiometricAvailabilityValidationUseCase = BiometricAvailabilityValidationUseCase(context, composers)
+
+    @Provides
+    @SettingsScope
+    fun providePurgeCacheUseCase(@Named(APP_CONTEXT) context: Context, composers: BaseComposers): PurgeCacheUseCase = PurgeCacheUseCase(context, composers)
 
     @Provides
     @SettingsScope

@@ -30,6 +30,7 @@
     <string name="pref_value_track_display_mode_map" translatable="false">pref_value_track_display_mode_map</string>
     <string name="pref_value_track_display_mode_addresses_list" translatable="false">pref_value_track_display_mode_addresses_list</string>
     <string name="pref_enable_auto_tracking" translatable="false">pref_enable_auto_tracking</string>
+    <string name="pref_purge_cache" translatable="false">pref_purge_cache</string>
     <string name="pref_reset_to_default" translatable="false">pref_reset_to_default</string>
     <string name="pref_battery_optimization" translatable="false">pref_battery_optimization</string>
     <string name="pref_is_first_launch" translatable="false">pref_is_first_launch</string>
@@ -159,4 +160,7 @@
     <string name="summary_root_detected">If so, there\'s ABSOLUTELY NO WARRANTY your data will remain secure and integral.</string>
     <string name="title_i_accept_risks">I accept risks</string>
     <string name="title_app_crashed">App crashed in %s thread (versionCode: %s)</string>
+    <string name="title_purge_cache">Purche cache</string>
+    <string name="toast_cache_purged_successfully">Cache purged successfully!</string>
+    <string name="error_cant_purge_cache">Error purging cache</string>
 </resources>
