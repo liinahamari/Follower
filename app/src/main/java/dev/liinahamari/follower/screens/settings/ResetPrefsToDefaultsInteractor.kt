@@ -14,12 +14,12 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Named
 
 @SettingsScope
-class SettingsPrefsInteractor constructor(
+class ResetPrefsToDefaultsInteractor constructor(
     private val baseComposers: BaseComposers,
     private val sharedPreferences: SharedPreferences,
     @Named(APP_CONTEXT) private val context: Context
 ) {
-    fun resetOptionsToDefaults(): Observable<ResetToDefaultsState> = Observable.fromCallable {
+    fun resetPrefsToDefaults(): Observable<ResetToDefaultsState> = Observable.fromCallable {
         with(sharedPreferences) {
             writeStringOf(context.getString(R.string.pref_lang), context.resources.getStringArray(R.array.supported_locales).first())
             writeStringOf(context.getString(R.string.pref_min_distance), DEFAULT_LOCATION_UPDATE_INTERVAL.toString())

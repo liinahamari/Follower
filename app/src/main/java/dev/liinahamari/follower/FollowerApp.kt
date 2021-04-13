@@ -18,7 +18,6 @@ import dev.liinahamari.follower.di.components.AppComponent
 import dev.liinahamari.follower.di.components.DaggerAppComponent
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import dev.liinahamari.follower.helper.FlightRecorder
-import dev.liinahamari.follower.model.PersistedLocaleResult
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.screens.crash_screen.CrashStackTraceActivity
 import dev.liinahamari.follower.screens.logs.MY_EMAIL
@@ -41,7 +40,7 @@ private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
 @AcraCore(buildConfigClass = BuildConfig::class, reportFormat = StringFormat.JSON)
 /*
 @AcraHttpSender(uri = "http://yourserver.com/yourscript",
-    basicAuthLogin = "yourlogin", // optional
+    basicAuthLogin = "  yourlogin", // optional
     basicAuthPassword = "y0uRpa$\$w0rd", // optional
     httpMethod = HttpSender.Method.POST)
 */
@@ -63,7 +62,7 @@ class FollowerApp : Application() {
         preferencesRepository.incrementAppLaunchCounter()
         setupWorkManager()
         setupAnrWatchDog()
-        preferencesRepository.applyDefaultPreferences().blockingAwait()
+        preferencesRepository.applyDefaultPreferences()
         setupOsmdroid()
         setupNotificationChannels()
         setupFtpUploadingService()
@@ -127,13 +126,12 @@ class FollowerApp : Application() {
         ACRA.init(this)
     }
 
+    /** Blocking device-wide language changes */
     override fun onConfigurationChanged(newConfig: Configuration) {
         preferencesRepository.getPersistedLocale()
             .blockingGet().also {
-                if (it is PersistedLocaleResult.Success) {
-                    Locale.setDefault(it.locale)
-                    newConfig.setLocale(it.locale)
-                }
+                Locale.setDefault(it)
+                newConfig.setLocale(it)
             }
         super.onConfigurationChanged(newConfig)
     }

@@ -12,7 +12,7 @@ import dev.liinahamari.follower.R
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.screens.settings.BiometricAvailabilityValidationUseCase
 import dev.liinahamari.follower.screens.settings.PurgeCacheUseCase
-import dev.liinahamari.follower.screens.settings.SettingsPrefsInteractor
+import dev.liinahamari.follower.screens.settings.ResetPrefsToDefaultsInteractor
 import dev.liinahamari.follower.screens.settings.SettingsScope
 import javax.inject.Named
 
@@ -65,7 +65,7 @@ class SettingsModule(
 
     @Provides
     @SettingsScope
-    fun provideSettingsPrefsInteractor(baseComposers: BaseComposers, sharedPreferences: SharedPreferences, @Named(APP_CONTEXT) context: Context) = SettingsPrefsInteractor(baseComposers, sharedPreferences, context)
+    fun provideSettingsPrefsInteractor(baseComposers: BaseComposers, sharedPreferences: SharedPreferences, @Named(APP_CONTEXT) context: Context) = ResetPrefsToDefaultsInteractor(baseComposers, sharedPreferences, context)
 
     @Provides
     @SettingsScope

@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 @SettingsScope
 class SettingsViewModel @Inject constructor(
-    private val prefInteractor: SettingsPrefsInteractor,
+    private val prefToDefaultsInteractor: ResetPrefsToDefaultsInteractor,
     private val autoTrackingSchedulingUseCase: AutoTrackingSchedulingUseCase,
     private val biometricValidationUseCase: BiometricAvailabilityValidationUseCase,
     private val purgeCacheUseCase: PurgeCacheUseCase
@@ -36,7 +36,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun resetOptionsToDefaults() {
-        disposable += prefInteractor.resetOptionsToDefaults().subscribe {
+        disposable += prefToDefaultsInteractor.resetPrefsToDefaults().subscribe {
             when (it) {
                 is ResetToDefaultsState.Success -> {
                     _loadingEvent.value = false

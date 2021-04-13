@@ -7,7 +7,6 @@ import dev.liinahamari.follower.base.BaseViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
 import dev.liinahamari.follower.interactors.*
 import dev.liinahamari.follower.model.PreferencesRepository
-import dev.liinahamari.follower.model.TrackDisplayModeResult
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
@@ -56,10 +55,7 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
 
     fun getTrackDisplayMode(trackId: Long) {
         disposable += preferencesRepository.getTrackDisplayMode().subscribe(Consumer {
-            when (it) {
-                is TrackDisplayModeResult.Success -> _trackDisplayModeEvent.value = it.displayMode to trackId
-                is TrackDisplayModeResult.Failure -> _errorEvent.value = R.string.error_unexpected
-            }
+            _trackDisplayModeEvent.value = it to trackId
         })
     }
 
