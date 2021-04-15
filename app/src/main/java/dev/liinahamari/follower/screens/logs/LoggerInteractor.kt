@@ -16,6 +16,7 @@ import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import java.io.*
 import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -44,13 +45,13 @@ class LoggerInteractor @Inject constructor(
                 LogUi.ErrorLog(
                     label = stackTraceLines.first(),
                     stacktrace = stackTraceLines.subList(1, stackTraceLines.size).joinToString(separator = "\n"),
-                    time = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING).parse(time)!!.time,
+                    time = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING, Locale.UK).parse(time)!!.time,
                     thread = thread
                 )
             } else {
                 LogUi.InfoLog(
                     message = it,
-                    time = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING).parse(time)!!.time,
+                    time = SimpleDateFormat(DATE_PATTERN_FOR_LOGGING, Locale.UK).parse(time)!!.time,
                     thread = thread,
                     priority = FlightRecorder.Priority.valueOf(priority)
                 )
