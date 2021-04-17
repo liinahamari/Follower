@@ -34,7 +34,7 @@ class IntroActivity : AppIntro() {
             finish()
             startActivity(Intent(this, MainActivity::class.java))
         } else {
-            addSlide(SlideFragment.newInstance("Welcome to Follower!", "Application which tracks your movement even in background", R.color.purple_200, R.drawable.sc_background))
+            addSlide(SlideFragment.newInstance("Welcome to Follower!", "Application which tracks your movement even in background", R.color.teal_700, R.drawable.sc_background))
             addSlide(SlideFragment.newInstance("Track observing", "Observe your track with Map or with Address View", R.color.purple_500, R.drawable.sc_address_list))
             addSlide(SlideFragment.newInstance("Try Dark Theme", "Dark theme implemented to protect your eyes at night time", R.color.purple_700, R.drawable.sc_dark_map))
             addSlide(SlideFragment.newInstance("Sharing and Import", "Share your tracks with your friends and observe their tracks!", R.color.purple_200, R.drawable.sc_share))
