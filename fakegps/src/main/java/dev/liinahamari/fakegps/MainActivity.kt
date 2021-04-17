@@ -35,8 +35,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
-    private var lat = 55.75578
-    private var lon = 37.61786
+    private var lat = 59.43767452560608
+//    private var lat = 55.75578
+    private var lon = 24.754188013895778
+//    private var lon = 37.61786
 
     private val clicks = CompositeDisposable()
     private val mockDisposable = CompositeDisposable()
@@ -97,8 +99,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .map {
                 Location(LocationManager.GPS_PROVIDER)
                     .apply {
-                        lat += 0.0005
-                        lon += 0.0005
+                        lat -= 0.0005
+                        lon -= 0.0005
                         latitude = lat
                         longitude = lon
                         time = System.currentTimeMillis()

@@ -7,7 +7,6 @@
         android:name="android.hardware.location.gps"
         android:required="true"
         tools:ignore="UnsupportedTvHardware" />
-
     <uses-feature android:name="android.hardware.location.network" />
 
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
@@ -42,14 +41,16 @@
             android:name="android.test.mock"
             android:required="false" />
 
-        <activity android:name=".screens.crash_screen.CrashStackTraceActivity" />
-
-        <activity android:name=".screens.MainActivity">
+        <activity android:name=".screens.intro.IntroActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".screens.crash_screen.CrashStackTraceActivity" />
+
+        <activity android:name=".screens.MainActivity">
         </activity>
 
         <service

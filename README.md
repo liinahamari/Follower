@@ -32,3 +32,4 @@ I'd like to say thanks to the original developers of these great open-source lib
 * https://github.com/square/retrofit
 * https://github.com/facebook/stetho
 * https://github.com/MKergall/osmbonuspack
+* https://github.com/AppIntro/AppIntro

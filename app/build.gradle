@@ -114,6 +114,7 @@ dependencies {
     implementation 'com.github.anrwatchdog:anrwatchdog:1.4.0'
     implementation "net.gotev:uploadservice-ftp:4.5.2"
     implementation 'com.scottyab:rootbeer-lib:0.0.8'
+    implementation 'com.github.AppIntro:AppIntro:6.1.0'
 
     /* PERSISTENCE */
     implementation "androidx.room:room-runtime:2.3.0-rc01"

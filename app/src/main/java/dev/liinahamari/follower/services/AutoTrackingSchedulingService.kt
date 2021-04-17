@@ -42,7 +42,7 @@ class AutoTrackingSchedulingService : BaseService() {
     private fun createNotification(): Notification.Builder = Notification.Builder(applicationContext, CHANNEL_ID)
         .setContentTitle(getString(R.string.title_scheduling))
         .setContentText("")
-        .setSmallIcon(R.drawable.alarm)
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
         .setAutoCancel(false)
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
