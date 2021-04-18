@@ -1,8 +1,3 @@
-## Features and problems:
-###     [Drawing routes with OpenStreetMap osmdroid](articles/osmdroidSetup.md)
-###     [Sharing file dedicated to internal usage](articles/sharingInternalFile.md)
-###     [Establishing FTP server with a DigitalOcean droplet](articles/establishingFtpServer.md)
-
 ## Screenshots:
 <div align="center">
 <img src="/screenshots/Screenshot_20210119-001507.png" width="360" height="640" border="10"/>
@@ -33,3 +28,8 @@ I'd like to say thanks to the original developers of these great open-source lib
 * https://github.com/facebook/stetho
 * https://github.com/MKergall/osmbonuspack
 * https://github.com/AppIntro/AppIntro
+
+## Features and problems:
+###     [Drawing routes with OpenStreetMap osmdroid](articles/osmdroidSetup.md)
+###     [Sharing file dedicated to internal usage](articles/sharingInternalFile.md)
+###     [Establishing FTP server with a DigitalOcean droplet](articles/establishingFtpServer.md)
