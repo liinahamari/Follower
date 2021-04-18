@@ -34,10 +34,11 @@ class IntroActivity : AppIntro() {
             finish()
             startActivity(Intent(this, MainActivity::class.java))
         } else {
-            addSlide(SlideFragment.newInstance("Welcome to Follower!", "Application which tracks your movement even in background", R.color.teal_700, R.drawable.sc_background))
-            addSlide(SlideFragment.newInstance("Track observing", "Observe your track with Map or with Address View", R.color.purple_500, R.drawable.sc_address_list))
-            addSlide(SlideFragment.newInstance("Try Dark Theme", "Dark theme implemented to protect your eyes at night time", R.color.purple_700, R.drawable.sc_dark_map))
-            addSlide(SlideFragment.newInstance("Sharing and Import", "Share your tracks with your friends and observe their tracks!", R.color.purple_200, R.drawable.sc_share))
+            addSlide(SlideFragment.newInstance(getString(R.string.title_welcome_to_follower), getString(R.string.summary_welcome), R.color.teal_700, R.drawable.sc_background))
+            addSlide(SlideFragment.newInstance(getString(R.string.title_track_observing), getString(R.string.summary_track_observing), R.color.purple_500, R.drawable.sc_address_list)) //todo half-by-half map and addresses view on a picture
+            addSlide(SlideFragment.newInstance(getString(R.string.title_try_dark_theme), getString(R.string.summmary_dark_theme), R.color.purple_700, R.drawable.sc_dark_map))
+            addSlide(SlideFragment.newInstance(getString(R.string.title_sharing_and_import), getString(R.string.summary_sharing_and_import), R.color.purple_200, R.drawable.sc_share))
+            //TODO fingerprint/pin feature
         }
     }
 

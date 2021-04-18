@@ -121,4 +121,12 @@
     <string name="title_purge_cache">Очистить кэш</string>
     <string name="toast_cache_purged_successfully">Кэш очищен успешно!</string>
     <string name="error_cant_purge_cache">Ошибка при очистке кэша</string>
+    <string name="title_welcome_to_follower">Добро пожаловать в Follower!</string>
+    <string name="title_track_observing">Просмотр Маршрута</string>
+    <string name="title_try_dark_theme">Темный Режим</string>
+    <string name="title_sharing_and_import">Делитесь Маршрутами</string>
+    <string name="summary_welcome">Приложение, которое имеет возможность записывать ваши перемещения даже в фоновом режиме</string>
+    <string name="summary_track_observing">Просматривайте записанный маршрут с помощью OpenStreetMap карты или как список адресов</string>
+    <string name="summmary_dark_theme">Воспользуйтесь темным режимом чтобы позаботиться о глазах в темное время суток</string>
+    <string name="summary_sharing_and_import">Делитесь маршрутами с друзьями и просматривайте их маршруты!</string>
 </resources>

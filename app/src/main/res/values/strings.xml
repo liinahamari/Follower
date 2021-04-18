@@ -163,4 +163,12 @@
     <string name="title_purge_cache">Purche cache</string>
     <string name="toast_cache_purged_successfully">Cache purged successfully!</string>
     <string name="error_cant_purge_cache">Error purging cache</string>
+    <string name="title_welcome_to_follower">Welcome to Follower!</string>
+    <string name="title_track_observing">Track Observing</string>
+    <string name="title_try_dark_theme">Try Dark Theme</string>
+    <string name="title_sharing_and_import">Sharing and Import</string>
+    <string name="summary_welcome">Application that has ability to record your movements even in background</string>
+    <string name="summary_track_observing">Observe your track with OpenStreetMap or as a list of addresses</string>
+    <string name="summmary_dark_theme">Dark theme implemented to protect your eyes at night time</string>
+    <string name="summary_sharing_and_import">Share your tracks with your friends and observe their tracks!</string>
 </resources>
