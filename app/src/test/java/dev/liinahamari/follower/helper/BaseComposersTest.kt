@@ -20,6 +20,7 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.helper.rx.TestSchedulers
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Single
 import org.junit.After
 import org.junit.Before
@@ -34,19 +35,18 @@ import org.robolectric.annotation.Config
 class BaseComposersTest {
     private val logFile = createTempFile()
     private val schedulers = TestSchedulers()
-    private val logger = FlightRecorder(logFile, schedulers.io(), schedulers.ui())
-    private val baseComposers = BaseComposers(schedulers, logger)
+    private val baseComposers = BaseComposers(schedulers)
 
     @Before
     fun setUp() {
         shadowOf(getMainLooper()).idle()
-        assert(logger.getEntireRecord().isEmpty())
+        assert(FlightRecorder.getEntireRecord().isEmpty())
     }
 
     @After
     fun tearDown() {
         logFile.writeText("")
-        assert(logger.getEntireRecord().isEmpty())
+        assert(FlightRecorder.getEntireRecord().isEmpty())
     }
 
     @Suppress("UNREACHABLE_CODE")
@@ -65,9 +65,9 @@ class BaseComposersTest {
             .onErrorResumeWith(Single.just(true))
             .subscribe()
 
-        assert(logger.getEntireRecord().isNotBlank())
+        assert(FlightRecorder.getEntireRecord().isNotBlank())
 
-        with (logger.getEntireRecord().split("\n")) {
+        with (FlightRecorder.getEntireRecord().split("\n")) {
             assert(size > 1)
             assert(first().contains(label))
             assert(get(1).contains(exMessage))

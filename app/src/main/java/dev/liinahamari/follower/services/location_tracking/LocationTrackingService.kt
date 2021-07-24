@@ -68,8 +68,8 @@ class LocationTrackingService : BaseService() {
 
     private val locationListener = LocationListener()
     private val binder = LocationServiceBinder()
-    val isTracking = BehaviorSubject.createDefault(false)
-    val wayPointsCounter = BehaviorSubject.createDefault(0)
+    val isTracking: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
+    val wayPointsCounter: BehaviorSubject<Int> = BehaviorSubject.createDefault(0)
 
     override fun onBind(intent: Intent?): IBinder = binder
 

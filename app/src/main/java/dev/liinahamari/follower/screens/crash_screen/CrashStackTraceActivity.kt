@@ -26,7 +26,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import dev.liinahamari.follower.R
 import kotlinx.android.synthetic.main.activity_crash_stack_trace.*
-import kotlin.system.exitProcess
 
 /*TODO: how to test?*/
 class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_trace) {
