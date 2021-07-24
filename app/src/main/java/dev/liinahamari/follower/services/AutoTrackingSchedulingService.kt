@@ -23,6 +23,7 @@ import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseService
 import dev.liinahamari.follower.base.FOREGROUND_ID_AUTO_TRACKING_SCHEDULING
 import dev.liinahamari.follower.screens.settings.AutoTrackingSchedulingUseCase
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import javax.inject.Inject
 import io.reactivex.rxjava3.kotlin.plusAssign
 
@@ -48,11 +49,11 @@ class AutoTrackingSchedulingService : BaseService() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         subscriptions += autoTrackingSchedulingUseCase.setupStartAndStop().subscribe({
-            logger.i { "${this.javaClass.name} scheduling successful" }
+            FlightRecorder.i { "${this.javaClass.name} scheduling successful" }
             stopForeground(true) /*todo check it's working*/
             stopSelf()
         }, {
-            logger.e("Auto-tracking scheduling", it)
+            FlightRecorder.e("Auto-tracking scheduling", it)
             stopForeground(true)
             stopSelf()
         })

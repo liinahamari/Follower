@@ -15,7 +15,7 @@
 
     <fragment
         android:id="@+id/logs"
-        android:name="dev.liinahamari.follower.screens.logs.LogsFragment"
+        android:name="dev.liinahamari.loggy_sdk.screens.logs.LogsFragment"
         android:label="Logs">
         <action
             android:id="@+id/action_to_pager"

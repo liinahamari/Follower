@@ -25,6 +25,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 
 abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes) {
     protected var isServiceBound = false
@@ -36,7 +37,7 @@ abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes)
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             if (className.className.endsWith(getBindingTarget().simpleName)) {
-                logger.lifecycle { "ServiceConnection (${this::class.java.simpleName}): connected" }
+                FlightRecorder.lifecycle { "ServiceConnection (${this::class.java.simpleName}): connected" }
                 isServiceBound = true
                 onServiceConnected(service)
             }
@@ -45,7 +46,7 @@ abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes)
         /*calling if Service have been crashed or killed in order to free resources*/
         override fun onServiceDisconnected(name: ComponentName) {
             if (name.className.endsWith(LocationTrackingService::class.java.simpleName)) {
-                logger.lifecycle { "ServiceConnection: disconnected" }
+                FlightRecorder.lifecycle { "ServiceConnection: disconnected" }
                 isServiceBound = false
                 onServiceDisconnected()
             }
@@ -56,7 +57,7 @@ abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes)
     override fun onStart() {
         super.onStart()
         requireActivity().bindService(Intent(requireActivity(), getBindingTarget()), serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
-            .also { logger.lifecycle { "(${this::class.java.simpleName}) Service bound ($it) from onStart()" } }
+            .also { FlightRecorder.lifecycle { "(${this::class.java.simpleName}) Service bound ($it) from onStart()" } }
     }
 
     @CallSuper
@@ -66,7 +67,7 @@ abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes)
             requireActivity().unbindService(serviceConnection)
             isServiceBound = false
         } catch (e: Throwable) {
-            logger.e(label = "(${this::class.java.simpleName}) Unbinding unsuccessful...", error = e)
+            FlightRecorder.e(label = "(${this::class.java.simpleName}) Unbinding unsuccessful...", error = e)
         }
     }
 }

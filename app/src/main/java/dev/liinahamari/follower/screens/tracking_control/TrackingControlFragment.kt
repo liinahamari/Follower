@@ -44,6 +44,7 @@ import dev.liinahamari.follower.ext.startForegroundService
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.services.location_tracking.*
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
@@ -162,7 +163,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                         }
                     }
                 } else {
-                    logger.wtf { "problem with service binding... gpsService == null (${gpsService == null})" }
+                    FlightRecorder.w { "problem with service binding... gpsService == null (${gpsService == null})" }
                     throw RuntimeException()
                 }
             }

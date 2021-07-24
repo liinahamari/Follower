@@ -20,7 +20,6 @@ import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dev.liinahamari.follower.ext.createFileIfNotExist
-import dev.liinahamari.follower.helper.FlightRecorder
 import java.io.File
 import javax.inject.Named
 import javax.inject.Singleton
@@ -31,10 +30,6 @@ const val DEBUG_LOGS_STORAGE_FILE = "tape.log"
 
 @Module
 class LoggerModule {
-    @Provides
-    @Singleton
-    fun provideLogger(@Named(DEBUG_LOGS_STORAGE_FILE) file: File): FlightRecorder = FlightRecorder(file)
-
     @Provides
     @Singleton
     @Named(DEBUG_LOGS_STORAGE_FILE)

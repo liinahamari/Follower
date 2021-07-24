@@ -24,11 +24,11 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.scottyab.rootbeer.RootBeer
-import dev.liinahamari.follower.R
-import dev.liinahamari.follower.di.scopes.BiometricScope
-import dev.liinahamari.follower.helper.FlightRecorder
 import dagger.Module
 import dagger.Provides
+import dev.liinahamari.follower.R
+import dev.liinahamari.follower.di.scopes.BiometricScope
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import java.security.KeyStore
 import java.util.*
 import javax.crypto.Cipher
@@ -101,10 +101,10 @@ class BiometricModule(private val activity: FragmentActivity, private val onSucc
 
     @BiometricScope
     @Provides
-    fun provideLoggingCallback(logger: FlightRecorder): BiometricCallback = object : BiometricCallback {
-        override fun onAuthenticationFailed() = onFailedAuth.invoke().also { logger.i { "biometric auth failed" } }
-        override fun onAuthenticationSuccessful() = onSuccessfulAuth.invoke().also { logger.i { "biometric auth succeed" } }
-        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) = onFailedAuth.invoke().also { logger.i { "biometric auth error. errorCode: $errorCode, errString: $errString" } }
+    fun provideLoggingCallback(): BiometricCallback = object : BiometricCallback {
+        override fun onAuthenticationFailed() = onFailedAuth.invoke().also { FlightRecorder.i { "biometric auth failed" } }
+        override fun onAuthenticationSuccessful() = onSuccessfulAuth.invoke().also { FlightRecorder.i { "biometric auth succeed" } }
+        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) = onFailedAuth.invoke().also { FlightRecorder.i { "biometric auth error. errorCode: $errorCode, errString: $errString" } }
     }
 
     @BiometricScope

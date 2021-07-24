@@ -44,7 +44,6 @@ import dev.liinahamari.follower.ext.*
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.infoToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
-import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_BACKGROUND_LOCATION
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_LOCATION
 import java.util.*
@@ -64,7 +63,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     @Inject lateinit var authenticator: Lazy<Authenticator>
     @Inject lateinit var viewModel: SettingsViewModel
     @Inject lateinit var prefs: SharedPreferences
-    @Inject lateinit var logger: FlightRecorder
 
     @JvmField
     @Named(IS_ROOTED_BOOL)

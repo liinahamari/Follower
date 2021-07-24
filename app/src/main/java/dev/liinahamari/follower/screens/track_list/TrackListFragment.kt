@@ -43,7 +43,6 @@ import dev.liinahamari.follower.di.scopes.BiometricScope
 import dev.liinahamari.follower.ext.adaptToNightModeState
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
-import dev.liinahamari.follower.screens.logs.TEXT_TYPE
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_track_list.*
@@ -185,7 +184,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
         viewModel.shareJsonEvent.observe(viewLifecycleOwner) { trackJsonAndName ->
             Intent(Intent.ACTION_SEND).apply {
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                type = TEXT_TYPE
+                type = "text/plain"
                 putExtra(Intent.EXTRA_SUBJECT, String.format(getString(R.string.title_sharing_track), trackJsonAndName.second))
                 putExtra(Intent.EXTRA_STREAM, trackJsonAndName.first)
             }.also { startActivity(it) }

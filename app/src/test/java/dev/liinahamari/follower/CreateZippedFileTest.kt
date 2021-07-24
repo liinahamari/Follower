@@ -21,7 +21,6 @@ import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.test.platform.app.InstrumentationRegistry
 import dev.liinahamari.follower.di.modules.DEBUG_LOGS_DIR
-import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.helper.rx.TestSchedulers
 import dev.liinahamari.follower.screens.logs.CreateZipLogsFileResult

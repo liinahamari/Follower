@@ -30,7 +30,6 @@ import dev.liinahamari.follower.di.modules.APP_CONTEXT
 import dev.liinahamari.follower.ext.createFileIfNotExist
 import dev.liinahamari.follower.ext.getUriForInternalFile
 import dev.liinahamari.follower.ext.toReadableDate
-import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.model.TrackDao
 import dev.liinahamari.follower.model.TrackJson
@@ -39,6 +38,7 @@ import dev.liinahamari.follower.model.WayPointJson
 import dev.liinahamari.follower.screens.address_trace.MapPointer
 import dev.liinahamari.follower.screens.track_list.TrackTitle
 import dev.liinahamari.follower.screens.track_list.TrackUi
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -50,7 +50,6 @@ class TrackInteractor @Inject constructor(
     @Named(APP_CONTEXT) private val context: Context,
     private val trackDao: TrackDao,
     private val wayPointDao: WayPointDao,
-    private val logger: FlightRecorder,
     private val baseComposers: BaseComposers,
     private val gson: Gson
 ) {
@@ -82,7 +81,7 @@ class TrackInteractor @Inject constructor(
 
     fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
         .flattenAsObservable {
-            logger.i { "getAddresses init size: ${it.wayPoints.size}" }
+            FlightRecorder.i { "getAddresses init size: ${it.wayPoints.size}" }
             it.wayPoints
         }
         .distinctUntilChanged()
@@ -95,7 +94,7 @@ class TrackInteractor @Inject constructor(
         }
         .toList()
         .toObservable()
-        .doOnNext { logger.i { "getAddresses trimmed size: ${it.size}" } }
+        .doOnNext { FlightRecorder.i { "getAddresses trimmed size: ${it.size}" } }
         .map<GetAddressesResult> { GetAddressesResult.Success(it) }
         .onErrorReturn { GetAddressesResult.DatabaseCorruptionError }
         .startWithItem(GetAddressesResult.Loading)
