@@ -119,6 +119,7 @@ dependencies {
     implementation "net.gotev:uploadservice-ftp:4.5.2"
     implementation 'com.scottyab:rootbeer-lib:0.0.8'
     implementation 'com.github.AppIntro:AppIntro:6.1.0'
+    implementation 'com.github.cachapa:ExpandableLayout:2.9.2'
 
     /* PERSISTENCE */
     implementation "androidx.room:room-runtime:2.4.0-alpha04"
