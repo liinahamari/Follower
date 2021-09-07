@@ -16,6 +16,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.screens.intro
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -28,6 +29,7 @@ import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import dev.liinahamari.follower.screens.MainActivity
 
 class IntroActivity : AppIntro() {
+    @SuppressLint("MissingSuperCall") /*bug!*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (getDefaultSharedPreferences().getIntOf(getString(R.string.pref_app_launch_counter)) != 1) {

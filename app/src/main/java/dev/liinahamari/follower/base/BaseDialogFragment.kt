@@ -22,13 +22,11 @@ import android.view.View
 import androidx.annotation.CallSuper
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
-import dev.liinahamari.follower.FollowerApp
-import dev.liinahamari.follower.helper.FlightRecorder
+import dev.liinahamari.follower.ext.appComponent
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import javax.inject.Inject
 
-open class BaseDialogFragment: DialogFragment() {
-    @Inject lateinit var logger: FlightRecorder
+open class BaseDialogFragment : DialogFragment() {
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
     val subscriptions = CompositeDisposable()
@@ -46,7 +44,7 @@ open class BaseDialogFragment: DialogFragment() {
     protected open fun setupClicks() = Unit
 
     override fun onAttach(context: Context) {
-        (context.applicationContext as FollowerApp).appComponent.inject(this)
+        appComponent?.inject(this)
         super.onAttach(context)
     }
 }

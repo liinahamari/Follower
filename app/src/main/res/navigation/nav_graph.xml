@@ -2,7 +2,6 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_nav_graph.xml"
     app:startDestination="@id/tab_controls">
 
     <fragment
@@ -15,7 +14,7 @@
             app:destination="@id/tab_settings" />
         <action
             android:id="@+id/action_to_track_list"
-            app:destination="@id/tracklist_fragment" />
+            app:destination="@id/track_list_fragment" />
     </fragment>
 
     <fragment
@@ -24,7 +23,7 @@
         android:label="Settings"/>
 
     <fragment
-        android:id="@+id/tracklist_fragment"
+        android:id="@+id/track_list_fragment"
         android:name="dev.liinahamari.follower.screens.track_list.TrackListFragment"
         android:label="Track List"
         tools:layout="@layout/fragment_track_list">

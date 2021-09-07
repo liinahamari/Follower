@@ -17,10 +17,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.screens.trace_map
 
 import android.content.Context
-import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.MapFragment
 import dev.liinahamari.follower.ext.MarkerType
+import dev.liinahamari.follower.ext.appComponent
 import dev.liinahamari.follower.ext.createMarker
 import dev.liinahamari.follower.ext.getScreenHeightPx
 import dev.liinahamari.follower.helper.CustomToast.errorToast
@@ -32,10 +32,9 @@ class TraceFragment : MapFragment() {
     @Inject lateinit var viewModel: TraceFragmentViewModel
 
     override fun onAttach(context: Context) = super.onAttach(context).also {
-        (context.applicationContext as FollowerApp)
-            .appComponent
-            .roadBuildingComponent()
-            .inject(this)
+        appComponent
+            ?.roadBuildingComponent()
+            ?.inject(this)
     }
 
     override fun onResume() = super.onResume().also {

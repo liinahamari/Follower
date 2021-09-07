@@ -19,7 +19,6 @@ package dev.liinahamari.follower.screens.settings
 import android.app.AlarmManager
 import android.app.AlarmManager.RTC_WAKEUP
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_NO_CREATE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
@@ -30,11 +29,11 @@ import dev.liinahamari.follower.ext.isServiceRunning
 import dev.liinahamari.follower.ext.isTimeBetweenTwoTimes
 import dev.liinahamari.follower.ext.minutesFromMidnightToHourlyTime
 import dev.liinahamari.follower.ext.nowHoursAndMinutesOnly
-import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.receivers.AutoTrackingReceiver
 import dev.liinahamari.follower.services.location_tracking.ACTION_START_TRACKING
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.*
@@ -44,8 +43,7 @@ class AutoTrackingSchedulingUseCase constructor(
     private val sharedPreferences: SharedPreferences,
     @Named(APP_CONTEXT) private val context: Context,
     private val baseComposers: BaseComposers,
-    private val alarmManager: AlarmManager,
-    private val logger: FlightRecorder
+    private val alarmManager: AlarmManager
 ) {
     fun cancelAutoTracking(): Single<CancelAutoTrackingResult> = Completable.fromCallable {
         alarmManager.cancel(
@@ -68,7 +66,7 @@ class AutoTrackingSchedulingUseCase constructor(
         .onErrorReturn {
             it.printStackTrace()
             CancelAutoTrackingResult.Failure }
-        .doOnError { logger.e("Canceling auto-tracking", it) }
+        .doOnError { FlightRecorder.e("Canceling auto-tracking", it) }
 
     fun setupStartAndStop(): Single<SchedulingStartStopResult> =
         Single.just(sharedPreferences.getInt(context.getString(R.string.pref_tracking_start_time), -1) to sharedPreferences.getInt(context.getString(R.string.pref_tracking_stop_time), -1))
@@ -82,17 +80,17 @@ class AutoTrackingSchedulingUseCase constructor(
                             action = ACTION_START_TRACKING
                         })
                     } else {
-                        logger.i { "AUTO_START delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}" }
+                        FlightRecorder.i { "AUTO_START delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}" }
                         scheduleAutoStart(it.first)
                     }
                 } else {
                     /*todo consider 15 minutes delay of AlarmManager (+= 15 min to start if lesser)*/
-                    logger.i { "AUTO_START delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}" }
+                    FlightRecorder.i { "AUTO_START delay ${(getNextLaunchTime(it.first) - System.currentTimeMillis()) / 3600000}" }
                     scheduleAutoStart(it.first)
                 }
             }
             .doOnEvent { startStopTimeValues, _ ->
-                logger.i { "AUTO_STOP delay ${(getNextLaunchTime(startStopTimeValues.second) - System.currentTimeMillis()) / 3600000}" }
+                FlightRecorder.i { "AUTO_STOP delay ${(getNextLaunchTime(startStopTimeValues.second) - System.currentTimeMillis()) / 3600000}" }
                 scheduleAutoStop(startStopTimeValues.second)
             }
             .map<SchedulingStartStopResult> { SchedulingStartStopResult.Success }

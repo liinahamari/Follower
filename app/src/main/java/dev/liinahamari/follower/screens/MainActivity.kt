@@ -28,13 +28,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.squareup.seismic.ShakeDetector
-import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseFragment
-import dev.liinahamari.follower.ext.getBooleanOf
-import dev.liinahamari.follower.ext.isIgnoringBatteryOptimizations
-import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
-import dev.liinahamari.follower.ext.writeBooleanOf
+import dev.liinahamari.follower.ext.*
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -54,7 +50,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
     private var shakeDetector: ShakeDetector? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        (application as FollowerApp).appComponent.inject(this)
+        appComponent.inject(this)
         shakeDetector = ShakeDetector(this)
         super.onCreate(savedInstanceState)
         setDefaultNightMode(prefs.getString(getString(R.string.pref_theme), null)!!.toInt()) /*NPE can be caused by lack of defaultValue in preferences.xml of android:key="@string/pref_theme" */

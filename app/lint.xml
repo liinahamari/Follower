@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="IconLocation">
+        <ignore path="src/main/res/drawable/sc_address_list.png" />
+        <ignore path="src/main/res/drawable/sc_background.png" />
+        <ignore path="src/main/res/drawable/sc_dark_map.png" />
+        <ignore path="src/main/res/drawable/sc_share.png" />
+    </issue>
+</lint>

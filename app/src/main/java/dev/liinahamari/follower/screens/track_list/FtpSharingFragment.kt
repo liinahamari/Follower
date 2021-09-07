@@ -38,6 +38,7 @@ import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.helper.SingleLiveEvent
 import dev.liinahamari.follower.interactors.SharedTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -75,7 +76,7 @@ class FtpSharingFragment : BaseDialogFragment() {
                         is UploadError -> errorToast(String.format(getString(R.string.error_upload_error), exception.serverResponse))
                         else -> errorToast(uploadInfo.toString())
                     }
-                    logger.e("Error uploading file to FTP server", exception)
+                    FlightRecorder.e("Error uploading file to FTP server", exception)
                 }
 
                 override fun onSuccess(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse) {

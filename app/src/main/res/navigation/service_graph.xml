@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/service_graph"
     app:startDestination="@id/follower_pager">
 
     <fragment
@@ -15,7 +14,7 @@
 
     <fragment
         android:id="@+id/logs"
-        android:name="dev.liinahamari.follower.screens.logs.LogsFragment"
+        android:name="dev.liinahamari.loggy_sdk.screens.logs.LogsFragment"
         android:label="Logs">
         <action
             android:id="@+id/action_to_pager"

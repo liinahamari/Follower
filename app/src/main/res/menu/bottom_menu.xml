@@ -7,7 +7,7 @@
         android:icon="@drawable/ic_baseline_edit_location_alt_24"
         android:title="@string/title_tracking_controls" />
     <item
-        android:id="@+id/tracklist_fragment"
+        android:id="@+id/track_list_fragment"
         app:showAsAction="ifRoom"
         android:orderInCategory="2"
         android:icon="@drawable/ic_baseline_list_alt_24"

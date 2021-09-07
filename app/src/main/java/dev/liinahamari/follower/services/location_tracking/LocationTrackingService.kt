@@ -25,18 +25,19 @@ import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import dev.liinahamari.follower.BuildConfig
-import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseService
 import dev.liinahamari.follower.base.FOREGROUND_ID_LOCATION_TRACKING
 import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.toWayPoint
+import dev.liinahamari.follower.ext.appComponent
 import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.interactors.SaveTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
 import dev.liinahamari.follower.screens.tracking_control.UploadTrackInteractor
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -67,8 +68,8 @@ class LocationTrackingService : BaseService() {
 
     private val locationListener = LocationListener()
     private val binder = LocationServiceBinder()
-    val isTracking = BehaviorSubject.createDefault(false)
-    val wayPointsCounter = BehaviorSubject.createDefault(0)
+    val isTracking: BehaviorSubject<Boolean> = BehaviorSubject.createDefault(false)
+    val wayPointsCounter: BehaviorSubject<Int> = BehaviorSubject.createDefault(0)
 
     override fun onBind(intent: Intent?): IBinder = binder
 
@@ -80,7 +81,7 @@ class LocationTrackingService : BaseService() {
 
     inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
-            logger.i { "Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
+            FlightRecorder.i { "Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
             subscriptions += trackInteractor.saveWayPoint(location.toWayPoint(trackBeginningTime!!)).subscribe {
                 val wp = wayPointsCounter.value!!.inc()
                 wayPointsCounter.onNext(wp)
@@ -91,8 +92,8 @@ class LocationTrackingService : BaseService() {
             }
         }
 
-        override fun onProviderDisabled(provider: String) = logger.w { "onProviderDisabled: $provider" } /*todo: handle user's geolocation permission revoking*/
-        override fun onProviderEnabled(provider: String) = logger.w { "onProviderEnabled: $provider" }
+        override fun onProviderDisabled(provider: String) = FlightRecorder.w { "onProviderDisabled: $provider" } /*todo: handle user's geolocation permission revoking*/
+        override fun onProviderEnabled(provider: String) = FlightRecorder.w { "onProviderEnabled: $provider" }
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) = Unit /* Cause DEPRECATED */
     }
 
@@ -114,7 +115,7 @@ class LocationTrackingService : BaseService() {
 
     override fun onCreate() {
         super.onCreate()
-        (application as FollowerApp).appComponent.inject(this)
+        appComponent.inject(this)
     }
 
     /*TODO handle deleting or save unsaved track when system kills service*/
@@ -134,7 +135,7 @@ class LocationTrackingService : BaseService() {
             try {
                 locationManager.removeUpdates(locationListener)
             } catch (ex: Exception) {
-                logger.e(label = "Failed to remove location listeners", error = ex)
+                FlightRecorder.e(label = "Failed to remove location listeners", error = ex)
             } finally {
                 isTracking.onNext(false) /* ? */
                 syncDisposable.clear()
@@ -161,7 +162,7 @@ class LocationTrackingService : BaseService() {
             .subscribe { wpAmountInDb ->
                 if (wayPointsCounter.value != wpAmountInDb) {
                     with("!WayPoints mismatch! actual (${wayPointsCounter.value}), database ($wpAmountInDb)") {
-                        logger.e(this, RuntimeException())
+                        FlightRecorder.e(this, RuntimeException())
                         errorToast(this)
                     }
                 }
@@ -183,7 +184,7 @@ class LocationTrackingService : BaseService() {
             trackBeginningTime = System.currentTimeMillis()
 
             subscriptions += trackInteractor.saveTrack(Track(trackBeginningTime!!, trackBeginningTime!!.toReadableDate())).subscribe({}, {
-                logger.e("failed to initially save track!", error = it)
+                FlightRecorder.e("failed to initially save track!", error = it)
             })
 
             syncDisposable += (
@@ -197,11 +198,11 @@ class LocationTrackingService : BaseService() {
         } catch (ex: SecurityException) {
             isTracking.onNext(false)
             stopSelf()
-            logger.e(label = "Failed to request location updates", error = ex)
+            FlightRecorder.e(label = "Failed to request location updates", error = ex)
         } catch (ex: IllegalArgumentException) {
             stopSelf()
             isTracking.onNext(false)
-            logger.e(label = "GPS provider does not exist (${ex.localizedMessage})", error = ex)
+            FlightRecorder.e(label = "GPS provider does not exist (${ex.localizedMessage})", error = ex)
         }
     }
 

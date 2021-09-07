@@ -24,7 +24,6 @@ import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.WayPoint
 import dev.liinahamari.follower.ext.getDefaultSharedPreferences
 import dev.liinahamari.follower.ext.writeStringOf
-import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.helper.rx.TestSchedulers
 import dev.liinahamari.follower.model.PreferencesRepository

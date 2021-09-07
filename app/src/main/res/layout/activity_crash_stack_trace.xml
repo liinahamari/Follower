@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/stacktrace_activity_background"
-    tools:context=".screens.crash_screen.CrashStackTraceActivity">
+    tools:context=".screens.crash_screen.CrashStackTraceActivity"
+    tools:ignore="Overdraw">
 
     <LinearLayout
         android:layout_margin="8dp"

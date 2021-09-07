@@ -33,12 +33,13 @@ import com.github.anrwatchdog.ANRWatchDog
 import dev.liinahamari.follower.di.components.AppComponent
 import dev.liinahamari.follower.di.components.DaggerAppComponent
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
-import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.screens.crash_screen.CrashStackTraceActivity
-import dev.liinahamari.follower.screens.logs.MY_EMAIL
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
+import dev.liinahamari.loggy_sdk.Loggy
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
+import dev.liinahamari.loggy_sdk.helper.createFileIfNotExist
 import io.reactivex.rxjava3.internal.functions.Functions
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import net.gotev.uploadservice.UploadServiceConfig
@@ -50,7 +51,11 @@ import java.util.concurrent.Executors
 import javax.inject.Inject
 import kotlin.system.exitProcess
 
+private const val DEBUG_LOGS_DIR = "TempLogs"
+private const val DEBUG_LOGS_STORAGE_FILE = "tape.log"
+private const val USER_ID = "dummy_id"
 private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
+private const val MY_EMAIL = "me@liinahamari.dev"
 
 /*TODO: test PROD with R8 enabled*/
 @AcraCore(buildConfigClass = BuildConfig::class, reportFormat = StringFormat.JSON)
@@ -66,7 +71,6 @@ private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
 class FollowerApp : Application() {
     @Inject lateinit var preferencesRepository: PreferencesRepository
     @Inject lateinit var workerFactory: WorkerFactory
-    @Inject lateinit var logger: FlightRecorder
     @Inject lateinit var notificationManager: NotificationManager
 
     lateinit var appComponent: AppComponent
@@ -75,6 +79,12 @@ class FollowerApp : Application() {
     override fun onCreate() {
         setupDagger()
         super.onCreate()
+        Loggy.init(
+            application = this,
+            logFile = createFileIfNotExist(DEBUG_LOGS_STORAGE_FILE, DEBUG_LOGS_DIR),
+            integratorEmail = MY_EMAIL,
+            userId = USER_ID
+        )
         preferencesRepository.incrementAppLaunchCounter()
         setupWorkManager()
         setupAnrWatchDog()
@@ -87,13 +97,13 @@ class FollowerApp : Application() {
     }
 
     private fun setupCrashStackTraceScreen() = Thread.setDefaultUncaughtExceptionHandler { thread, error ->
-        logger.e("App Crash catch", error, false)
+        FlightRecorder.e("App Crash catch", error, false)
 
         if (BuildConfig.DEBUG) {
             try {
                 startActivity(CrashStackTraceActivity.newIntent(this, thread.name, error))
             } catch (e: Exception) {
-                logger.e("UncaughtExceptionHandler", e)
+                FlightRecorder.e("UncaughtExceptionHandler", e)
             } finally {
                 exitProcess(1)
             }
@@ -124,7 +134,7 @@ class FollowerApp : Application() {
 
     private fun setupAnrWatchDog() = anrWatchDog
         .setANRListener { error ->
-            error?.cause?.let { logger.e("ANR $error", error = it) }
+            error?.cause?.let { FlightRecorder.e("ANR $error", error = it) }
         }.also {
             it.start()
         }

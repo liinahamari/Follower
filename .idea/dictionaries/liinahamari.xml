@@ -3,6 +3,7 @@
     <words>
       <w>acra</w>
       <w>coords</w>
+      <w>fakegps</w>
       <w>geocoder</w>
       <w>gson</w>
       <w>huawei</w>
@@ -10,9 +11,11 @@
       <w>jetpack</w>
       <w>liinahamari</w>
       <w>osmdroid</w>
+      <w>osmdroid's</w>
       <w>samsung</w>
       <w>waypoint</w>
       <w>waypoints</w>
+      <w>workmanager</w>
       <w>xiaomi</w>
     </words>
   </dictionary>

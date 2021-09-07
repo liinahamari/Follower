@@ -36,7 +36,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import dagger.Lazy
-import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.di.modules.*
 import dev.liinahamari.follower.di.scopes.BiometricScope
@@ -44,7 +43,6 @@ import dev.liinahamari.follower.ext.*
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.infoToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
-import dev.liinahamari.follower.helper.FlightRecorder
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_BACKGROUND_LOCATION
 import dev.liinahamari.follower.screens.tracking_control.PERMISSION_LOCATION
 import java.util.*
@@ -64,7 +62,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     @Inject lateinit var authenticator: Lazy<Authenticator>
     @Inject lateinit var viewModel: SettingsViewModel
     @Inject lateinit var prefs: SharedPreferences
-    @Inject lateinit var logger: FlightRecorder
 
     @JvmField
     @Named(IS_ROOTED_BOOL)
@@ -143,9 +140,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     }
 
     override fun onAttach(context: Context) {
-        (requireContext().applicationContext as FollowerApp)
-            .appComponent
-            .biometricComponent(
+        appComponent
+            ?.biometricComponent(
                 BiometricModule(requireActivity(),
                     onSuccessfulAuth = {
                         findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false
@@ -157,7 +153,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     }
                 )
             )
-            .settingsComponent(SettingsModule(
+            ?.settingsComponent(SettingsModule(
                 activity = requireActivity(),
                 resetToDefaults = ::resetToDefaults,
                 onAcceptDeviceRooted = {
@@ -170,7 +166,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false
                 })
             )
-            .inject(this)
+            ?.inject(this)
 
         super.onAttach(context)
 

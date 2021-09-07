@@ -32,18 +32,15 @@ import androidx.fragment.app.viewModels
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.jakewharton.rxbinding4.view.clicks
-import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BoundFragment
 import dev.liinahamari.follower.di.modules.DIALOG_EMPTY_WAYPOINTS
 import dev.liinahamari.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
 import dev.liinahamari.follower.di.modules.DIALOG_RATE_MY_APP
 import dev.liinahamari.follower.di.modules.TrackingControlModule
-import dev.liinahamari.follower.ext.hasAllPermissions
-import dev.liinahamari.follower.ext.startForegroundService
-import dev.liinahamari.follower.ext.throttleFirst
-import dev.liinahamari.follower.ext.toReadableDate
+import dev.liinahamari.follower.ext.*
 import dev.liinahamari.follower.services.location_tracking.*
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
 import kotlinx.android.synthetic.main.fragment_tracking_control.*
@@ -106,10 +103,9 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
     }
 
     override fun onAttach(context: Context) {
-        (context.applicationContext as FollowerApp)
-            .appComponent
-            .trackingControlComponent(TrackingControlModule(activity = requireActivity()))
-            .inject(this)
+        appComponent
+            ?.trackingControlComponent(TrackingControlModule(activity = requireActivity()))
+            ?.inject(this)
         super.onAttach(context)
     }
 
@@ -162,7 +158,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                         }
                     }
                 } else {
-                    logger.wtf { "problem with service binding... gpsService == null (${gpsService == null})" }
+                    FlightRecorder.w { "problem with service binding... gpsService == null (${gpsService == null})" }
                     throw RuntimeException()
                 }
             }

@@ -20,7 +20,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
 import dev.liinahamari.follower.BuildConfig
-import dev.liinahamari.follower.screens.logs.FILE_PROVIDER_META
+import dev.liinahamari.loggy_sdk.screens.logs.FILE_PROVIDER_META
 import java.io.File
 
 fun Context.createDirIfNotExist(dirName: String) = File(filesDir, dirName).apply {
@@ -35,5 +35,6 @@ fun Context.createFileIfNotExist(fileName: String, dirName: String) = File(creat
     }
 }
 
+/*TODO fix with own provider!*/
 fun Context.getUriForInternalFile(file: File): Uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + FILE_PROVIDER_META, file)
 

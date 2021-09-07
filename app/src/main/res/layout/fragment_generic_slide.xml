@@ -30,7 +30,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_gravity="center"
-        android:padding="10dp" />
+        android:padding="10dp"
+        android:contentDescription="@string/desc_intro_image" />
 
     <TextView
         android:id="@+id/introDescription"
