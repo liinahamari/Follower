@@ -20,7 +20,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.annotation.CallSuper
-import dev.liinahamari.follower.FollowerApp
+import dev.liinahamari.follower.ext.appComponent
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
@@ -38,7 +38,7 @@ abstract class BaseService: Service() {
 
     @CallSuper
     override fun onCreate() {
-        (applicationContext as FollowerApp).appComponent.inject(this)
+        appComponent.inject(this)
         FlightRecorder.lifecycle { "${this.javaClass.simpleName} creating..." }
     }
 

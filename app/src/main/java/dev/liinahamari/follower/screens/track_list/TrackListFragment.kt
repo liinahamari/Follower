@@ -34,13 +34,13 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.jakewharton.rxbinding4.view.clicks
 import dagger.Lazy
-import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BoundFragment
 import dev.liinahamari.follower.di.modules.Authenticator
 import dev.liinahamari.follower.di.modules.BiometricModule
 import dev.liinahamari.follower.di.scopes.BiometricScope
 import dev.liinahamari.follower.ext.adaptToNightModeState
+import dev.liinahamari.follower.ext.appComponent
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
@@ -71,14 +71,13 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
     private fun showMenu(id: Long) = showCascadeMenu(id)
 
     override fun onAttach(context: Context) = super.onAttach(context).also {
-        (context.applicationContext as FollowerApp)
-            .appComponent
-            .biometricComponent(
+        appComponent
+            ?.biometricComponent(
                 BiometricModule(
                     activity = requireActivity(),
                     onSuccessfulAuth = { viewModel.fetchTracks(isServiceBound && gpsService?.isTracking?.value == true) })
             )
-            .inject(this)
+            ?.inject(this)
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
 
@@ -219,16 +218,16 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
             MenuCompat.setGroupDividerEnabled(this, true)
 
             addSubMenu(getString(R.string.title_track_representing)).also {
-                    it.add(getString(R.string.title_addresses_list))
-                        .setOnMenuItemClickListener {
-                            displayTrackWith(getString(R.string.pref_value_track_display_mode_addresses_list), trackId)
-                            true
-                        }
-                    it.add(getString(R.string.title_map))
-                        .setOnMenuItemClickListener {
-                            displayTrackWith(getString(R.string.pref_value_track_display_mode_map), trackId)
-                            true
-                        }
+                it.add(getString(R.string.title_addresses_list))
+                    .setOnMenuItemClickListener {
+                        displayTrackWith(getString(R.string.pref_value_track_display_mode_addresses_list), trackId)
+                        true
+                    }
+                it.add(getString(R.string.title_map))
+                    .setOnMenuItemClickListener {
+                        displayTrackWith(getString(R.string.pref_value_track_display_mode_map), trackId)
+                        true
+                    }
                 it.setIcon(R.drawable.ic_baseline_map_24)
             }
             addSubMenu(getString(R.string.share)).also {

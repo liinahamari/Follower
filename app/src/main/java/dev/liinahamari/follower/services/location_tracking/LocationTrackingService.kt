@@ -25,12 +25,12 @@ import android.os.Binder
 import android.os.Bundle
 import android.os.IBinder
 import dev.liinahamari.follower.BuildConfig
-import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseService
 import dev.liinahamari.follower.base.FOREGROUND_ID_LOCATION_TRACKING
 import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.toWayPoint
+import dev.liinahamari.follower.ext.appComponent
 import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
@@ -115,7 +115,7 @@ class LocationTrackingService : BaseService() {
 
     override fun onCreate() {
         super.onCreate()
-        (application as FollowerApp).appComponent.inject(this)
+        appComponent.inject(this)
     }
 
     /*TODO handle deleting or save unsaved track when system kills service*/

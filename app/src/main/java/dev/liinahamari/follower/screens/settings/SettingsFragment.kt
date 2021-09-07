@@ -36,7 +36,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import dagger.Lazy
-import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.di.modules.*
 import dev.liinahamari.follower.di.scopes.BiometricScope
@@ -141,9 +140,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     }
 
     override fun onAttach(context: Context) {
-        (requireContext().applicationContext as FollowerApp)
-            .appComponent
-            .biometricComponent(
+        appComponent
+            ?.biometricComponent(
                 BiometricModule(requireActivity(),
                     onSuccessfulAuth = {
                         findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false
@@ -155,7 +153,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     }
                 )
             )
-            .settingsComponent(SettingsModule(
+            ?.settingsComponent(SettingsModule(
                 activity = requireActivity(),
                 resetToDefaults = ::resetToDefaults,
                 onAcceptDeviceRooted = {
@@ -168,7 +166,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                     findPreference<SwitchPreferenceCompat>(getString(R.string.pref_enable_biometric_protection))!!.isChecked = false
                 })
             )
-            .inject(this)
+            ?.inject(this)
 
         super.onAttach(context)
 
