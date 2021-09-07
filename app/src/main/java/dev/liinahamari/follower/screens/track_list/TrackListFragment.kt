@@ -70,7 +70,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
     private fun showMenu(id: Long) = showCascadeMenu(id)
 
-    override fun onAttach(context: Context) = super.onAttach(context).also {
+    override fun onAttach(context: Context) {
         appComponent
             ?.biometricComponent(
                 BiometricModule(
@@ -79,6 +79,8 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
             )
             ?.inject(this)
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+
+        super.onAttach(context)
     }
 
     private fun showDialogMapOrAddresses(trackId: Long) {

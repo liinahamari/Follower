@@ -31,11 +31,11 @@ import javax.inject.Inject
 class TraceFragment : MapFragment() {
     @Inject lateinit var viewModel: TraceFragmentViewModel
 
-    override fun onAttach(context: Context) = super.onAttach(context).also {
+    override fun onAttach(context: Context) {
         appComponent
             ?.roadBuildingComponent()
             ?.inject(this)
-    }
+        super.onAttach(context) }
 
     override fun onResume() = super.onResume().also {
         with(arguments?.getLong(getString(R.string.arg_addressFragment_trackId), -9999L)!!) {

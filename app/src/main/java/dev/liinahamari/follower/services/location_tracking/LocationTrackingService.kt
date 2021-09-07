@@ -114,8 +114,8 @@ class LocationTrackingService : BaseService() {
     }
 
     override fun onCreate() {
-        super.onCreate()
         appComponent.inject(this)
+        super.onCreate()
     }
 
     /*TODO handle deleting or save unsaved track when system kills service*/
