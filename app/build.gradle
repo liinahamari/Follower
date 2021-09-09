@@ -113,13 +113,14 @@ dependencies {
     implementation 'com.github.MKergall:osmbonuspack:6.6.0'
     implementation 'com.afollestad.material-dialogs:input:3.3.0'
     implementation 'com.squareup:seismic:1.0.2'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
     implementation "me.saket.cascade:cascade:1.3.0"
     implementation 'com.github.anrwatchdog:anrwatchdog:1.4.0'
     implementation "net.gotev:uploadservice-ftp:4.5.2"
     implementation 'com.scottyab:rootbeer-lib:0.0.8'
     implementation 'com.github.AppIntro:AppIntro:6.1.0'
     implementation 'com.github.cachapa:ExpandableLayout:2.9.2'
+    implementation "io.objectbox:objectbox-android:2.9.1"
 
     /* PERSISTENCE */
     implementation "androidx.room:room-runtime:2.4.0-alpha04"
