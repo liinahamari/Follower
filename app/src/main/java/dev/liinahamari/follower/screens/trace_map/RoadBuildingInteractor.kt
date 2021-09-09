@@ -16,9 +16,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.screens.trace_map
 
-import android.content.Context
+import android.app.Application
 import dev.liinahamari.follower.R
-import dev.liinahamari.follower.di.modules.APP_CONTEXT
 import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.model.PersistedTrackResult
@@ -29,11 +28,10 @@ import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
-import javax.inject.Named
 
 @RoadBuildingScope
 class RoadBuildingInteractor constructor(
-    @Named(APP_CONTEXT) private val context: Context,
+    private val app: Application,
     private val trackDao: TrackDao,
     private val baseComposers: BaseComposers,
     private val prefRepo: PreferencesRepository,
@@ -43,7 +41,7 @@ class RoadBuildingInteractor constructor(
         .flatMap { lineOrMarkerSet ->
             if (lineOrMarkerSet is PersistedTrackResult.Success) {
                 when (lineOrMarkerSet.value) {
-                    context.getString(R.string.pref_line) -> {
+                    app.applicationContext.getString(R.string.pref_line) -> {
                         trackDao.getTrackWithWayPoints(trackId)
                             .flattenAsObservable { it.wayPoints }
                             .toList()
@@ -60,7 +58,7 @@ class RoadBuildingInteractor constructor(
                             }
                             .onErrorReturn { GetRoadResult.SharedPrefsError }
                     }
-                    context.getString(R.string.pref_marker_set) -> {
+                    app.applicationContext.getString(R.string.pref_marker_set) -> {
                         trackDao.getTrackWithWayPoints(trackId)
                             .map { it.wayPoints.map { wayPoint -> WayPointUi(wayPoint.latitude, wayPoint.longitude, wayPoint.time.toReadableDate()) } }
                             .map<GetRoadResult> {

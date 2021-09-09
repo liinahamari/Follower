@@ -81,6 +81,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Li
             prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), isIgnoringBatteryOptimizations())
         }
     }
+
     override fun onPause() = super.onPause().also { shakeDetector!!.stop() }
     override fun onSupportNavigateUp(): Boolean = findNavController(R.id.mainActivityFragmentContainer).navigateUp()
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())

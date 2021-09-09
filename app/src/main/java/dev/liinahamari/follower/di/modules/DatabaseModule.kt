@@ -16,14 +16,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.di.modules
 
-import android.content.Context
+import android.app.Application
 import androidx.room.Room
-import dev.liinahamari.follower.model.TrackDao
-import dev.liinahamari.follower.db.TracksDb
-import dev.liinahamari.follower.model.WayPointDao
 import dagger.Module
 import dagger.Provides
-import javax.inject.Named
+import dev.liinahamari.follower.db.TracksDb
+import dev.liinahamari.follower.model.TrackDao
+import dev.liinahamari.follower.model.WayPointDao
 import javax.inject.Singleton
 
 private const val DATABASE_NAME_TRACKS = "database-tracks"
@@ -32,7 +31,7 @@ private const val DATABASE_NAME_TRACKS = "database-tracks"
 open class DatabaseModule {
     @Provides
     @Singleton
-    open fun provideTracksDb(@Named(APP_CONTEXT) context: Context): TracksDb = Room.databaseBuilder(context, TracksDb::class.java, DATABASE_NAME_TRACKS)
+    open fun provideTracksDb(app: Application): TracksDb = Room.databaseBuilder(app.applicationContext, TracksDb::class.java, DATABASE_NAME_TRACKS)
         .build()
 
     @Provides

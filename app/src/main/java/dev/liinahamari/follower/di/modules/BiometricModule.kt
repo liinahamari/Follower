@@ -16,7 +16,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.di.modules
 
-import android.content.Context
+import android.app.Application
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import androidx.biometric.BiometricManager
@@ -70,9 +70,9 @@ class BiometricModule(private val activity: FragmentActivity, private val onSucc
 
     @BiometricScope
     @Provides
-    fun provideAuthenticator(@Named (APP_CONTEXT) context: Context, promptInfo: BiometricPrompt.PromptInfo, authCallback: BiometricPrompt.AuthenticationCallback, cipher: Cipher): Authenticator = object : Authenticator {
+    fun provideAuthenticator(app: Application, promptInfo: BiometricPrompt.PromptInfo, authCallback: BiometricPrompt.AuthenticationCallback, cipher: Cipher): Authenticator = object : Authenticator {
         override fun authenticate() {
-            if (BiometricManager.from(context).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS) {
+            if (BiometricManager.from(app.applicationContext).canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS) {
                 BiometricPrompt(activity, ContextCompat.getMainExecutor(activity), authCallback).authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
             }
         }
@@ -85,10 +85,10 @@ class BiometricModule(private val activity: FragmentActivity, private val onSucc
 
     @BiometricScope
     @Provides
-    fun provideBiometricDialog(@Named (APP_CONTEXT) context: Context): BiometricPrompt.PromptInfo = BiometricPrompt.PromptInfo.Builder()
-        .setTitle(context.getString(R.string.title_records_access))
-        .setDescription(context.getString(R.string.title_fingerprint_instruction))
-        .setNegativeButtonText(context.getString(android.R.string.cancel))
+    fun provideBiometricDialog(app: Application): BiometricPrompt.PromptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle(app.getString(R.string.title_records_access))
+        .setDescription(app.getString(R.string.title_fingerprint_instruction))
+        .setNegativeButtonText(app.getString(android.R.string.cancel))
         .build()
 
     @BiometricScope

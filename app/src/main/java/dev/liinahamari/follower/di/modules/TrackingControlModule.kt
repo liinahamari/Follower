@@ -16,7 +16,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.di.modules
 
-import android.content.Context
+import android.app.Application
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AlertDialog
@@ -42,11 +42,11 @@ class TrackingControlModule(private val activity: FragmentActivity) {
     @TrackingControlScope
     @Named(DIALOG_PERMISSION_EXPLANATION)
     @Provides
-    fun providePermissionExplanationDialog(@Named(APP_CONTEXT) context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
-        .setTitle(context.getString(R.string.app_name))
+    fun providePermissionExplanationDialog(app: Application): AlertDialog = MaterialAlertDialogBuilder(activity)
+        .setTitle(app.getString(R.string.app_name))
         .setMessage(R.string.location_permission_dialog_explanation)
-        .setPositiveButton(context.getString(android.R.string.ok), null)
-        .setNegativeButton(context.getString(R.string.title_settings)) { dialog, _ ->
+        .setPositiveButton(app.getString(android.R.string.ok), null)
+        .setNegativeButton(app.getString(R.string.title_settings)) { dialog, _ ->
             dialog.dismiss()
             activity.openAppSettings()
         }
@@ -55,14 +55,14 @@ class TrackingControlModule(private val activity: FragmentActivity) {
     @TrackingControlScope
     @Named(DIALOG_EMPTY_WAYPOINTS)
     @Provides
-    fun provideEmptyWayPointsDialog(@Named(APP_CONTEXT) context: Context): AlertDialog = MaterialAlertDialogBuilder(activity)
-        .setTitle(context.getString(R.string.app_name))
+    fun provideEmptyWayPointsDialog(app: Application): AlertDialog = MaterialAlertDialogBuilder(activity)
+        .setTitle(app.getString(R.string.app_name))
         .setMessage(R.string.message_you_have_no_waypoints)
-        .setPositiveButton(context.getString(R.string.title_stop_tracking)) { _, _ ->
-            context.startForegroundService(Intent(context, LocationTrackingService::class.java)
+        .setPositiveButton(app.getString(R.string.title_stop_tracking)) { _, _ ->
+            app.startForegroundService(Intent(app, LocationTrackingService::class.java)
                 .apply { action = ACTION_DISCARD_TRACK })
         }
-        .setNegativeButton(context.getString(R.string.title_continue), null)
+        .setNegativeButton(app.getString(R.string.title_continue), null)
         .create()
 
     @TrackingControlScope

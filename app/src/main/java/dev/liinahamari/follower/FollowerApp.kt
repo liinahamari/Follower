@@ -39,7 +39,6 @@ import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import dev.liinahamari.loggy_sdk.Loggy
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
-import dev.liinahamari.loggy_sdk.helper.createFileIfNotExist
 import io.reactivex.rxjava3.internal.functions.Functions
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import net.gotev.uploadservice.UploadServiceConfig
@@ -81,7 +80,6 @@ class FollowerApp : Application() {
         super.onCreate()
         Loggy.init(
             application = this,
-            logFile = createFileIfNotExist(DEBUG_LOGS_STORAGE_FILE, DEBUG_LOGS_DIR),
             integratorEmail = MY_EMAIL,
             userId = USER_ID
         )

@@ -18,13 +18,12 @@ package dev.liinahamari.follower.screens.settings
 
 import android.app.AlarmManager
 import android.app.AlarmManager.RTC_WAKEUP
+import android.app.Application
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import dev.liinahamari.follower.R
-import dev.liinahamari.follower.di.modules.APP_CONTEXT
 import dev.liinahamari.follower.ext.isServiceRunning
 import dev.liinahamari.follower.ext.isTimeBetweenTwoTimes
 import dev.liinahamari.follower.ext.minutesFromMidnightToHourlyTime
@@ -37,46 +36,46 @@ import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.*
-import javax.inject.Named
 
 class AutoTrackingSchedulingUseCase constructor(
     private val sharedPreferences: SharedPreferences,
-    @Named(APP_CONTEXT) private val context: Context,
+    private val app: Application,
     private val baseComposers: BaseComposers,
     private val alarmManager: AlarmManager
 ) {
     fun cancelAutoTracking(): Single<CancelAutoTrackingResult> = Completable.fromCallable {
         alarmManager.cancel(
             PendingIntent.getBroadcast(
-                context.applicationContext,
+                app.applicationContext,
                 AutoTrackingReceiver.ActionMode.ACTION_MODE_START.ordinal,
-                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_START, context.applicationContext),
+                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_START, app.applicationContext),
                 0
             )
         )
         alarmManager.cancel(
             PendingIntent.getBroadcast(
-                context.applicationContext,
+                app.applicationContext,
                 AutoTrackingReceiver.ActionMode.ACTION_MODE_STOP.ordinal,
-                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_STOP, context.applicationContext),
+                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_STOP, app.applicationContext),
                 0
             )
         )
     }.toSingleDefault<CancelAutoTrackingResult>(CancelAutoTrackingResult.Success)
         .onErrorReturn {
             it.printStackTrace()
-            CancelAutoTrackingResult.Failure }
+            CancelAutoTrackingResult.Failure
+        }
         .doOnError { FlightRecorder.e("Canceling auto-tracking", it) }
 
     fun setupStartAndStop(): Single<SchedulingStartStopResult> =
-        Single.just(sharedPreferences.getInt(context.getString(R.string.pref_tracking_start_time), -1) to sharedPreferences.getInt(context.getString(R.string.pref_tracking_stop_time), -1))
+        Single.just(sharedPreferences.getInt(app.getString(R.string.pref_tracking_start_time), -1) to sharedPreferences.getInt(app.getString(R.string.pref_tracking_stop_time), -1))
             .doOnSuccess { require(it.first >= 0 && it.second >= 0) }
             .map { minutesFromMidnightToHourlyTime(it.first) to minutesFromMidnightToHourlyTime(it.second) }
             .compose(baseComposers.applySingleSchedulers())
             .doOnSuccess {
                 if (isTimeBetweenTwoTimes(it.first, it.second, nowHoursAndMinutesOnly())) {
-                    if (context.isServiceRunning(LocationTrackingService::class.java).not()) {
-                        context.applicationContext.startForegroundService(Intent(context.applicationContext, LocationTrackingService::class.java).apply {
+                    if (app.isServiceRunning(LocationTrackingService::class.java).not()) {
+                        app.applicationContext.startForegroundService(Intent(app.applicationContext, LocationTrackingService::class.java).apply {
                             action = ACTION_START_TRACKING
                         })
                     } else {
@@ -122,9 +121,9 @@ class AutoTrackingSchedulingUseCase constructor(
             RTC_WAKEUP,
             getNextLaunchTime(startTimePref),
             PendingIntent.getBroadcast(
-                context.applicationContext,
+                app.applicationContext,
                 AutoTrackingReceiver.ActionMode.ACTION_MODE_START.ordinal,
-                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_START, context.applicationContext),
+                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_START, app.applicationContext),
                 FLAG_UPDATE_CURRENT
             )
         )
@@ -135,9 +134,9 @@ class AutoTrackingSchedulingUseCase constructor(
             RTC_WAKEUP,
             getNextLaunchTime(stopTimePref),
             PendingIntent.getBroadcast(
-                context.applicationContext,
+                app.applicationContext,
                 AutoTrackingReceiver.ActionMode.ACTION_MODE_STOP.ordinal,
-                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_STOP, context.applicationContext),
+                AutoTrackingReceiver.createIntent(AutoTrackingReceiver.ActionMode.ACTION_MODE_STOP, app.applicationContext),
                 FLAG_UPDATE_CURRENT
             )
         )

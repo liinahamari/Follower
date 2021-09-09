@@ -18,7 +18,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.interactors
 
-import android.content.Context
+import android.app.Application
 import android.location.Geocoder
 import android.net.Uri
 import com.google.gson.Gson
@@ -26,8 +26,6 @@ import dev.liinahamari.follower.R
 import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.TrackWithWayPoints
 import dev.liinahamari.follower.db.entities.WayPoint
-import dev.liinahamari.follower.di.modules.APP_CONTEXT
-import dev.liinahamari.follower.ext.createFileIfNotExist
 import dev.liinahamari.follower.ext.getUriForInternalFile
 import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.helper.rx.BaseComposers
@@ -39,15 +37,15 @@ import dev.liinahamari.follower.screens.address_trace.MapPointer
 import dev.liinahamari.follower.screens.track_list.TrackTitle
 import dev.liinahamari.follower.screens.track_list.TrackUi
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
+import dev.liinahamari.loggy_sdk.helper.createFileIfNotExist
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Named
 
 class TrackInteractor @Inject constructor(
-    @Named(APP_CONTEXT) private val context: Context,
+    private val app: Application,
     private val trackDao: TrackDao,
     private val wayPointDao: WayPointDao,
     private val baseComposers: BaseComposers,
@@ -86,9 +84,9 @@ class TrackInteractor @Inject constructor(
         }
         .distinctUntilChanged()
         .map {
-            return@map with(Geocoder(context, Locale.getDefault())) {
+            return@map with(Geocoder(app, Locale.getDefault())) {
                 val address = kotlin.runCatching { getFromLocation(it.latitude, it.longitude, 1).first().getAddressLine(0) }.getOrNull()
-                    ?: String.format(context.getString(R.string.address_unknown), it.longitude, it.latitude)
+                    ?: String.format(app.getString(R.string.address_unknown), it.longitude, it.latitude)
                 return@with MapPointer(address, it.latitude, it.longitude, it.time.toReadableDate())
             }
         }
@@ -133,8 +131,8 @@ class TrackInteractor @Inject constructor(
             )
         }
         .map {
-            context.getUriForInternalFile(
-                context.createFileIfNotExist(
+            app.applicationContext.getUriForInternalFile(
+                app.applicationContext.createFileIfNotExist(
                     fileName = it.title + fileExtension,
                     dirName = "TempTracksToShare"
                 )
@@ -148,7 +146,7 @@ class TrackInteractor @Inject constructor(
         .compose(baseComposers.applySingleSchedulers())
 
     fun importTracks(fileUri: Uri, isTracking: Boolean): Single<ImportTrackResult> = Single.fromCallable {
-        context.contentResolver.openInputStream(fileUri)?.use {
+        app.contentResolver.openInputStream(fileUri)?.use {
             it.bufferedReader().readText()
         }
     }

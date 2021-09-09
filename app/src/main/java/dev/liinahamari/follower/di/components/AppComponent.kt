@@ -16,6 +16,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.di.components
 
+import android.app.Application
 import dagger.BindsInstance
 import dagger.Component
 import dev.liinahamari.follower.FollowerApp
@@ -34,7 +35,7 @@ interface AppComponent {
     @Component.Builder
     interface Builder {
         @BindsInstance
-        fun application(app: FollowerApp): Builder
+        fun application(app: Application): Builder
 
         /** for testing purposes */
         fun serviceModule(module: ServiceModule): Builder

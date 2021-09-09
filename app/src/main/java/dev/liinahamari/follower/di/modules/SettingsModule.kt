@@ -17,8 +17,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.di.modules
 
 import android.app.Activity
+import android.app.Application
 import android.app.Dialog
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -46,26 +46,26 @@ class SettingsModule(
     @Provides
     @SettingsScope
     @Named(DIALOG_RESET_TO_DEFAULTS)
-    fun provideResetToDefaultsDialog(@Named(APP_CONTEXT) ctx: Context): Dialog = MaterialAlertDialogBuilder(activity).create()
+    fun provideResetToDefaultsDialog(app: Application): Dialog = MaterialAlertDialogBuilder(activity).create()
         .apply {
-            setTitle(ctx.getString(R.string.title_reset_to_defaults))
-            setButton(AlertDialog.BUTTON_POSITIVE, ctx.getString(R.string.title_continue)) { dialog, _ -> resetToDefaults.invoke().also { dialog.dismiss() } }
-            setButton(AlertDialog.BUTTON_NEGATIVE, ctx.getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
+            setTitle(app.getString(R.string.title_reset_to_defaults))
+            setButton(AlertDialog.BUTTON_POSITIVE, app.getString(R.string.title_continue)) { dialog, _ -> resetToDefaults.invoke().also { dialog.dismiss() } }
+            setButton(AlertDialog.BUTTON_NEGATIVE, app.getString(android.R.string.cancel)) { dialog, _ -> dialog.dismiss() }
         }
 
     @Provides
     @SettingsScope
     @Named(DIALOG_ROOT_DETECTED)
-    fun provideRootDetectionDialog(@Named(APP_CONTEXT) ctx: Context): Dialog = MaterialAlertDialogBuilder(activity).create()
+    fun provideRootDetectionDialog(app: Application): Dialog = MaterialAlertDialogBuilder(activity).create()
         .apply {
             setCancelable(false)
-            setTitle(ctx.getString(R.string.title_root_detected))
-            setMessage(ctx.getString(R.string.summary_root_detected))
-            setButton(AlertDialog.BUTTON_POSITIVE, ctx.getString(R.string.title_i_accept_risks)) { dialog, _ ->
+            setTitle(app.getString(R.string.title_root_detected))
+            setMessage(app.getString(R.string.summary_root_detected))
+            setButton(AlertDialog.BUTTON_POSITIVE, app.getString(R.string.title_i_accept_risks)) { dialog, _ ->
                 onAcceptDeviceRooted.invoke()
                 dialog.dismiss()
             }
-            setButton(AlertDialog.BUTTON_NEGATIVE, ctx.getString(android.R.string.cancel)) { dialog, _ ->
+            setButton(AlertDialog.BUTTON_NEGATIVE, app.getString(android.R.string.cancel)) { dialog, _ ->
                 onDeclineDeviceRooted.invoke()
                 dialog.dismiss()
             }
@@ -73,15 +73,17 @@ class SettingsModule(
 
     @Provides
     @SettingsScope
-    fun provideBiometricAvailabilityValidator(@Named(APP_CONTEXT) context: Context, composers: BaseComposers): BiometricAvailabilityValidationUseCase = BiometricAvailabilityValidationUseCase(context, composers)
+    fun provideBiometricAvailabilityValidator(app: Application, composers: BaseComposers): BiometricAvailabilityValidationUseCase =
+        BiometricAvailabilityValidationUseCase(app, composers)
 
     @Provides
     @SettingsScope
-    fun providePurgeCacheUseCase(@Named(APP_CONTEXT) context: Context, composers: BaseComposers): PurgeCacheUseCase = PurgeCacheUseCase(context, composers)
+    fun providePurgeCacheUseCase(app: Application, composers: BaseComposers): PurgeCacheUseCase = PurgeCacheUseCase(app.applicationContext, composers)
 
     @Provides
     @SettingsScope
-    fun provideSettingsPrefsInteractor(baseComposers: BaseComposers, sharedPreferences: SharedPreferences, @Named(APP_CONTEXT) context: Context) = ResetPrefsToDefaultsInteractor(baseComposers, sharedPreferences, context)
+    fun provideSettingsPrefsInteractor(baseComposers: BaseComposers, sharedPreferences: SharedPreferences, app: Application) =
+        ResetPrefsToDefaultsInteractor(baseComposers, sharedPreferences, app.applicationContext)
 
     @Provides
     @SettingsScope

@@ -16,10 +16,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.di.modules
 
-import dev.liinahamari.follower.BuildConfig
-import dev.liinahamari.follower.networking.ServerService
 import dagger.Module
 import dagger.Provides
+import dev.liinahamari.follower.BuildConfig
+import dev.liinahamari.follower.networking.ServerService
 import okhttp3.OkHttpClient
 import okhttp3.internal.platform.Platform
 import okhttp3.logging.HttpLoggingInterceptor
@@ -49,7 +49,7 @@ class NetworkModule {
     @Provides
     @Singleton
     fun provideHttpLoggingInterceptor(logger: HttpLoggingInterceptor.Logger) = HttpLoggingInterceptor(logger).apply {
-        level = if(BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
     }
 
     @Provides

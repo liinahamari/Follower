@@ -16,7 +16,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.di.modules
 
-import android.content.Context
+import android.app.Application
 import dagger.Module
 import dagger.Provides
 import dev.liinahamari.follower.ext.createFileIfNotExist
@@ -33,5 +33,5 @@ class LoggerModule {
     @Provides
     @Singleton
     @Named(DEBUG_LOGS_STORAGE_FILE)
-    fun provideLogFile(@Named(APP_CONTEXT) context: Context): File = context.createFileIfNotExist(DEBUG_LOGS_STORAGE_FILE, DEBUG_LOGS_DIR)
+    fun provideLogFile(app: Application): File = app.applicationContext.createFileIfNotExist(DEBUG_LOGS_STORAGE_FILE, DEBUG_LOGS_DIR)
 }
