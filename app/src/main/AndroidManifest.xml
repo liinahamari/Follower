@@ -58,7 +58,7 @@
         </activity>
         <activity android:name=".screens.crash_screen.CrashStackTraceActivity" />
 
-        <activity android:name=".screens.MainActivity" />
+        <activity android:name=".screens.RouteActivity" />
 
         <service
             android:name=".services.location_tracking.LocationTrackingService"

@@ -26,7 +26,7 @@ import dev.liinahamari.follower.R
 import dev.liinahamari.follower.ext.getDefaultSharedPreferences
 import dev.liinahamari.follower.ext.getIntOf
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
-import dev.liinahamari.follower.screens.MainActivity
+import dev.liinahamari.follower.screens.RouteActivity
 
 class IntroActivity : AppIntro() {
     @SuppressLint("MissingSuperCall") /*bug!*/
@@ -34,7 +34,7 @@ class IntroActivity : AppIntro() {
         super.onCreate(savedInstanceState)
         if (getDefaultSharedPreferences().getIntOf(getString(R.string.pref_app_launch_counter)) != 1) {
             finish()
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, RouteActivity::class.java))
         } else {
             addSlide(SlideFragment.newInstance(getString(R.string.title_welcome_to_follower), getString(R.string.summary_welcome), R.color.teal_700, R.drawable.sc_background))
             addSlide(SlideFragment.newInstance(getString(R.string.title_track_observing), getString(R.string.summary_track_observing), R.color.purple_500, R.drawable.sc_address_list)) //todo half-by-half map and addresses view on a picture
@@ -44,8 +44,8 @@ class IntroActivity : AppIntro() {
         }
     }
 
-    override fun onSkipPressed(currentFragment: Fragment?) = startActivity(Intent(this, MainActivity::class.java))
-    override fun onDonePressed(currentFragment: Fragment?) = startActivity(Intent(this, MainActivity::class.java))
+    override fun onSkipPressed(currentFragment: Fragment?) = startActivity(Intent(this, RouteActivity::class.java))
+    override fun onDonePressed(currentFragment: Fragment?) = startActivity(Intent(this, RouteActivity::class.java))
     override fun onBackPressed() = Unit // Does nothing, user have to see intro :)
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
 }

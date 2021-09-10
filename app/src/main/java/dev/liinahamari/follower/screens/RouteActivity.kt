@@ -35,12 +35,12 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_route.*
 import kotlinx.android.synthetic.main.follower_pager.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Listener {
+class RouteActivity : AppCompatActivity(R.layout.activity_route), ShakeDetector.Listener {
     @Inject lateinit var sensorManager: SensorManager
     @Inject lateinit var prefs: SharedPreferences
 
