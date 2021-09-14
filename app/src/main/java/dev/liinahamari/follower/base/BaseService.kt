@@ -32,19 +32,19 @@ abstract class BaseService: Service() {
 
     @CallSuper
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        FlightRecorder.lifecycle { "${this.javaClass.simpleName} onStartCommand()" }
+        FlightRecorder.lifecycle { "${this.javaClass.simpleName} ${object{}.javaClass::getEnclosingMethod.name}" }
         return super.onStartCommand(intent, flags, startId)
     }
 
     @CallSuper
     override fun onCreate() {
         appComponent.inject(this)
-        FlightRecorder.lifecycle { "${this.javaClass.simpleName} creating..." }
+        FlightRecorder.lifecycle { "${this.javaClass.simpleName} ${object{}.javaClass::getEnclosingMethod.name}" }
     }
 
     @CallSuper
     override fun onDestroy() {
-        FlightRecorder.lifecycle { "${this.javaClass.simpleName} destroyed" }
+        FlightRecorder.lifecycle { "${this.javaClass.simpleName} ${object{}.javaClass::getEnclosingMethod.name}" }
         subscriptions.clear()
     }
 

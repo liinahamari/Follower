@@ -16,14 +16,23 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.helper
 
+import android.app.Instrumentation
 import android.os.Build
 import android.os.Looper.getMainLooper
+import androidx.test.platform.app.InstrumentationRegistry
+import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.helper.rx.BaseComposers
-import dev.liinahamari.follower.helper.rx.TestSchedulers
+import dev.liinahamari.follower.ImmediateSchedulersRule
+import dev.liinahamari.loggy_sdk.Loggy
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
+import io.mockk.mockkObject
+import io.mockk.verify
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Maybe
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -33,47 +42,106 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Build.VERSION_CODES.O_MR1])
 @RunWith(RobolectricTestRunner::class)
 class BaseComposersTest {
-    private val logFile = createTempFile()
-    private val schedulers = TestSchedulers()
-    private val baseComposers = BaseComposers(schedulers)
+    @get:Rule
+    val immediateSchedulersRule = ImmediateSchedulersRule()
+
+    private val testee = BaseComposers()
 
     @Before
-    fun setUp() {
+    fun init() {
+        Loggy.initForTest(Instrumentation.newApplication(FollowerApp::class.java, InstrumentationRegistry.getInstrumentation().context))
+    }
+    
+    @Test
+    fun `if error happens in a chain using applySingleSchedulers, it will be logged by FlightRecorder (and printed to logcat)`() {
         shadowOf(getMainLooper()).idle()
-        assert(FlightRecorder.getEntireRecord().isEmpty())
+
+        mockkObject(FlightRecorder)
+
+        Single.just(1)
+            .map {
+                throw IllegalArgumentException()
+                it
+            }
+            .compose(testee.applySingleSchedulers())
+            .test()
+            .assertError(IllegalArgumentException::class.java)
+
+        verify(exactly = 1) { FlightRecorder.e(any(), any()) }
     }
 
-    @After
-    fun tearDown() {
-        logFile.writeText("")
-        assert(FlightRecorder.getEntireRecord().isEmpty())
+    @Test
+    fun `if error happens in a chain using applyObservableSchedulers, it will be logged by FlightRecorder (and printed to logcat)`() {
+        shadowOf(getMainLooper()).idle()
+
+        mockkObject(FlightRecorder)
+
+        Observable.just(1)
+            .map {
+                throw IllegalArgumentException()
+                it
+            }
+            .compose(testee.applyObservableSchedulers())
+            .test()
+            .assertError(IllegalArgumentException::class.java)
+
+        verify(exactly = 1) { FlightRecorder.e(any(), any()) }
+    }
+
+    @Test
+    fun `if error happens in a chain using applyMaybeSchedulers, it will be logged by FlightRecorder (and printed to logcat)`() {
+        shadowOf(getMainLooper()).idle()
+
+        mockkObject(FlightRecorder)
+
+        Maybe.just(1)
+            .map {
+                throw IllegalArgumentException()
+                it
+            }
+            .compose(testee.applyMaybeSchedulers())
+            .test()
+            .assertError(IllegalArgumentException::class.java)
+
+        verify(exactly = 1) { FlightRecorder.e(any(), any()) }
     }
 
     @Suppress("UNREACHABLE_CODE")
     @Test
-    fun `is error happens in some chain, logger must put it's stacktrace to the logging file`() {
-        val exMessage = "my_message"
-        val exception = IllegalAccessException(exMessage)
-        val label = "some_label"
+    fun `if error happens in a chain using applyFlowableSchedulers, it will be logged by FlightRecorder (and printed to logcat)`() {
+        shadowOf(getMainLooper()).idle()
 
-        Single.just(true)
+        mockkObject(FlightRecorder)
+
+        Flowable.just(1)
             .map {
-                throw exception
+                throw IllegalArgumentException()
                 it
             }
-            .compose(baseComposers.applySingleSchedulers(label))
-            .onErrorResumeWith(Single.just(true))
-            .subscribe()
+            .compose(testee.applyFlowableSchedulers())
+            .test()
+            .assertError(IllegalArgumentException::class.java)
 
-        assert(FlightRecorder.getEntireRecord().isNotBlank())
+        verify(exactly = 1) { FlightRecorder.e(any(), any()) }
+    }
 
-        with (FlightRecorder.getEntireRecord().split("\n")) {
-            assert(size > 1)
-            assert(first().contains(label))
-            assert(get(1).contains(exMessage))
+    @Suppress("UNREACHABLE_CODE")
+    @Test
+    fun `if error happens in a chain using applyCompletableSchedulers, it will be logged by FlightRecorder (and printed to logcat)`() {
+        shadowOf(getMainLooper()).idle()
 
-            assert(subList(2, size).filter { it.isNotBlank() }.size == exception.stackTrace.size)
-            assert(subList(2, size).filter { it.isNotBlank() }[1].trim() == exception.stackTrace[1].toString().trim())
-        }
+        mockkObject(FlightRecorder)
+
+        Single.just(1)
+            .map {
+                throw IllegalArgumentException()
+                it
+            }
+            .ignoreElement()
+            .compose(testee.applyCompletableSchedulers())
+            .test()
+            .assertError(IllegalArgumentException::class.java)
+
+        verify(exactly = 1) { FlightRecorder.e(any(), any()) }
     }
 }

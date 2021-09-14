@@ -35,7 +35,8 @@ class TraceFragment : MapFragment() {
         appComponent
             ?.roadBuildingComponent()
             ?.inject(this)
-        super.onAttach(context) }
+        super.onAttach(context)
+    }
 
     override fun onResume() = super.onResume().also {
         with(arguments?.getLong(getString(R.string.arg_addressFragment_trackId), -9999L)!!) {

@@ -16,7 +16,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.di.modules
 
-import android.app.AlarmManager
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
@@ -25,12 +24,7 @@ import com.google.gson.GsonBuilder
 import com.scottyab.rootbeer.RootBeer
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
 import dev.liinahamari.follower.R
-import dev.liinahamari.follower.helper.rx.BaseComposers
-import dev.liinahamari.follower.helper.rx.BaseSchedulerProvider
-import dev.liinahamari.follower.helper.rx.SchedulersProvider
-import dev.liinahamari.follower.screens.settings.AutoTrackingSchedulingUseCase
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -43,21 +37,8 @@ class AppModule {
     fun provideRootBeer(app: Application): RootBeer = RootBeer(app)
 
     @Provides
-    @Reusable
-    fun provideAutoTrackingSchedulingUseCase(prefs: SharedPreferences, app: Application, composers: BaseComposers, alarmManager: AlarmManager): AutoTrackingSchedulingUseCase =
-        AutoTrackingSchedulingUseCase(prefs, app, composers, alarmManager)
-
-    @Provides
     @Singleton
     fun bindSharedPrefs(app: Application): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(app)
-
-    @Provides
-    @Singleton
-    fun bindComposers(schedulers: SchedulersProvider): BaseComposers = BaseComposers(schedulers)
-
-    @Provides
-    @Singleton
-    fun bindSchedulers(): SchedulersProvider = BaseSchedulerProvider()
 
     @Provides
     @Singleton

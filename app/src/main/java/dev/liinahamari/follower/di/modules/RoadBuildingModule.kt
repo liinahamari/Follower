@@ -30,9 +30,5 @@ import org.osmdroid.bonuspack.routing.OSRMRoadManager
 class RoadBuildingModule {
     @Provides
     @RoadBuildingScope
-    fun provideRoadBuildingInteractor(app: Application, trackDao: TrackDao, baseComposers: BaseComposers, prefRepo: PreferencesRepository, osmRoadManager: OSRMRoadManager): RoadBuildingInteractor = RoadBuildingInteractor(app, trackDao, baseComposers, prefRepo, osmRoadManager)
-
-    @Provides
-    @RoadBuildingScope
     fun provideOsmRoadManager(app: Application) = OSRMRoadManager(app.applicationContext)
 }

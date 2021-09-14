@@ -17,37 +17,42 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.helper.rx
 
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.CompletableTransformer
 import io.reactivex.rxjava3.core.MaybeTransformer
 import io.reactivex.rxjava3.core.ObservableTransformer
 import io.reactivex.rxjava3.core.SingleTransformer
+import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class BaseComposers constructor(private val schedulers: SchedulersProvider) {
+@Singleton
+class BaseComposers @Inject constructor() {
     fun <T> applySingleSchedulers(errorLabel: String = "meta"): SingleTransformer<T, T> =
         SingleTransformer {
-            it.subscribeOn(schedulers.io())
-                .observeOn(schedulers.ui())
+            it.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnError { err -> FlightRecorder.e(errorLabel, err) }
         }
 
     fun <T> applyMaybeSchedulers(errorLabel: String = "meta"): MaybeTransformer<T, T> =
         MaybeTransformer {
-            it.subscribeOn(schedulers.io())
-                .observeOn(schedulers.ui())
+            it.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnError { err -> FlightRecorder.e(errorLabel, err) }
         }
 
     fun <T> applyObservableSchedulers(errorLabel: String = "meta"): ObservableTransformer<T, T> =
         ObservableTransformer {
-            it.subscribeOn(schedulers.io())
-                .observeOn(schedulers.ui())
+            it.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnError { err -> FlightRecorder.e(errorLabel, err) }
         }
 
     fun applyCompletableSchedulers(errorLabel: String = "meta"): CompletableTransformer =
         CompletableTransformer {
-            it.subscribeOn(schedulers.io())
-                .observeOn(schedulers.ui())
+            it.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnError { err -> FlightRecorder.e(errorLabel, err) }
         }
 }

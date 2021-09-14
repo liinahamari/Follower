@@ -36,8 +36,9 @@ import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 import java.util.*
+import javax.inject.Inject
 
-class AutoTrackingSchedulingUseCase constructor(
+class AutoTrackingSchedulingUseCase @Inject constructor(
     private val sharedPreferences: SharedPreferences,
     private val app: Application,
     private val baseComposers: BaseComposers,

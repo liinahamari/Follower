@@ -28,9 +28,10 @@ import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
+import javax.inject.Inject
 
 @RoadBuildingScope
-class RoadBuildingInteractor constructor(
+class RoadBuildingInteractor @Inject constructor(
     private val app: Application,
     private val trackDao: TrackDao,
     private val baseComposers: BaseComposers,

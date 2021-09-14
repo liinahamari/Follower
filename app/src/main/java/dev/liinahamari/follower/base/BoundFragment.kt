@@ -27,7 +27,7 @@ import androidx.appcompat.app.AppCompatActivity
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 
-abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes) {
+abstract class BoundFragment(@LayoutRes layoutRes: Int) : BaseFragment(layoutRes) {
     protected var isServiceBound = false
 
     abstract fun getBindingTarget(): Class<out Service>
@@ -56,8 +56,12 @@ abstract class BoundFragment(@LayoutRes layoutRes: Int): BaseFragment(layoutRes)
     @CallSuper
     override fun onStart() {
         super.onStart()
-        requireActivity().bindService(Intent(requireActivity(), getBindingTarget()), serviceConnection, AppCompatActivity.BIND_AUTO_CREATE)
-            .also { FlightRecorder.lifecycle { "(${this::class.java.simpleName}) Service bound ($it) from onStart()" } }
+        activity?.bindService(
+            Intent(requireActivity(), getBindingTarget()),
+            serviceConnection,
+            AppCompatActivity.BIND_AUTO_CREATE
+        )
+            ?.also { isBound -> FlightRecorder.lifecycle { "(${this::class.java.simpleName}) Service bound (isBound: $isBound) from onStart()" } }
     }
 
     @CallSuper

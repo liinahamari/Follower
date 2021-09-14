@@ -35,7 +35,7 @@ private const val LOCALHOST_ENDPOINT = "http://10.0.2.2:8080/"
 
 @Module
 class NetworkModule {
-    /**FIXME: Temporary solution. � symbol can be changed in a while */
+    /* FIXME: Temporary solution. � symbol can be changed in a while */
     @Provides
     @Singleton
     fun provideClearLogger(): HttpLoggingInterceptor.Logger = object : HttpLoggingInterceptor.Logger {
@@ -70,7 +70,7 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAlbumsService(okHttpClient: OkHttpClient, callAdapterFactory: CallAdapter.Factory, converterFactory: Converter.Factory): ServerService = Retrofit.Builder()
+    fun provideTrackSyncService(okHttpClient: OkHttpClient, callAdapterFactory: CallAdapter.Factory, converterFactory: Converter.Factory): ServerService = Retrofit.Builder()
         .addConverterFactory(converterFactory)
         .addCallAdapterFactory(callAdapterFactory)
         .baseUrl(LOCALHOST_ENDPOINT) /*todo: to BuildConfig.ENDPOINT*/
