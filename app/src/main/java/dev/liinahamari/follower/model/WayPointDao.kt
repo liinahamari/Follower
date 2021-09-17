@@ -16,7 +16,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.model
 
-import androidx.lifecycle.LiveData
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -27,7 +27,7 @@ import io.reactivex.rxjava3.core.Single
 @Dao
 interface WayPointDao {
     @Query("SELECT * FROM waypoint WHERE trackId = :trackId")
-    fun getAllByTrackId(trackId: Long): LiveData<List<WayPoint>>
+    fun getAllByTrackId(trackId: Long): PagingSource<Int, WayPoint>
 
     @Query("SELECT provider FROM waypoint WHERE trackId = :trackId")
     fun validateWpAmount(trackId: Long): Single<List<String>>

@@ -6,7 +6,7 @@
     <data>
 
         <variable
-            name="address"
+            name="mapPointer"
             type="dev.liinahamari.follower.screens.address_trace.MapPointer" />
     </data>
 
@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="@{address.time}"
+                android:text="@{mapPointer.readableDate}"
                 tools:text="11 dec 2020 11:11" />
 
             <TextView
@@ -36,7 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:text="@{address.commonAddress}"
+                android:text="@{mapPointer.commonAddress}"
                 tools:text="Some address" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -16,36 +16,52 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.screens.address_trace
 
-import androidx.lifecycle.LiveData
+import android.app.Application
+import android.location.Geocoder
+import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.rxjava3.cachedIn
+import androidx.paging.rxjava3.flowable
+import androidx.paging.rxjava3.mapAsync
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseViewModel
-import dev.liinahamari.follower.helper.SingleLiveEvent
-import dev.liinahamari.follower.interactors.GetAddressesResult
-import dev.liinahamari.follower.interactors.TrackInteractor
-import io.reactivex.rxjava3.kotlin.plusAssign
+import dev.liinahamari.follower.ext.toReadableDate
+import dev.liinahamari.follower.model.WayPointDao
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import java.util.*
 import javax.inject.Inject
 
-class AddressTraceViewModel @Inject constructor(private val trackInteractor: TrackInteractor) : BaseViewModel() {
-    private val _getAddressesEvent = SingleLiveEvent<List<MapPointer>>()
-    val getAddressesEvent: LiveData<List<MapPointer>> get() = _getAddressesEvent
-
-    private val _loadingEvent = SingleLiveEvent<Boolean>()
-    val loadingEvent: LiveData<Boolean> get() = _loadingEvent
-
-    fun getAddressTrace(id: Long) {
-        disposable += trackInteractor.getAddressesList(id)
-            .subscribe {
-                when (it) {
-                    is GetAddressesResult.Success -> {
-                        _loadingEvent.value = false
-                        _getAddressesEvent.value = it.addresses
+class AddressTraceViewModel @Inject constructor(private val context: Application, private val wayPointDao: WayPointDao) : BaseViewModel() {
+    @ExperimentalCoroutinesApi
+    fun getLogsByTraceId(traceId: Long): Flowable<PagingData<MapPointer>> = Pager(
+        config = PagingConfig(
+            pageSize = PAGE_CAPACITY.toInt(),
+            enablePlaceholders = true,
+            maxSize = (PAGE_CAPACITY * 5).toInt(),
+            prefetchDistance = (PAGE_CAPACITY / 2).toInt(),
+            initialLoadSize = PAGE_CAPACITY.toInt()
+        ),
+        pagingSourceFactory = { wayPointDao.getAllByTrackId(traceId) }
+    )
+        .flowable
+        .map {
+            it.mapAsync { wp ->
+                Single.just(Geocoder(context, Locale.getDefault()))
+                    .map {
+                        kotlin.runCatching {
+                            it.getFromLocation(wp.latitude, wp.longitude, 1)
+                                .first()
+                                .getAddressLine(0)
+                        }.getOrNull() ?: String.format(context.getString(R.string.address_unknown), wp.longitude, wp.latitude)
                     }
-                    is GetAddressesResult.DatabaseCorruptionError -> {
-                        _loadingEvent.value = false
-                        _errorEvent.value = R.string.db_error
+                    .map { address ->
+                        MapPointer(address, wp.latitude, wp.longitude, wp.time.toReadableDate())
                     }
-                    is GetAddressesResult.Loading -> _loadingEvent.value = true
-                }
             }
-    }
+        }
+        .cachedIn(viewModelScope)
 }

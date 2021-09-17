@@ -19,15 +19,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.interactors
 
 import android.app.Application
-import android.location.Geocoder
 import android.net.Uri
 import com.google.gson.Gson
-import dev.liinahamari.follower.R
 import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.TrackWithWayPoints
 import dev.liinahamari.follower.db.entities.WayPoint
 import dev.liinahamari.follower.ext.getUriForInternalFile
-import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.model.TrackDao
 import dev.liinahamari.follower.model.TrackJson
@@ -36,12 +33,9 @@ import dev.liinahamari.follower.model.WayPointJson
 import dev.liinahamari.follower.screens.address_trace.MapPointer
 import dev.liinahamari.follower.screens.track_list.TrackTitle
 import dev.liinahamari.follower.screens.track_list.TrackUi
-import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import dev.liinahamari.loggy_sdk.helper.createFileIfNotExist
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import java.util.*
 import javax.inject.Inject
 
 class TrackInteractor @Inject constructor(
@@ -54,7 +48,7 @@ class TrackInteractor @Inject constructor(
     fun deleteTrack(trackId: Long): Single<DeleteTrackResult> = trackDao.delete(trackId)
         .toSingleDefault<DeleteTrackResult>(DeleteTrackResult.Success)
         .onErrorReturn { DeleteTrackResult.DatabaseCorruptionError }
-        .compose(baseComposers.applySingleSchedulers("track|wayPoints deleting"))
+        .compose(baseComposers.applySingleSchedulers())
 
     fun saveWayPoint(wp: WayPoint): Completable = wayPointDao.insert(wp)
         .compose(baseComposers.applyCompletableSchedulers())
@@ -76,27 +70,6 @@ class TrackInteractor @Inject constructor(
         .map<SaveTrackResult> { SaveTrackResult.Success }
         .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
         .compose(baseComposers.applySingleSchedulers())
-
-    fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
-        .flattenAsObservable {
-            FlightRecorder.i { "getAddresses init size: ${it.wayPoints.size}" }
-            it.wayPoints
-        }
-        .distinctUntilChanged()
-        .map {
-            return@map with(Geocoder(app, Locale.getDefault())) {
-                val address = kotlin.runCatching { getFromLocation(it.latitude, it.longitude, 1).first().getAddressLine(0) }.getOrNull()
-                    ?: String.format(app.getString(R.string.address_unknown), it.longitude, it.latitude)
-                return@with MapPointer(address, it.latitude, it.longitude, it.time.toReadableDate())
-            }
-        }
-        .toList()
-        .toObservable()
-        .doOnNext { FlightRecorder.i { "getAddresses trimmed size: ${it.size}" } }
-        .map<GetAddressesResult> { GetAddressesResult.Success(it) }
-        .onErrorReturn { GetAddressesResult.DatabaseCorruptionError }
-        .startWithItem(GetAddressesResult.Loading)
-        .compose(baseComposers.applyObservableSchedulers())
 
     fun removeTrack(taskId: Long): Single<RemoveTrackResult> = trackDao.delete(taskId)
         .andThen(wayPointDao.delete(taskId))
@@ -183,7 +156,7 @@ class TrackInteractor @Inject constructor(
                 else -> ImportTrackResult.CommonError
             }
 
-        }.compose(baseComposers.applySingleSchedulers("Track import"))
+        }.compose(baseComposers.applySingleSchedulers())
 }
 
 sealed class SaveTrackResult {
@@ -201,8 +174,8 @@ sealed class ImportTrackResult {
 
 sealed class GetAddressesResult {
     data class Success(val addresses: List<MapPointer>) : GetAddressesResult()
+    object EmptyList : GetAddressesResult()
     object DatabaseCorruptionError : GetAddressesResult()
-    object Loading : GetAddressesResult()
 }
 
 sealed class DeleteTrackResult {
