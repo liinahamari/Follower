@@ -40,7 +40,7 @@ import kotlinx.android.synthetic.main.follower_pager.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(R.layout.activity_main), ShakeDetector.Listener {
+class RouteActivity : AppCompatActivity(R.layout.activity_route), ShakeDetector.Listener {
     @Inject lateinit var sensorManager: SensorManager
     @Inject lateinit var prefs: SharedPreferences
 

@@ -23,7 +23,7 @@ import dev.liinahamari.follower.base.BaseDialogFragment
 import dev.liinahamari.follower.base.BaseFragment
 import dev.liinahamari.follower.base.BaseService
 import dev.liinahamari.follower.di.modules.*
-import dev.liinahamari.follower.screens.MainActivity
+import dev.liinahamari.follower.screens.RouteActivity
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import javax.inject.Singleton
@@ -54,6 +54,6 @@ interface AppComponent {
     fun inject(fragment: BaseDialogFragment)
     fun inject(app: FollowerApp)
     fun inject(service: LocationTrackingService)
-    fun inject(activity: MainActivity)
+    fun inject(activity: RouteActivity)
     fun inject(service: AutoTrackingSchedulingService)
 }

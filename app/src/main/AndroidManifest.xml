@@ -49,21 +49,25 @@
             android:name="android.test.mock"
             android:required="false" />
 
-        <activity android:name=".screens.intro.IntroActivity">
+        <activity android:name=".screens.intro.IntroActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".screens.crash_screen.CrashStackTraceActivity" />
 
-        <activity android:name=".screens.MainActivity" />
+        <activity android:name=".screens.crash_screen.CrashStackTraceActivity"
+            android:exported="false" />
+
+        <activity android:name=".screens.RouteActivity"
+            android:exported="false" />
 
         <service
             android:name=".services.location_tracking.LocationTrackingService"
             android:exported="false"
             android:foregroundServiceType="location" />
+
         <service
             android:name=".services.AutoTrackingSchedulingService"
             android:enabled="true"
@@ -88,5 +92,4 @@
             android:enabled="true"
             android:exported="false" />
     </application>
-
 </manifest>
