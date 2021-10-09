@@ -81,7 +81,6 @@ class FollowerApp : Application() {
         super.onCreate()
         Loggy.init(
             application = this,
-            logFile = createFileIfNotExist(DEBUG_LOGS_STORAGE_FILE, DEBUG_LOGS_DIR),
             integratorEmail = MY_EMAIL,
             userId = USER_ID
         )

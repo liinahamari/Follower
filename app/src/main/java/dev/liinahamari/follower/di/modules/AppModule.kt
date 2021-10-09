@@ -20,17 +20,15 @@ import android.app.AlarmManager
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import dev.liinahamari.follower.FollowerApp
-import dev.liinahamari.follower.R
-import dev.liinahamari.follower.helper.rx.BaseComposers
-import dev.liinahamari.follower.helper.rx.BaseSchedulerProvider
-import dev.liinahamari.follower.helper.rx.SchedulersProvider
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.scottyab.rootbeer.RootBeer
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
+import dev.liinahamari.follower.FollowerApp
+import dev.liinahamari.follower.R
+import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.screens.settings.AutoTrackingSchedulingUseCase
 import javax.inject.Named
 import javax.inject.Singleton
@@ -57,14 +55,6 @@ class AppModule {
     @Provides
     @Singleton
     fun bindSharedPrefs(@Named(APP_CONTEXT) context: Context): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-
-    @Provides
-    @Singleton
-    fun bindComposers(schedulers: SchedulersProvider): BaseComposers = BaseComposers(schedulers)
-
-    @Provides
-    @Singleton
-    fun bindSchedulers(): SchedulersProvider = BaseSchedulerProvider()
 
     @Provides
     @Singleton

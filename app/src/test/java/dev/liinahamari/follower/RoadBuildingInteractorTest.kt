@@ -12,7 +12,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR 
 ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+*//*
+
 
 package dev.liinahamari.follower
 
@@ -44,11 +45,9 @@ private const val MOCKED_TRACK_ID = 1L
 @Config(sdk = [Build.VERSION_CODES.O_MR1])
 @RunWith(RobolectricTestRunner::class)
 class RoadBuildingInteractorTest {
-    private val logger = FlightRecorder(createTempFile())
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val sharedPrefs = context.getDefaultSharedPreferences()
     private val prefTrackRepresentationId = context.getString(R.string.pref_track_representation)
-    private val baseComposers = BaseComposers(TestSchedulers(), logger)
     private lateinit var db: TracksDb
     private lateinit var trackDao: TrackDao
     private lateinit var wayPointDao: WayPointDao
@@ -97,4 +96,4 @@ class RoadBuildingInteractorTest {
             .assertNoErrors()
             .assertValue { it is GetRoadResult.SuccessfulMarkerSet && it.markerSet.wayPoints.size == 1 }
     }
-}
+}*/

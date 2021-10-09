@@ -26,11 +26,11 @@ import javax.inject.Singleton
 
 @Singleton
 class BaseComposers @Inject constructor() {
-    fun <T> applySingleSchedulers(logError: Consumer<Throwable> = Consumer { err -> FlightRecorder.e("", err) }): SingleTransformer<T, T> =
+    fun <T> applySingleSchedulers(errorLabel: String = "meta"): SingleTransformer<T, T> =
         SingleTransformer {
             it.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(logError)
+                .doOnError { err -> FlightRecorder.e(errorLabel, err) }
         }
 
     fun <T> applyMaybeSchedulers(errorLabel: String = "meta"): MaybeTransformer<T, T> =
