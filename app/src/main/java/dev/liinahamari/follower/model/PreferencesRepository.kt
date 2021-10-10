@@ -37,6 +37,7 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
     /** If App is launching first time, then set default preferences*/
     fun applyDefaultPreferences() {
         if (sharedPreferences.getBoolean(context.getString(R.string.pref_is_first_launch), false).not()) {
+            sharedPreferences.writeBooleanOf(context.getString(R.string.pref_low_battery_dnd_time), true)
             sharedPreferences.writeBooleanOf(context.getString(R.string.pref_is_first_launch), true)
             sharedPreferences.writeBooleanOf(context.getString(R.string.pref_battery_optimization), context.isIgnoringBatteryOptimizations())
 
@@ -79,9 +80,21 @@ class PreferencesRepository @Inject constructor(private val sharedPreferences: S
         .onErrorReturn { PersistedTrackResult.Failure }
 
     fun incrementAppLaunchCounter() = sharedPreferences.incrementAppLaunchCounter(context)
+
+    fun isForbiddenToNotifyLowBatteryAtNight(time: String = nowHoursAndMinutesOnly()): Single<PermissionToNotifyAboutLowBatteryResult> = Single.just(context.getString(R.string.pref_low_battery_dnd_time))
+        /** DO NOT DISTURB == NOT PERMITTED TO NOTIFY!*/
+        .map { sharedPreferences.getBoolean(it, true).not() || ((sharedPreferences.getBoolean(it, true) && isTimeBetweenTwoTimes("00:00", "09:00", time).not())) }
+        .map<PermissionToNotifyAboutLowBatteryResult> { PermissionToNotifyAboutLowBatteryResult.Success(it) }
+        .doOnError { it.printStackTrace() }
+        .onErrorReturn { PermissionToNotifyAboutLowBatteryResult.Failure }
 }
 
 sealed class PersistedTrackResult {
     data class Success(val value: String) : PersistedTrackResult()
     object Failure : PersistedTrackResult()
+}
+
+sealed class PermissionToNotifyAboutLowBatteryResult {
+    data class Success(var permitted: Boolean) : PermissionToNotifyAboutLowBatteryResult()
+    object Failure : PermissionToNotifyAboutLowBatteryResult()
 }

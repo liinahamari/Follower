@@ -19,10 +19,10 @@ package dev.liinahamari.follower.di.components
 import dagger.BindsInstance
 import dagger.Component
 import dev.liinahamari.follower.FollowerApp
-import dev.liinahamari.follower.base.BaseDialogFragment
-import dev.liinahamari.follower.base.BaseFragment
-import dev.liinahamari.follower.base.BaseService
+import dev.liinahamari.follower.base.*
 import dev.liinahamari.follower.di.modules.*
+import dev.liinahamari.follower.receivers.BootReceiver
+import dev.liinahamari.follower.receivers.LowBatteryReceiver
 import dev.liinahamari.follower.screens.RouteActivity
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
@@ -49,11 +49,19 @@ interface AppComponent {
     fun roadBuildingComponent(): RoadBuildingComponent
     fun trackingControlComponent(module: TrackingControlModule): TrackingControlComponent
 
-    fun inject(service: BaseService)
+    fun inject(app: FollowerApp)
+
     fun inject(fragment: BaseFragment)
     fun inject(fragment: BaseDialogFragment)
-    fun inject(app: FollowerApp)
-    fun inject(service: LocationTrackingService)
+
+    fun inject(activity: NotifyingActivity)
     fun inject(activity: RouteActivity)
+
+    fun inject(service: BaseService)
     fun inject(service: AutoTrackingSchedulingService)
+    fun inject(service: LocationTrackingService)
+    fun inject(service: BaseJobIntentService)
+
+    fun inject(receiver: LowBatteryReceiver)
+    fun inject(receiver: BootReceiver)
 }

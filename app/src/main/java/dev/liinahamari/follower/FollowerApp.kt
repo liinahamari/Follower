@@ -18,6 +18,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -27,19 +28,22 @@ import android.content.res.Configuration
 import android.util.Log.INFO
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import com.github.anrwatchdog.ANRWatchDog
 import dev.liinahamari.follower.di.components.AppComponent
 import dev.liinahamari.follower.di.components.DaggerAppComponent
+import dev.liinahamari.follower.ext.cancelLowBatteryChecker
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
+import dev.liinahamari.follower.ext.scheduleLowBatteryChecker
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.screens.crash_screen.CrashStackTraceActivity
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import dev.liinahamari.loggy_sdk.Loggy
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
-import dev.liinahamari.loggy_sdk.helper.createFileIfNotExist
 import io.reactivex.rxjava3.internal.functions.Functions
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import net.gotev.uploadservice.UploadServiceConfig
@@ -51,8 +55,7 @@ import java.util.concurrent.Executors
 import javax.inject.Inject
 import kotlin.system.exitProcess
 
-private const val DEBUG_LOGS_DIR = "TempLogs"
-private const val DEBUG_LOGS_STORAGE_FILE = "tape.log"
+const val CHANNEL_BATTERY_LOW_ID = "CHANNEL_BATTERY_LOW_ID"
 private const val USER_ID = "dummy_id"
 private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
 private const val MY_EMAIL = "me@liinahamari.dev"
@@ -69,6 +72,7 @@ private const val MY_EMAIL = "me@liinahamari.dev"
 @AcraScheduler(requiresNetworkType = JobInfo.NETWORK_TYPE_ANY/*fixme: debug/prod distinction*/, requiresBatteryNotLow = true)
 @AcraMailSender(mailTo = MY_EMAIL) /*FIXME: temporary solution*/
 class FollowerApp : Application() {
+    var isAppInForeground = true
     @Inject lateinit var preferencesRepository: PreferencesRepository
     @Inject lateinit var workerFactory: WorkerFactory
     @Inject lateinit var notificationManager: NotificationManager
@@ -93,6 +97,10 @@ class FollowerApp : Application() {
         setupFtpUploadingService()
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
         setupCrashStackTraceScreen()
+
+        cancelLowBatteryChecker().also {
+            scheduleLowBatteryChecker()
+        }
     }
 
     private fun setupCrashStackTraceScreen() = Thread.setDefaultUncaughtExceptionHandler { thread, error ->
@@ -115,11 +123,13 @@ class FollowerApp : Application() {
         debug = BuildConfig.DEBUG
     )
 
+    @SuppressLint("WrongConstant")
     private fun setupNotificationChannels() {
         //todo strings
         notificationManager.createNotificationChannel(NotificationChannel(AutoTrackingSchedulingService.CHANNEL_ID, "Auto tracking scheduling", NotificationManager.IMPORTANCE_DEFAULT))
         notificationManager.createNotificationChannel(NotificationChannel(LocationTrackingService.CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_LOW))
         notificationManager.createNotificationChannel(NotificationChannel(FTP_FILE_UPLOAD_SERVICE_ID, "FTP file uploading", NotificationManager.IMPORTANCE_LOW))
+        notificationManager.createNotificationChannel(NotificationChannel(CHANNEL_BATTERY_LOW_ID, getString(R.string.title_channel_low_battery), NotificationManager.IMPORTANCE_MAX))
     }
 
     private fun setupWorkManager() = WorkManager.initialize(
@@ -160,6 +170,16 @@ class FollowerApp : Application() {
                 newConfig.setLocale(it)
             }
         super.onConfigurationChanged(newConfig)
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun onAppBackgrounded() {
+        isAppInForeground = false
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    fun onAppForegrounded() {
+        isAppInForeground = true
     }
 
     @VisibleForTesting

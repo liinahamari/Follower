@@ -38,7 +38,7 @@ class IntroActivity : AppIntro() {
         } else {
             addSlide(SlideFragment.newInstance(getString(R.string.title_welcome_to_follower), getString(R.string.summary_welcome), R.color.teal_700, R.drawable.sc_background))
             addSlide(SlideFragment.newInstance(getString(R.string.title_track_observing), getString(R.string.summary_track_observing), R.color.purple_500, R.drawable.sc_address_list)) //todo half-by-half map and addresses view on a picture
-            addSlide(SlideFragment.newInstance(getString(R.string.title_try_dark_theme), getString(R.string.summmary_dark_theme), R.color.purple_700, R.drawable.sc_dark_map))
+            addSlide(SlideFragment.newInstance(getString(R.string.title_try_dark_theme), getString(R.string.summary_dark_theme), R.color.purple_700, R.drawable.sc_dark_map))
             addSlide(SlideFragment.newInstance(getString(R.string.title_sharing_and_import), getString(R.string.summary_sharing_and_import), R.color.purple_200, R.drawable.sc_share))
             //TODO fingerprint/pin feature
         }

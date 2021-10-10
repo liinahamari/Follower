@@ -107,6 +107,11 @@
     <string name="title_sharing_and_import">Делитесь Маршрутами</string>
     <string name="summary_welcome">Приложение, которое имеет возможность записывать ваши перемещения даже в фоновом режиме</string>
     <string name="summary_track_observing">Просматривайте записанный маршрут с помощью OpenStreetMap карты или как список адресов</string>
-    <string name="summmary_dark_theme">Воспользуйтесь темным режимом чтобы позаботиться о глазах в темное время суток</string>
+    <string name="summary_dark_theme">Воспользуйтесь темным режимом чтобы позаботиться о глазах в темное время суток</string>
     <string name="summary_sharing_and_import">Делитесь маршрутами с друзьями и просматривайте их маршруты!</string>
+    <string name="dismiss">Сбросить</string>
+    <string name="title_battery_low">Заряд батареи низок</string>
+    <string name="title_channel_low_battery">Уведомления о низком заряде батаери</string>
+    <string name="title_got_it">Понятно!</string>
+    <string name="description_low_battery">Заряд батареи низок! Пожалуйста, подключите зарядное устройство.</string>
 </resources>

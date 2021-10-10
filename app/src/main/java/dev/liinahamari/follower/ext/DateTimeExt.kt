@@ -80,3 +80,7 @@ fun isTimeBetweenTwoTimes(startThreshold: String, endThreshold: String, verifiab
         return (end.time.after(start.time) || end.time.compareTo(start.time) == 0) && end.time.before(verifiable.time)
     } else throw IllegalArgumentException()
 }
+
+fun minutesToMilliseconds(minutes: Long) = minutes * 1000 * 60
+fun hoursToMilliseconds(hours: Long) = hours * 1000 * 60 * 60
+fun daysToMilliseconds(days: Long) = days * 1000 * 60 * 60 * 24

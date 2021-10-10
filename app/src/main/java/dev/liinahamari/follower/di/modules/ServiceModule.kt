@@ -16,12 +16,18 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.di.modules
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
+import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
+import android.content.Context.*
 import android.hardware.SensorManager
 import android.location.LocationManager
+import android.os.BatteryManager
+import android.os.PowerManager
+import android.view.WindowManager
 import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
@@ -31,6 +37,20 @@ import javax.inject.Singleton
 
 @Module
 open class ServiceModule {
+    @SuppressLint("InlinedApi")
+    @Provides
+    @Singleton
+    fun provideBatteryManager(@Named(APP_CONTEXT) context: Context): BatteryManager? = context.getSystemService(BATTERY_SERVICE) as BatteryManager?
+
+    @Provides
+    @Singleton
+    fun provideWakeLock(@Named(APP_CONTEXT) context: Context): PowerManager.WakeLock = (context.getSystemService(POWER_SERVICE) as PowerManager)
+        .newWakeLock(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, javaClass.simpleName)
+
+    @Provides
+    @Singleton
+    fun provideKeyguardManager(@Named(APP_CONTEXT) context: Context): KeyguardManager = context.getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+
     @Provides
     @Singleton
     open fun provideLocationManager(@Named(APP_CONTEXT) context: Context): LocationManager = context.getSystemService(Service.LOCATION_SERVICE) as LocationManager
