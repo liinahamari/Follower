@@ -16,18 +16,52 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.receivers
 
+import android.app.AlarmManager
+import android.app.AlarmManager.INTERVAL_HOUR
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.preference.PreferenceManager
+import android.content.Intent.ACTION_BOOT_COMPLETED
+import android.content.SharedPreferences
+import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.ext.getBooleanOf
+import dev.liinahamari.follower.ext.minutesToMilliseconds
+import dev.liinahamari.follower.ext.scheduleLowBatteryChecker
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
+import dev.liinahamari.loggy_sdk.helper.FlightRecorder
+import javax.inject.Inject
+
+const val BATTERY_CHECKER_ID = 101
+private const val BOOT_RECEIVED_LOG = "Boot completed received in Follower application."
 
 class BootReceiver : BroadcastReceiver() {
+    @Inject lateinit var sharedPreferences: SharedPreferences
+    @Inject lateinit var alarmManager: AlarmManager
+
+    /**
+     * To test "boot completed" event is handling you'll need a rooted device and run in terminal:
+     *  adb root
+     *  adb shell am broadcast -a android.intent.action.BOOT_COMPLETED -p dev.liinahamari.follower
+     *
+     * In case {@link #onReceive(Context, Intent)} succeeds receiving, you'll see {@link #BOOT_RECEIVED_LOG}
+     * */
     override fun onReceive(context: Context, intent: Intent) {
-        if (PreferenceManager.getDefaultSharedPreferences(context).getBooleanOf(context.getString(R.string.pref_enable_auto_tracking)) && intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            context.startForegroundService(Intent(context.applicationContext, AutoTrackingSchedulingService::class.java))
+        if (intent.action == ACTION_BOOT_COMPLETED) {
+
+            FlightRecorder.i(toPrintInLogcat = true) {
+                BOOT_RECEIVED_LOG
+            }
+
+            (context.applicationContext as FollowerApp).appComponent.inject(this)
+
+            with(context) {
+                if (sharedPreferences.getBooleanOf(getString(R.string.pref_enable_auto_tracking))) {
+                    startForegroundService(Intent(applicationContext, AutoTrackingSchedulingService::class.java))
+                }
+                scheduleLowBatteryChecker()
+            }
         }
     }
 }

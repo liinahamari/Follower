@@ -8,6 +8,7 @@
     <string name="arg_toSinglePointerMap_Latitude" translatable="false">com.example.follower.SinglePointerMapFragment.LATITUDE</string>
 
     <!--prefs-->
+    <string name="pref_low_battery_dnd_time" translatable="false">PREF_LOW_BATTERY_DND_AT_NIGHT</string>
     <string name="pref_app_launch_counter" translatable="false">pref_app_launch_counter</string>
     <string name="pref_never_show_rate_app" translatable="false">pref_never_show_rate_app</string>
     <string name="pref_report_bug" translatable="false">pref_report_bug</string>
@@ -148,6 +149,11 @@
     <string name="title_sharing_and_import">Sharing and Import</string>
     <string name="summary_welcome">Application that has ability to record your movements even in background</string>
     <string name="summary_track_observing">Observe your track with OpenStreetMap or as a list of addresses</string>
-    <string name="summmary_dark_theme">Dark theme implemented to protect your eyes at night time</string>
+    <string name="summary_dark_theme">Dark theme implemented to protect your eyes at night time</string>
     <string name="summary_sharing_and_import">Share your tracks with your friends and observe their tracks!</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="title_battery_low">Battery low</string>
+    <string name="title_channel_low_battery">Low Battery Notifications</string>
+    <string name="title_got_it">Got it!</string>
+    <string name="description_low_battery">Battery low! Please charge.</string>
 </resources>

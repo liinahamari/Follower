@@ -16,5 +16,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.ext
 
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import androidx.annotation.ColorInt
+
 fun String.yellow() = 27.toChar() + "[33m$this" + 27.toChar() + "[0m"
 fun String.red() = 27.toChar() + "[31m$this" + 27.toChar() + "[0m"
+
+fun String.toColorfulString(@ColorInt color: Int) = SpannableString(this).apply { setSpan(ForegroundColorSpan(color), 0, length, 0) }

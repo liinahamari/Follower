@@ -16,18 +16,26 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.ext
 
-import android.app.Activity
-import android.app.ActivityManager
-import android.app.Service
+import android.app.*
+import android.app.AlarmManager.INTERVAL_FIFTEEN_MINUTES
+import android.app.AlarmManager.INTERVAL_HOUR
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import dev.liinahamari.follower.BuildConfig
+import dev.liinahamari.follower.FollowerApp
+import dev.liinahamari.follower.base.ForegroundService.Companion.ACTION_SHOW_NOTIFICATION
+import dev.liinahamari.follower.base.ForegroundService.Companion.ACTION_STOP_FOREGROUND
+import dev.liinahamari.follower.receivers.BATTERY_CHECKER_ID
+import dev.liinahamari.follower.receivers.LowBatteryReceiver
 
 @Suppress(
     "DEPRECATION"
@@ -47,3 +55,40 @@ fun Fragment.stopService(serviceClass: Class<out Service>) = requireActivity().a
 fun Context.isIgnoringBatteryOptimizations() = (getSystemService(Context.POWER_SERVICE) as PowerManager?)?.isIgnoringBatteryOptimizations(packageName) == true
 fun Fragment.isIgnoringBatteryOptimizations() = (requireActivity().getSystemService(Context.POWER_SERVICE) as PowerManager?)?.isIgnoringBatteryOptimizations(requireActivity().packageName) == true
 fun Activity.isIgnoringBatteryOptimizations() = (getSystemService(Context.POWER_SERVICE) as PowerManager?)?.isIgnoringBatteryOptimizations(packageName) == true
+
+/** workaround for Android 10 restrictions to launch activities in background:
+ *  https://developer.android.com/guide/components/activities/background-starts
+ * */
+fun Context.activityImplicitLaunch(service: Class<out Service>, activity: Class<out Activity>, bundle: Bundle? = null) {
+    if (Build.VERSION.SDK_INT >= 29 && (applicationContext as FollowerApp).isAppInForeground.not()) {
+        ContextCompat.startForegroundService(this, Intent(this, service).apply {
+            action = ACTION_SHOW_NOTIFICATION
+            bundle?.let { putExtras(it) }
+        })
+    } else {
+        startService(Intent(this, service).apply {
+            bundle?.let { putExtras(it) }
+            action = ACTION_STOP_FOREGROUND
+        })
+        startActivity(Intent(this, activity).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            bundle?.let { putExtras(it) }
+        })
+    }
+}
+
+/** Runs once-an-hour checker of battery state */
+fun Context.scheduleLowBatteryChecker(initialDelayInMinutes: Long = 3L) = (getSystemService(Context.ALARM_SERVICE) as AlarmManager).setRepeating(
+    AlarmManager.RTC_WAKEUP,
+    System.currentTimeMillis() + minutesToMilliseconds(initialDelayInMinutes),
+    if (BuildConfig.DEBUG) INTERVAL_FIFTEEN_MINUTES else INTERVAL_HOUR,
+    PendingIntent.getBroadcast(
+        this,
+        BATTERY_CHECKER_ID,
+        Intent(this, LowBatteryReceiver::class.java),
+        FLAG_IMMUTABLE
+    )
+)
+
+fun Context.cancelLowBatteryChecker() = (this.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+    .cancel(PendingIntent.getBroadcast(this, BATTERY_CHECKER_ID, Intent(this, LowBatteryReceiver::class.java), 0))
