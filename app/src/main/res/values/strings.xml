@@ -40,6 +40,9 @@
     <!--descriptions-->
     <string name="desc_intro_image" translatable="false">DESCRIPTION_intro_image</string>
     <string name="desc_map_view" translatable="false">DESCRIPTION_map_fragment_map_view</string>
+    <string name="tag_track_mode_car" translatable="false">track_mode_car</string>
+    <string name="tag_track_mode_bike" translatable="false">track_mode_bike</string>
+    <string name="tag_track_mode_walk" translatable="false">track_mode_walk</string>
 
     <string name="location_permission_dialog_explanation">App needs geolocation to track your activity</string>
     <string name="title_gps_ready">GPS Ready</string>

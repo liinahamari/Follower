@@ -36,6 +36,7 @@ import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.interactors.SaveTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
+import dev.liinahamari.follower.model.TrackMode
 import dev.liinahamari.follower.screens.tracking_control.UploadTrackInteractor
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Observable
@@ -50,6 +51,7 @@ const val ACTION_START_TRACKING = "BackgroundTracker.action_start_tracking"
 const val ACTION_DISCARD_TRACK = "BackgroundTracker.action_discard_track"
 const val ACTION_RENAME_TRACK_AND_STOP_TRACKING = "BackgroundTracker.action_rename_track"
 const val ARG_AUTO_SAVE = "BackgroundTracker.arg_auto_save"
+const val ARG_TRACK_MODE = "BackgroundTracker.arg_track_mode"
 
 class LocationTrackingService : BaseService() {
     companion object {
@@ -102,7 +104,11 @@ class LocationTrackingService : BaseService() {
         startForeground(FOREGROUND_ID_LOCATION_TRACKING, createNotification(wayPointsCounter.value!!).build())
         when (intent.action) {
             ACTION_RENAME_TRACK_AND_STOP_TRACKING -> renameTrackAndStopTracking(intent.extras?.getCharSequence(ARG_AUTO_SAVE, null))
-            ACTION_START_TRACKING -> startTracking()
+
+            ACTION_START_TRACKING -> startTracking(
+                intent.extras!!.getParcelable(ARG_TRACK_MODE)!!
+            )
+
             ACTION_DISCARD_TRACK -> discardTrack()
         }
         return START_STICKY
@@ -147,7 +153,7 @@ class LocationTrackingService : BaseService() {
 
     private fun renameTrackAndStopTracking(title: CharSequence?) {
         if (title != null) {
-            subscriptions += trackInteractor.renameTrack(Track(trackBeginningTime!!, title.toString()))
+            subscriptions += trackInteractor.renameTrack(trackBeginningTime!!, title.toString())
                 .subscribe { saveResult ->
                     when (saveResult) {
                         is SaveTrackResult.Success -> successToast(R.string.toast_track_saved) /*todo check availability of toasts from service in latest versions*/
@@ -170,7 +176,7 @@ class LocationTrackingService : BaseService() {
             }
     }
 
-    private fun startTracking() {
+    private fun startTracking(trackMode: TrackMode) {
         val timeUpdateInterval = (prefInteractor.getTimeIntervalBetweenUpdates()
             .blockingGet() as GetTimeIntervalResult.Success).timeInterval
 
@@ -183,7 +189,13 @@ class LocationTrackingService : BaseService() {
             isTrackEmpty = true
             trackBeginningTime = System.currentTimeMillis()
 
-            subscriptions += trackInteractor.saveTrack(Track(trackBeginningTime!!, trackBeginningTime!!.toReadableDate())).subscribe({}, {
+            subscriptions += trackInteractor.saveTrack(
+                Track(
+                    time = trackBeginningTime!!,
+                    title = trackBeginningTime!!.toReadableDate(),
+                    trackMode = trackMode
+                )
+            ).subscribe({}, {
                 FlightRecorder.e("failed to initially save track!", error = it)
             })
 

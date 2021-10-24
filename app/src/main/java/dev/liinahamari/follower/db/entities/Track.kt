@@ -18,6 +18,12 @@ package dev.liinahamari.follower.db.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import dev.liinahamari.follower.model.TrackMode
 
 @Entity
-data class Track(@PrimaryKey val time: Long, val title: String, val isImported: Boolean = false)
+data class Track(
+    @PrimaryKey val time: Long,
+    val title: String,
+    val isImported: Boolean = false,
+    val trackMode: TrackMode
+)

@@ -26,7 +26,9 @@ data class TrackJson(
     @SerializedName("time")
     val time: Long,
     @SerializedName("way_points")
-    val wayPoints: Array<WayPointJson>
+    val wayPoints: Array<WayPointJson>,
+    @SerializedName("track_mode")
+    val trackMode: TrackMode
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

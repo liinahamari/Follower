@@ -56,11 +56,12 @@ class TrackLocalToTrackRemoteMapper @Inject constructor() {
     fun transform(track: TrackWithWayPoints) = ServerTrack(
         time = track.track.time,
         title = track.track.title,
+        trackMode = track.track.trackMode,
         wayPoints = track.wayPoints.map { Pair(it.longitude, it.latitude) }.toTypedArray()
     )
 
     fun transform(track: ServerTrack) = TrackWithWayPoints(
-        track = Track(track.time, track.title),
+        track = Track(time = track.time, title = track.title, trackMode = track.trackMode),
         wayPoints = track.wayPoints.map { WayPoint(trackId = track.time, longitude = it.first, latitude = it.second, provider = "TODO", time = 1L /*TODO*/) }
     )
 }

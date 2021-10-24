@@ -69,10 +69,15 @@ class TrackInteractor @Inject constructor(
         .map { it.size }
         .compose(baseComposers.applySingleSchedulers())
 
-    fun renameTrack(track: Track): Single<SaveTrackResult> = trackDao.update(track)
-        .toSingleDefault<SaveTrackResult>(SaveTrackResult.Success)
-        .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
-        .compose(baseComposers.applySingleSchedulers())
+    fun renameTrack(trackId: Long, title: String): Single<SaveTrackResult> =
+        trackDao.findByTrackId(trackId)
+            .flatMap {
+                trackDao.update(it.copy(title = title))
+                    .toSingleDefault<SaveTrackResult>(SaveTrackResult.Success)
+                    .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
+            }
+            .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
+            .compose(baseComposers.applySingleSchedulers())
 
     fun saveTrack(track: Track): Single<SaveTrackResult> = trackDao.insert(track)
         .map<SaveTrackResult> { SaveTrackResult.Success }
@@ -129,7 +134,8 @@ class TrackInteractor @Inject constructor(
                         longitude = wp.longitude,
                         time = wp.time
                     )
-                }.toTypedArray()
+                }.toTypedArray(),
+                trackMode = it.track.trackMode
             )
         }
         .map {
@@ -169,7 +175,7 @@ class TrackInteractor @Inject constructor(
                     if (ids.none { it == trackJson.time }) Single.just(trackJson) else throw EntityAlreadyPresentedError() //TODO. future feature: update dialog
                 }
         }.map {
-            TrackWithWayPoints(Track(it.time, it.title, true), it.wayPoints.map { wp -> WayPoint(trackId = wp.trackId, provider = wp.provider, longitude = wp.longitude, latitude = wp.latitude, time = wp.time) })
+            TrackWithWayPoints(Track(it.time, it.title, true, it.trackMode), it.wayPoints.map { wp -> WayPoint(trackId = wp.trackId, provider = wp.provider, longitude = wp.longitude, latitude = wp.latitude, time = wp.time) })
         }.flatMap { track ->
             saveTrack(track.track).flatMapCompletable { saveWayPoints(track.wayPoints) }.andThen(fetchTracks(isTracking))
         }.map {

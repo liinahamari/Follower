@@ -16,6 +16,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.networking
 
+import dev.liinahamari.follower.model.TrackMode
 import dev.liinahamari.follower.screens.trace_map.Latitude
 import dev.liinahamari.follower.screens.trace_map.Longitude
 import io.reactivex.rxjava3.core.Single
@@ -36,7 +37,7 @@ interface ServerService {
     fun put(@Body request: ServerTrack): Single<Response<Unit>>
 }
 
-data class ServerTrack(var time: Long, var title: String, var wayPoints: Array<Pair<Longitude, Latitude>>) {
+data class ServerTrack(var time: Long, var title: String, var wayPoints: Array<Pair<Longitude, Latitude>>, val trackMode: TrackMode) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -45,7 +46,8 @@ data class ServerTrack(var time: Long, var title: String, var wayPoints: Array<P
 
         if (time != other.time) return false
         if (title != other.title) return false
-        if (wayPoints.contentEquals(other.wayPoints).not()) return false
+        if (!wayPoints.contentEquals(other.wayPoints)) return false
+        if (trackMode != other.trackMode) return false
 
         return true
     }
@@ -54,6 +56,7 @@ data class ServerTrack(var time: Long, var title: String, var wayPoints: Array<P
         var result = time.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + wayPoints.contentHashCode()
+        result = 31 * result + trackMode.hashCode()
         return result
     }
 }

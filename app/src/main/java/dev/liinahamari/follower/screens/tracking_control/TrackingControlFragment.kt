@@ -26,6 +26,7 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -39,6 +40,7 @@ import dev.liinahamari.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
 import dev.liinahamari.follower.di.modules.DIALOG_RATE_MY_APP
 import dev.liinahamari.follower.di.modules.TrackingControlModule
 import dev.liinahamari.follower.ext.*
+import dev.liinahamari.follower.model.TrackMode
 import dev.liinahamari.follower.services.location_tracking.*
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -119,22 +121,32 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
     }
 
     override fun setupClicks() {
+        setupTrackMode()
         subscriptions += btn_start_tracking.clicks()
-            .throttleFirst(750L)
+            .throttleFirst()
             .subscribe {
                 val permissions = mutableListOf(PERMISSION_LOCATION)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     permissions.add(PERMISSION_BACKGROUND_LOCATION)
                 }
                 if (hasAllPermissions(permissions)) {
-                    startForegroundService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
+                    val trackMode: TrackMode =
+                        trackModeCarIv.takeIf { it.isSelected }?.let { TrackMode.CAR }
+                            ?: trackModeBikeIv.takeIf { it.isSelected }?.let { TrackMode.BIKE }
+                            ?: trackModeWalkIv.takeIf { it.isSelected }!!.let { TrackMode.WALK }
+
+                    startForegroundService(
+                        LocationTrackingService::class.java,
+                        action = ACTION_START_TRACKING,
+                        bundle = bundleOf(ARG_TRACK_MODE to trackMode)
+                    )
                 } else {
                     geoPermission.launch(permissions.toTypedArray())
                 }
             }
 
         subscriptions += btn_stop_tracking.clicks()
-            .throttleFirst(750L)
+            .throttleFirst()
             .subscribe {
                 if (isServiceBound && gpsService != null) {
                     if (gpsService!!.isTrackEmpty) {
@@ -161,6 +173,34 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                     FlightRecorder.w { "problem with service binding... gpsService == null (${gpsService == null})" }
                     throw RuntimeException()
                 }
+            }
+    }
+
+    private fun setupTrackMode() {
+        trackModeCarIv.isSelected = true
+
+        subscriptions += trackModeCarIv.clicks()
+            .throttleFirst()
+            .subscribe {
+                trackModeCarIv.isSelected = true
+                trackModeBikeIv.isSelected = false
+                trackModeWalkIv.isSelected = false
+            }
+
+        subscriptions += trackModeWalkIv.clicks()
+            .throttleFirst()
+            .subscribe {
+                trackModeCarIv.isSelected = false
+                trackModeBikeIv.isSelected = false
+                trackModeWalkIv.isSelected = true
+            }
+
+        subscriptions += trackModeBikeIv.clicks()
+            .throttleFirst()
+            .subscribe {
+                trackModeCarIv.isSelected = false
+                trackModeBikeIv.isSelected = true
+                trackModeWalkIv.isSelected = false
             }
     }
 

@@ -18,12 +18,15 @@ package dev.liinahamari.follower.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import dev.liinahamari.follower.model.TrackDao
-import dev.liinahamari.follower.model.WayPointDao
+import androidx.room.TypeConverters
 import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.WayPoint
+import dev.liinahamari.follower.model.TrackDao
+import dev.liinahamari.follower.model.TrackModeConverter
+import dev.liinahamari.follower.model.WayPointDao
 
 @Database(entities = [Track::class, WayPoint::class], version = 1)
+@TypeConverters(TrackModeConverter::class)
 abstract class TracksDb : RoomDatabase() {
     abstract fun getTrackDao(): TrackDao
     abstract fun getWayPointDao(): WayPointDao
