@@ -23,17 +23,19 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseFragment
+import dev.liinahamari.follower.databinding.FragmentAddressTraceBinding
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.screens.trace_map.Latitude
 import dev.liinahamari.follower.screens.trace_map.Longitude
-import kotlinx.android.synthetic.main.fragment_address_trace.*
-import kotlinx.android.synthetic.main.fragment_track_list.*
 
 class AddressTraceFragment : BaseFragment(R.layout.fragment_address_trace) {
     private val viewModel by viewModels<AddressTraceViewModel> { viewModelFactory }
     private val adapter = AddressesAdapter(::openMap)
+
+    private val ui by viewBinding(FragmentAddressTraceBinding::bind)
 
     override fun onResume() = super.onResume().also {
         with(arguments?.getLong(getString(R.string.arg_addressFragment_trackId), -1L)!!) {
@@ -44,16 +46,16 @@ class AddressTraceFragment : BaseFragment(R.layout.fragment_address_trace) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        addressRv.apply {
+        ui.addressRv.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@AddressTraceFragment.adapter
         }
     }
 
     override fun setupViewModelSubscriptions() {
-        viewModel.loadingEvent.observe(viewLifecycleOwner, { progressBar.isVisible = it })
-        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
-        viewModel.getAddressesEvent.observe(viewLifecycleOwner, { adapter.addresses = it })
+        viewModel.loadingEvent.observe(viewLifecycleOwner) { ui.progressBar.isVisible = it }
+        viewModel.errorEvent.observe(viewLifecycleOwner) { errorToast(it) }
+        viewModel.getAddressesEvent.observe(viewLifecycleOwner) { adapter.addresses = it }
     }
 
     private fun openMap(coords: Pair<Longitude, Latitude>, time: String) = NavHostFragment

@@ -106,12 +106,12 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         changeDrawableColors()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = super.onCreateView(inflater, container, savedInstanceState).also { prefs.registerOnSharedPreferenceChangeListener(this) }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View = super.onCreateView(inflater, container, savedInstanceState).also { prefs.registerOnSharedPreferenceChangeListener(this) }
     override fun onDestroyView() = super.onDestroyView().also { prefs.unregisterOnSharedPreferenceChangeListener(this) }
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) = setPreferencesFromResource(R.xml.preferences, rootKey)
     private fun resetToDefaults() = viewModel.resetOptionsToDefaults()
 
-    override fun onDisplayPreferenceDialog(preference: Preference?) {
+    override fun onDisplayPreferenceDialog(preference: Preference) {
         if (preference is TimePickerPreference) {
             TimePickerPreferenceDialog.newInstance(preference.key)
                 .also { @Suppress("DEPRECATION") it.setTargetFragment(this, 0) }
@@ -173,9 +173,9 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         themeId = prefs.getStringOf(getString(R.string.pref_theme))!!.toInt()
     }
 
-    override fun onPreferenceTreeClick(preference: Preference?): Boolean {
+    override fun onPreferenceTreeClick(preference: Preference): Boolean {
         if (isDetached.not()) {
-            when (preference?.key) {
+            when (preference.key) {
                 getString(R.string.pref_purge_cache) -> viewModel.purgeCache()
                 getString(R.string.pref_reset_to_default) -> resetDialog.show()
                 getString(R.string.pref_battery_optimization) -> openBatteryOptimizationDialogIfNeeded()

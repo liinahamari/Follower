@@ -17,9 +17,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.model
 
 import androidx.annotation.VisibleForTesting
-import androidx.paging.PagingSource
 import androidx.room.*
-import androidx.room.OnConflictStrategy.REPLACE
 import dev.liinahamari.follower.db.entities.Track
 import dev.liinahamari.follower.db.entities.TrackWithWayPoints
 import io.reactivex.rxjava3.core.Completable
@@ -43,7 +41,7 @@ interface TrackDao {
     @Update
     fun update(track: Track): Completable
 
-    @Insert(onConflict = REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(track: Track): Single<Long>
 
     @Insert

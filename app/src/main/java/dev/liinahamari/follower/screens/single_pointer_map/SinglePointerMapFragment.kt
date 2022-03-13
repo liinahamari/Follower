@@ -18,16 +18,19 @@ package dev.liinahamari.follower.screens.single_pointer_map
 
 import android.os.Bundle
 import android.view.View
+import by.kirich1409.viewbindingdelegate.viewBinding
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.MapFragment
+import dev.liinahamari.follower.databinding.FragmentMapBinding
 import dev.liinahamari.follower.ext.MarkerType
 import dev.liinahamari.follower.ext.createMarker
 import dev.liinahamari.follower.ext.getScreenHeightPx
-import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 
 class SinglePointerMapFragment : MapFragment() {
+    private val ui by viewBinding(FragmentMapBinding::bind)
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val time: String = arguments?.getString(getString(R.string.arg_toSinglePointerMap_Time), getString(R.string.unknown_time))!!
@@ -36,11 +39,11 @@ class SinglePointerMapFragment : MapFragment() {
 
         require(latitude != -999.0f && longitude != -999.0f)
 
-        map.maxZoomLevel = 14.0
-        map.createMarker(longitude.toDouble(), latitude.toDouble(), MarkerType.STANDARD, time)
-            .also { map.overlays.add(it) }
+        ui.map.maxZoomLevel = 14.0
+        ui.map.createMarker(longitude.toDouble(), latitude.toDouble(), MarkerType.STANDARD, time)
+            .also { ui.map.overlays.add(it) }
             .also {
-                map.zoomToBoundingBox(
+                ui.map.zoomToBoundingBox(
                     BoundingBox.fromGeoPointsSafe(listOf(GeoPoint(latitude.toDouble(), longitude.toDouble()))),
                     true,
                     getScreenHeightPx() / 10

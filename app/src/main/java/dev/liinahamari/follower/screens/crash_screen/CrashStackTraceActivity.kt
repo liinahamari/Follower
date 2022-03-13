@@ -24,11 +24,14 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import by.kirich1409.viewbindingdelegate.viewBinding
 import dev.liinahamari.follower.R
-import kotlinx.android.synthetic.main.activity_crash_stack_trace.*
+import dev.liinahamari.follower.databinding.ActivityCrashStackTraceBinding
 
 /*TODO: how to test?*/
 class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_trace) {
+    private val ui by viewBinding(ActivityCrashStackTraceBinding::bind)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,11 +39,11 @@ class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_
         window.statusBarColor = ContextCompat.getColor(this, R.color.stacktrace_activity_background)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.stacktrace_activity_background)
 
-        stackTraceTitleTv.apply {
+        ui.stackTraceTitleTv.apply {
             text = String.format(getString(R.string.title_app_crashed), intent.getStringExtra(EXTRA_THREAD_NAME)!!, getVersionCode())
             setOnClickListener { finishAndRemoveTask() }
         }
-        stacktraceTv.text = (intent.getSerializableExtra(EXTRA_ERROR) as Throwable).stackTraceToString()
+        ui.stacktraceTv.text = (intent.getSerializableExtra(EXTRA_ERROR) as Throwable).stackTraceToString()
     }
 
     @Suppress("DEPRECATION")

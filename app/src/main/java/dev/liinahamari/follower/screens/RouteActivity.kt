@@ -24,25 +24,26 @@ import android.view.View
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
-import androidx.core.view.children
-import androidx.core.view.get
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.squareup.seismic.ShakeDetector
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseFragment
+import dev.liinahamari.follower.databinding.ActivityRouteBinding
+import dev.liinahamari.follower.databinding.FollowerPagerBinding
 import dev.liinahamari.follower.ext.*
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.android.synthetic.main.activity_route.*
-import kotlinx.android.synthetic.main.follower_pager.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class RouteActivity : AppCompatActivity(R.layout.activity_route), ShakeDetector.Listener {
+    private val ui by viewBinding(ActivityRouteBinding::bind)
+
     @Inject lateinit var sensorManager: SensorManager
     @Inject lateinit var prefs: SharedPreferences
 
@@ -62,7 +63,7 @@ class RouteActivity : AppCompatActivity(R.layout.activity_route), ShakeDetector.
     override fun hearShake() {
         if (navigated.not()) {
             navigated = true
-            mainActivityFragmentContainer.findNavController().navigate(R.id.action_to_logs)
+            ui.mainActivityFragmentContainer.findNavController().navigate(R.id.action_to_logs)
 
             clicks += Observable.timer(2, TimeUnit.SECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -83,12 +84,15 @@ class RouteActivity : AppCompatActivity(R.layout.activity_route), ShakeDetector.
             prefs.writeBooleanOf(getString(R.string.pref_battery_optimization), isIgnoringBatteryOptimizations())
         }
     }
+
     override fun onPause() = super.onPause().also { shakeDetector!!.stop() }
     override fun onSupportNavigateUp(): Boolean = findNavController(R.id.mainActivityFragmentContainer).navigateUp()
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
 }
 
 class PagerContainerFragment : BaseFragment(R.layout.follower_pager) {
+    private val ui by viewBinding(FollowerPagerBinding::bind)
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) = super.onViewCreated(view, savedInstanceState)
-        .also { NavigationUI.setupWithNavController(bottomNavView, childFragmentManager.findFragmentById(R.id.pagerContainer)!!.findNavController()) }
+        .also { NavigationUI.setupWithNavController(ui.bottomNavView, childFragmentManager.findFragmentById(R.id.pagerContainer)!!.findNavController()) }
 }

@@ -20,6 +20,11 @@ import android.os.Parcelable
 import androidx.room.TypeConverter
 import kotlinx.android.parcel.Parcelize
 
+/** Remove alongside with
+ * plugins {
+id 'kotlin-android-extensions'
+}
+ * */
 @Parcelize
 enum class TrackMode: Parcelable { CAR, BIKE, WALK }
 

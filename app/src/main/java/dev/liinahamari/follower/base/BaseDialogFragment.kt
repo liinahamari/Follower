@@ -20,13 +20,14 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.CallSuper
+import androidx.annotation.LayoutRes
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import dev.liinahamari.follower.ext.appComponent
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import javax.inject.Inject
 
-open class BaseDialogFragment : DialogFragment() {
+open class BaseDialogFragment constructor(@LayoutRes resId: Int): DialogFragment(resId) {
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
     val subscriptions = CompositeDisposable()

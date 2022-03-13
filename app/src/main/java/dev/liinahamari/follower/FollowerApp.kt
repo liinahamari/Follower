@@ -47,8 +47,11 @@ import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.internal.functions.Functions
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import net.gotev.uploadservice.UploadServiceConfig
-import org.acra.*
-import org.acra.annotation.*
+import org.acra.ACRA
+import org.acra.annotation.AcraCore
+import org.acra.annotation.AcraMailSender
+import org.acra.annotation.AcraScheduler
+import org.acra.annotation.AcraToast
 import org.acra.data.StringFormat
 import java.util.*
 import java.util.concurrent.Executors

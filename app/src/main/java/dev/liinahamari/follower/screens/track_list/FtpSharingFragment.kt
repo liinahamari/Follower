@@ -19,18 +19,17 @@ package dev.liinahamari.follower.screens.track_list
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.view.Window
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.jakewharton.rxbinding4.view.clicks
 import com.jakewharton.rxbinding4.widget.textChanges
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseDialogFragment
 import dev.liinahamari.follower.base.BaseViewModel
+import dev.liinahamari.follower.databinding.FragmentSharingBinding
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.infoToast
@@ -42,7 +41,6 @@ import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.android.synthetic.main.fragment_sharing.*
 import net.gotev.uploadservice.data.UploadInfo
 import net.gotev.uploadservice.exceptions.UploadError
 import net.gotev.uploadservice.exceptions.UserCancelledUploadException
@@ -53,22 +51,23 @@ import javax.inject.Inject
 
 const val ARG_TRACK_ID = "SharingFragment.ARG_TRACK_ID"
 
-class FtpSharingFragment : BaseDialogFragment() {
+class FtpSharingFragment : BaseDialogFragment(R.layout.fragment_sharing) {
+    private val ui by viewBinding(FragmentSharingBinding::bind)
+
     private val viewModel by viewModels<FtpSharingViewModel> { viewModelFactory }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog = super.onCreateDialog(savedInstanceState).apply { requestWindowFeature(Window.FEATURE_NO_TITLE) }
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = inflater.inflate(R.layout.fragment_sharing, container)
 
     override fun setupViewModelSubscriptions() {
         viewModel.shareJsonFtpEvent.observe(viewLifecycleOwner) { jsonUri -> uploadFile(jsonUri) }
-        viewModel.errorEvent.observe(viewLifecycleOwner, { errorToast(it) })
+        viewModel.errorEvent.observe(viewLifecycleOwner) { errorToast(it) }
     }
 
     private fun uploadFile(jsonUri: String) {
-        FTPUploadRequest(requireContext(), serverInputEt.text.toString(), 21/*todo 40_001?*/)
+        FTPUploadRequest(requireContext(), ui.serverInputEt.text.toString(), 21/*todo 40_001?*/)
             .useSSL(true)
-            .setUsernameAndPassword(loginInputEt.text.toString(), passwordInputEt.text.toString())
-            .addFileToUpload(jsonUri, remotePathEt.text.toString())
+            .setUsernameAndPassword(ui.loginInputEt.text.toString(), ui.passwordInputEt.text.toString())
+            .addFileToUpload(jsonUri, ui.remotePathEt.text.toString())
             .subscribe(requireActivity(), viewLifecycleOwner, delegate = object : RequestObserverDelegate {
                 override fun onError(context: Context, uploadInfo: UploadInfo, exception: Throwable) {
                     when (exception) {
@@ -83,6 +82,7 @@ class FtpSharingFragment : BaseDialogFragment() {
                     successToast(R.string.toast_upload_succeed)
                     dismiss()
                 }
+
                 override fun onCompleted(context: Context, uploadInfo: UploadInfo) = Unit
                 override fun onProgress(context: Context, uploadInfo: UploadInfo) = Unit
                 override fun onCompletedWhileNotObserving() = Unit
@@ -91,13 +91,13 @@ class FtpSharingFragment : BaseDialogFragment() {
 
     override fun setupClicks() {
         if (BuildConfig.DEBUG) {
-            serverInputEt.setText(BuildConfig.TEST_FTP_SERVER_ADDRESS)
-            loginInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_LOGIN)
-            passwordInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_PASSWORD)
-            remotePathEt.setText(BuildConfig.TEST_FTP_SERVER_REMOTE_PATH)
+            ui.serverInputEt.setText(BuildConfig.TEST_FTP_SERVER_ADDRESS)
+            ui.loginInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_LOGIN)
+            ui.passwordInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_PASSWORD)
+            ui.remotePathEt.setText(BuildConfig.TEST_FTP_SERVER_REMOTE_PATH)
         }
 
-        subscriptions += sendButton.clicks()
+        subscriptions += ui.sendButton.clicks()
             .throttleFirst()
             .subscribe {
                 val trackId = arguments?.getLong(ARG_TRACK_ID, -1L)!!
@@ -105,15 +105,15 @@ class FtpSharingFragment : BaseDialogFragment() {
                 infoToast(R.string.toast_upload_started)
             }
         subscriptions += Observable
-            .combineLatest(serverInputEt.textChanges().map { it.toString() }, loginInputEt.textChanges().map { it.toString() }, passwordInputEt.textChanges().map { it.toString() }, remotePathEt.textChanges().map { it.toString() },
-                { t1: String, t2: String, t3: String , t4: String -> t1.isNotBlank() && t2.isNotBlank() && t3.isNotBlank() && t4.isNotBlank() })
+            .combineLatest(ui.serverInputEt.textChanges().map { it.toString() }, ui.loginInputEt.textChanges().map { it.toString() }, ui.passwordInputEt.textChanges().map { it.toString() }, ui.remotePathEt.textChanges().map { it.toString() }
+            ) { t1: String, t2: String, t3: String, t4: String -> t1.isNotBlank() && t2.isNotBlank() && t3.isNotBlank() && t4.isNotBlank() }
             .subscribe {
-                sendButton.isEnabled = it
+                ui.sendButton.isEnabled = it
             }
     }
 }
 
-class FtpSharingViewModel @Inject constructor(private val trackInteractor: TrackInteractor): BaseViewModel() {
+class FtpSharingViewModel @Inject constructor(private val trackInteractor: TrackInteractor) : BaseViewModel() {
     private val _shareJsonFtpEvent = SingleLiveEvent<String>()
     val shareJsonFtpEvent: LiveData<String> get() = _shareJsonFtpEvent
 

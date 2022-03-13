@@ -24,7 +24,7 @@ import dev.liinahamari.follower.ext.minutesFromMidnightToHourlyTime
 private const val DEFAULT_HOUR = 9
 private const val DEFAULT_MINUTES_FROM_MIDNIGHT = DEFAULT_HOUR * 60
 
-class TimePickerPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs) {
+class TimePickerPreference(context: Context, attrs: AttributeSet?) : DialogPreference(context, attrs) {
     /** Get saved preference value (in minutes from midnight), so 2 AM is represented as 120 (2*60) here */
     fun getPersistedMinutesFromMidnight(): Int = super.getPersistedInt(DEFAULT_MINUTES_FROM_MIDNIGHT)
 

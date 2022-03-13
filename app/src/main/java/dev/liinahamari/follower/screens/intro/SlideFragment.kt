@@ -22,8 +22,9 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import by.kirich1409.viewbindingdelegate.viewBinding
 import dev.liinahamari.follower.R
-import kotlinx.android.synthetic.main.fragment_generic_slide.*
+import dev.liinahamari.follower.databinding.FragmentGenericSlideBinding
 
 const val ARG_TITLE = "dev.liinahamari.follower.screens.intro.ARG_TITLE"
 const val ARG_DESCRIPTION = "dev.liinahamari.follower.screens.intro.ARG_DESCRIPTION"
@@ -31,11 +32,13 @@ const val ARG_IMAGE = "dev.liinahamari.follower.screens.intro.ARG_IMAGE"
 const val ARG_BACKGROUND_COLOR = "dev.liinahamari.follower.screens.intro.ARG_BACKGROUND_COLOR"
 
 class SlideFragment : Fragment(R.layout.fragment_generic_slide) {
+    private val ui by viewBinding(FragmentGenericSlideBinding::bind)
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        introRoot.setBackgroundResource(requireArguments().getInt(ARG_BACKGROUND_COLOR))
-        introTitle.text = requireArguments().getString(ARG_TITLE)
-        introImage.setImageResource(requireArguments().getInt(ARG_IMAGE))
-        introDescription.text = requireArguments().getString(ARG_DESCRIPTION)
+        ui.introRoot.setBackgroundResource(requireArguments().getInt(ARG_BACKGROUND_COLOR))
+        ui.introTitle.text = requireArguments().getString(ARG_TITLE)
+        ui.introImage.setImageResource(requireArguments().getInt(ARG_IMAGE))
+        ui.introDescription.text = requireArguments().getString(ARG_DESCRIPTION)
     }
 
     companion object {

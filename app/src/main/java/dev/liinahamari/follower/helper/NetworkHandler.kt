@@ -22,8 +22,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class NetworkHandler
-@Inject constructor(private val connectivityManager: ConnectivityManager) {
+class NetworkHandler @Inject constructor(private val connectivityManager: ConnectivityManager) {
     fun isNetworkAvailable(): Boolean {
         val network = connectivityManager.activeNetwork ?: return false
         val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false

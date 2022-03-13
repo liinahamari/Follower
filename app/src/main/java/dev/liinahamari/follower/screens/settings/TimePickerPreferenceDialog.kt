@@ -26,9 +26,9 @@ import dev.liinahamari.follower.ext.minutesFromMidnightToHourlyTime
 class TimePickerPreferenceDialog : PreferenceDialogFragmentCompat() {
     private lateinit var timepicker: TimePicker
 
-    override fun onCreateDialogView(context: Context?): View = TimePicker(context, null, android.R.style.Widget_Material_TimePicker).also { timepicker = it }
+    override fun onCreateDialogView(context: Context): View = TimePicker(context, null, android.R.style.Widget_Material_TimePicker).also { timepicker = it }
 
-    override fun onBindDialogView(view: View?) {
+    override fun onBindDialogView(view: View) {
         super.onBindDialogView(view)
         timepicker.apply {
             val minutesAfterMidnight = (preference as TimePickerPreference).getPersistedMinutesFromMidnight()

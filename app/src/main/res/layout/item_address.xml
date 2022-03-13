@@ -1,43 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:padding="8dp"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="6dp">
 
-    <data>
-
-        <variable
-            name="address"
-            type="dev.liinahamari.follower.screens.address_trace.MapPointer" />
-    </data>
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:padding="8dp"
-        app:cardCornerRadius="6dp"
-        app:cardElevation="6dp">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/timeTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
-            <TextView
-                android:id="@+id/timeTv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="@{address.time}"
-                tools:text="11 dec 2020 11:11" />
+            android:padding="8dp"
+            android:text="@{address.time}"
+            tools:text="11 dec 2020 11:11" />
 
-            <TextView
-                android:id="@+id/addressTv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="@{address.commonAddress}"
-                tools:text="Some address" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-</layout>
+        <TextView
+            android:id="@+id/addressTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@{address.commonAddress}"
+            tools:text="Some address" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

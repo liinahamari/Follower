@@ -19,21 +19,21 @@ package dev.liinahamari.follower.screens.track_list
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.jakewharton.rxbinding4.view.clicks
 import com.jakewharton.rxbinding4.view.longClicks
-import dev.liinahamari.follower.databinding.ItemTrackBinding
+import dev.liinahamari.follower.R
 import dev.liinahamari.follower.ext.adaptToNightModeState
 import dev.liinahamari.follower.ext.throttleFirst
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.android.extensions.LayoutContainer
 
 class TrackListAdapter(
     private val longClickCallback: (id: Long) -> Unit,
     private val clickCallback: (id: Long) -> Unit
-) : RecyclerView.Adapter<TrackListAdapter.ViewHolder>(){
+) : RecyclerView.Adapter<TrackListAdapter.ViewHolder>() {
     private val clicks = CompositeDisposable()
     var tracks: MutableList<TrackUi> = mutableListOf()
         set(value) {
@@ -45,12 +45,12 @@ class TrackListAdapter(
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) = clicks.clear()
     override fun getItemCount() = tracks.size
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(ItemTrackBinding.inflate(LayoutInflater.from(parent.context), parent, false).root)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_track, parent, false))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding?.track = tracks[position]
+        holder.trackDescription.text = tracks[position].title
         if (tracks[position].isImported) {
-            with(holder.binding!!.importedIv) {
+            with(holder.importedIv) {
                 context.adaptToNightModeState(drawable)
             }
         }
@@ -64,7 +64,8 @@ class TrackListAdapter(
             .subscribe { clickCallback.invoke(it) }
     }
 
-    class ViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-        val binding: ItemTrackBinding? = DataBindingUtil.bind(containerView)
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val trackDescription: TextView = view.findViewById(R.id.trackDescriptionTv)
+        val importedIv: ImageView = view.findViewById(R.id.importedIv)
     }
 }

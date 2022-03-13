@@ -19,7 +19,7 @@ package dev.liinahamari.follower.db.entities
 import android.location.Location
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.ForeignKey.CASCADE
+import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import dev.liinahamari.follower.ext.round
 

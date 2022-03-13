@@ -11,8 +11,11 @@ androidExtensions {
 }
 
 android {
-    dataBinding {
-        enabled = true
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjvm-default=enable']
+    }
+    buildFeatures {
+        viewBinding true
     }
     testOptions {
         unitTests {

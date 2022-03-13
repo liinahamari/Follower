@@ -30,11 +30,13 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.jakewharton.rxbinding4.view.clicks
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BoundFragment
+import dev.liinahamari.follower.databinding.FragmentTrackingControlBinding
 import dev.liinahamari.follower.di.modules.DIALOG_EMPTY_WAYPOINTS
 import dev.liinahamari.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
 import dev.liinahamari.follower.di.modules.DIALOG_RATE_MY_APP
@@ -45,7 +47,6 @@ import dev.liinahamari.follower.services.location_tracking.*
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.android.synthetic.main.fragment_tracking_control.*
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -56,6 +57,8 @@ const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
 
 @TrackingControlScope
 class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control) {
+    private val ui by viewBinding(FragmentTrackingControlBinding::bind)
+
     private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
     private val boundServiceDisposables = CompositeDisposable()
 
@@ -101,7 +104,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
 
         boundServiceDisposables += gpsService!!
             .wayPointsCounter
-            .subscribe { way_points_counter.text = String.format(getString(R.string.title_way_points_collected), it) }
+            .subscribe { ui.wayPointsCounter.text = String.format(getString(R.string.title_way_points_collected), it) }
     }
 
     override fun onAttach(context: Context) {
@@ -122,7 +125,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
 
     override fun setupClicks() {
         setupTrackMode()
-        subscriptions += btn_start_tracking.clicks()
+        subscriptions += ui.btnStartTracking.clicks()
             .throttleFirst()
             .subscribe {
                 val permissions = mutableListOf(PERMISSION_LOCATION)
@@ -131,9 +134,9 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                 }
                 if (hasAllPermissions(permissions)) {
                     val trackMode: TrackMode =
-                        trackModeCarIv.takeIf { it.isSelected }?.let { TrackMode.CAR }
-                            ?: trackModeBikeIv.takeIf { it.isSelected }?.let { TrackMode.BIKE }
-                            ?: trackModeWalkIv.takeIf { it.isSelected }!!.let { TrackMode.WALK }
+                        ui.trackModeCarIv.takeIf { it.isSelected }?.let { TrackMode.CAR }
+                            ?: ui.trackModeBikeIv.takeIf { it.isSelected }?.let { TrackMode.BIKE }
+                            ?: ui.trackModeWalkIv.takeIf { it.isSelected }!!.let { TrackMode.WALK }
 
                     startForegroundService(
                         LocationTrackingService::class.java,
@@ -145,7 +148,7 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                 }
             }
 
-        subscriptions += btn_stop_tracking.clicks()
+        subscriptions += ui.btnStopTracking.clicks()
             .throttleFirst()
             .subscribe {
                 if (isServiceBound && gpsService != null) {
@@ -177,38 +180,38 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
     }
 
     private fun setupTrackMode() {
-        trackModeCarIv.isSelected = true
+        ui.trackModeCarIv.isSelected = true
 
-        subscriptions += trackModeCarIv.clicks()
+        subscriptions += ui.trackModeCarIv.clicks()
             .throttleFirst()
             .subscribe {
-                trackModeCarIv.isSelected = true
-                trackModeBikeIv.isSelected = false
-                trackModeWalkIv.isSelected = false
+                ui.trackModeCarIv.isSelected = true
+                ui.trackModeBikeIv.isSelected = false
+                ui.trackModeWalkIv.isSelected = false
             }
 
-        subscriptions += trackModeWalkIv.clicks()
+        subscriptions += ui.trackModeWalkIv.clicks()
             .throttleFirst()
             .subscribe {
-                trackModeCarIv.isSelected = false
-                trackModeBikeIv.isSelected = false
-                trackModeWalkIv.isSelected = true
+                ui.trackModeCarIv.isSelected = false
+                ui.trackModeBikeIv.isSelected = false
+                ui.trackModeWalkIv.isSelected = true
             }
 
-        subscriptions += trackModeBikeIv.clicks()
+        subscriptions += ui.trackModeBikeIv.clicks()
             .throttleFirst()
             .subscribe {
-                trackModeCarIv.isSelected = false
-                trackModeBikeIv.isSelected = true
-                trackModeWalkIv.isSelected = false
+                ui.trackModeCarIv.isSelected = false
+                ui.trackModeBikeIv.isSelected = true
+                ui.trackModeWalkIv.isSelected = false
             }
     }
 
     /*todo investigate why NPE happens here and why lifecycle fires twice*/
     private fun toggleButtons(isTracking: Boolean) {
-        btn_start_tracking?.isEnabled = isTracking.not()
-        btn_stop_tracking?.isEnabled = isTracking
-        txt_status?.text = getString(if (isTracking) R.string.title_tracking else R.string.title_gps_ready)
-        way_points_counter.isVisible = isTracking
+        ui.btnStartTracking.isEnabled = isTracking.not()
+        ui.btnStopTracking.isEnabled = isTracking
+        ui.txtStatus.text = getString(if (isTracking) R.string.title_tracking else R.string.title_gps_ready)
+        ui.wayPointsCounter.isVisible = isTracking
     }
 }

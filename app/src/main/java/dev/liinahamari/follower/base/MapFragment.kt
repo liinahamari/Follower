@@ -19,9 +19,10 @@ package dev.liinahamari.follower.base
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.CallSuper
+import by.kirich1409.viewbindingdelegate.viewBinding
 import dev.liinahamari.follower.R
+import dev.liinahamari.follower.databinding.FragmentMapBinding
 import dev.liinahamari.follower.ext.isDarkModeEnabled
-import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.api.IMapController
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -34,6 +35,8 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider
 open class MapFragment : BaseFragment(R.layout.fragment_map) {
     private lateinit var mapController: IMapController
 
+    private val ui by viewBinding(FragmentMapBinding::bind)
+
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -44,7 +47,7 @@ open class MapFragment : BaseFragment(R.layout.fragment_map) {
             setMultiTouchControls(true)
             zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
 
-            map.overlays.add(CompassOverlay(context, InternalCompassOrientationProvider(context), this).apply {
+            ui.map.overlays.add(CompassOverlay(context, InternalCompassOrientationProvider(context), this).apply {
                 enableCompass()
                 setCompassCenter(36f, 36f + (0 / requireContext().resources.displayMetrics.density))
             })

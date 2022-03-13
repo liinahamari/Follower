@@ -17,7 +17,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.screens.track_list
 
 import android.app.Service
-import android.content.*
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.IBinder
 import android.view.SubMenu
@@ -30,12 +32,14 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.jakewharton.rxbinding4.view.clicks
 import dagger.Lazy
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BoundFragment
+import dev.liinahamari.follower.databinding.FragmentTrackListBinding
 import dev.liinahamari.follower.di.modules.Authenticator
 import dev.liinahamari.follower.di.modules.BiometricModule
 import dev.liinahamari.follower.di.scopes.BiometricScope
@@ -45,7 +49,6 @@ import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.android.synthetic.main.fragment_track_list.*
 import me.saket.cascade.CascadePopupMenu
 import javax.inject.Inject
 
@@ -55,6 +58,8 @@ private const val FTP = "ftp"
 
 @BiometricScope
 class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPreferences.OnSharedPreferenceChangeListener {
+    private val ui by viewBinding(FragmentTrackListBinding::bind)
+
     @Inject lateinit var sharedPreferences: SharedPreferences
     @Inject lateinit var authenticator: Lazy<Authenticator>
 
@@ -64,7 +69,7 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
     private val tracksAdapter = TrackListAdapter(::showMenu, ::getTrackDisplayMode)
 
     private val pickFiles = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
-        viewModel.importTracks(it, gpsService!!.isTracking.value!!)
+        viewModel.importTracks(it!!, gpsService!!.isTracking.value!!)
     }
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
@@ -133,14 +138,14 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
     }
 
     override fun setupClicks() {
-        subscriptions += importFab.clicks()
+        subscriptions += ui.importFab.clicks()
             .throttleFirst()
             .subscribe {
                 pickFiles.launch(arrayOf("*/*")) //todo investigate how to filter by extension
             }
 
         if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
-            subscriptions += ivLock.clicks()
+            subscriptions += ui.ivLock.clicks()
                 .throttleFirst()
                 .subscribe { authenticator.get().authenticate() }
         }
@@ -156,22 +161,22 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
             errorToast(errorMessage)
         }
         viewModel.emptyTrackListEvent.observe(viewLifecycleOwner) {
-            emptyListTv.isVisible = true
-            trackList.isVisible = false
-            ivLock.isVisible = false
+            ui.emptyListTv.isVisible = true
+            ui.trackList.isVisible = false
+            ui.ivLock.isVisible = false
         }
         viewModel.nonEmptyTrackListEvent.observe(viewLifecycleOwner) {
-            emptyListTv.isVisible = false
-            ivLock.isVisible = false
-            trackList.isVisible = true
+            ui.emptyListTv.isVisible = false
+            ui.ivLock.isVisible = false
+            ui.trackList.isVisible = true
 
             tracksAdapter.tracks = it.toMutableList()
         }
         viewModel.removeTrackEvent.observe(viewLifecycleOwner) { id ->
             tracksAdapter.removeTask(id)
             if (tracksAdapter.tracks.isEmpty()) {
-                emptyListTv.isVisible = true
-                trackList.isVisible = false
+                ui.emptyListTv.isVisible = true
+                ui.trackList.isVisible = false
             }
         }
         viewModel.trackDisplayModeEvent.observe(viewLifecycleOwner) { trackAndDisplayMode ->
@@ -193,10 +198,10 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
     }
 
     private fun setupTrackList() {
-        ivLock.isVisible = false
-        trackList.isVisible = true
+        ui.ivLock.isVisible = false
+        ui.trackList.isVisible = true
 
-        trackList.apply {
+        ui.trackList.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = tracksAdapter
         }
@@ -204,9 +209,9 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
 
     override fun onResume() = super.onResume().also {
         if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
-            ivLock.isVisible = true
-            trackList.isVisible = false
-            emptyListTv.isVisible = false
+            ui.ivLock.isVisible = true
+            ui.trackList.isVisible = false
+            ui.emptyListTv.isVisible = false
 
             authenticator.get().authenticate()
         } else {

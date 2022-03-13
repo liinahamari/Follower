@@ -18,21 +18,24 @@ package dev.liinahamari.follower.screens.low_battery
 
 import android.content.Intent
 import android.os.Bundle
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.jakewharton.rxbinding4.view.clicks
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.DEFAULT_ALARM_PLAYING_TIME
 import dev.liinahamari.follower.base.ForegroundService
 import dev.liinahamari.follower.base.NotifyingActivity
+import dev.liinahamari.follower.databinding.ActivityLowBatteryNotifierBinding
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.services.LowBatteryNotificationService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
-import kotlinx.android.synthetic.main.activity_low_battery_notifier.*
 import java.util.concurrent.TimeUnit
 
 class LowBatteryNotifierActivity : NotifyingActivity(R.layout.activity_low_battery_notifier) {
+    private val ui by viewBinding(ActivityLowBatteryNotifierBinding::bind)
+
     private val subscriptions = CompositeDisposable()
 
     override fun onDestroy() {
@@ -51,7 +54,7 @@ class LowBatteryNotifierActivity : NotifyingActivity(R.layout.activity_low_batte
         subscriptions += Observable.timer(DEFAULT_ALARM_PLAYING_TIME, TimeUnit.MINUTES, AndroidSchedulers.mainThread())
             .subscribe { shutdownNotifiers() }
 
-        subscriptions += buttonGotIt.clicks()
+        subscriptions += ui.buttonGotIt.clicks()
             .throttleFirst()
             .subscribe { shutdownNotifiers() }
     }
