@@ -20,30 +20,79 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import com.github.appintro.AppIntro
+import com.github.appintro.AppIntro2
+import com.github.appintro.AppIntroFragment
+import com.github.appintro.AppIntroPageTransformerType
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.ext.getDefaultSharedPreferences
 import dev.liinahamari.follower.ext.getIntOf
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import dev.liinahamari.follower.screens.RouteActivity
 
-class IntroActivity : AppIntro() {
+class IntroActivity : AppIntro2() {
+    private val slideFragments: List<AppIntroFragment> by lazy {
+        listOf(
+            AppIntroFragment.createInstance(
+                title = getString(R.string.title_welcome_to_follower),
+                description = getString(R.string.summary_welcome),
+                imageDrawable = R.drawable.sc_background,
+                titleColorRes = R.color.white,
+                descriptionColorRes = R.color.white,
+                backgroundColorRes = R.color.teal_700
+            ),
+            AppIntroFragment.createInstance( //todo half-by-half map and addresses view on a picture
+                title = getString(R.string.title_track_observing),
+                description = getString(R.string.summary_track_observing),
+                imageDrawable = R.drawable.sc_address_list,
+                titleColorRes = R.color.white,
+                descriptionColorRes = R.color.white,
+                backgroundColorRes = R.color.purple_500
+            ),
+            AppIntroFragment.createInstance(
+                title = getString(R.string.title_try_dark_theme),
+                description = getString(R.string.summary_dark_theme),
+                imageDrawable = R.drawable.sc_dark_map,
+                titleColorRes = R.color.white,
+                descriptionColorRes = R.color.white,
+                backgroundColorRes = R.color.purple_700
+            ),
+            AppIntroFragment.createInstance(
+                title = getString(R.string.title_sharing_and_import),
+                description = getString(R.string.summary_sharing_and_import),
+                imageDrawable = R.drawable.sc_share,
+                titleColorRes = R.color.white,
+                descriptionColorRes = R.color.white,
+                backgroundColorRes = R.color.purple_200
+            )
+        )
+        //TODO fingerprint/pin feature
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (getDefaultSharedPreferences().getIntOf(getString(R.string.pref_app_launch_counter)) != 1) {
             finish()
             startActivity(Intent(this, RouteActivity::class.java))
         } else {
-            addSlide(SlideFragment.newInstance(getString(R.string.title_welcome_to_follower), getString(R.string.summary_welcome), R.color.teal_700, R.drawable.sc_background))
-            addSlide(SlideFragment.newInstance(getString(R.string.title_track_observing), getString(R.string.summary_track_observing), R.color.purple_500, R.drawable.sc_address_list)) //todo half-by-half map and addresses view on a picture
-            addSlide(SlideFragment.newInstance(getString(R.string.title_try_dark_theme), getString(R.string.summary_dark_theme), R.color.purple_700, R.drawable.sc_dark_map))
-            addSlide(SlideFragment.newInstance(getString(R.string.title_sharing_and_import), getString(R.string.summary_sharing_and_import), R.color.purple_200, R.drawable.sc_share))
-            //TODO fingerprint/pin feature
+            setupIntroScreenConfig()
+            slideFragments.forEach(::addSlide)
         }
     }
 
-    override fun onSkipPressed(currentFragment: Fragment?) = startActivity(Intent(this, RouteActivity::class.java))
-    override fun onDonePressed(currentFragment: Fragment?) = startActivity(Intent(this, RouteActivity::class.java))
-    override fun onBackPressed() = Unit // Does nothing, user have to see intro :)
+    private fun setupIntroScreenConfig() {
+        setImmersiveMode()
+        isSystemBackButtonLocked = true
+        setTransformer(AppIntroPageTransformerType.Flow)
+        isColorTransitionsEnabled = true
+    }
+
+    override fun onSkipPressed(currentFragment: Fragment?) = finish().also {
+        startActivity(Intent(this, RouteActivity::class.java))
+    }
+
+    override fun onDonePressed(currentFragment: Fragment?) = finish().also {
+        startActivity(Intent(this, RouteActivity::class.java))
+    }
+
     override fun attachBaseContext(base: Context) = super.attachBaseContext(base.provideUpdatedContextWithNewLocale())
 }
