@@ -58,6 +58,7 @@
             android:exported="false" />
 
         <activity
+            android:theme="@style/SplashTheme"
             android:name=".screens.intro.IntroActivity"
             android:exported="true">
             <intent-filter>

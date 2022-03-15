@@ -107,7 +107,7 @@ class FollowerApp : Application() {
     }
 
     private fun setupCrashStackTraceScreen() = Thread.setDefaultUncaughtExceptionHandler { thread, error ->
-        FlightRecorder.e("App Crash catch", error, false)
+        FlightRecorder.e("App Crash catch", error, true)
 
         if (BuildConfig.DEBUG) {
             try {

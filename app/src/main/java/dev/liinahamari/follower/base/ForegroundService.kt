@@ -49,8 +49,7 @@ abstract class ForegroundService : BaseService() {
     abstract fun getActivity(): Class<out Activity>
     abstract fun getTitle(intent: Intent?): String
     abstract fun getServiceId(): Int
-    @DrawableRes
-    abstract fun getIcon(): Int
+    @DrawableRes abstract fun getIcon(): Int
 
     override fun onCreate() {
         (application as FollowerApp).appComponent.inject(this)
