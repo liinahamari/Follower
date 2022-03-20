@@ -35,6 +35,8 @@ import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.infoToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
 import dev.liinahamari.follower.helper.SingleLiveEvent
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionDelegateImpl
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
 import dev.liinahamari.follower.interactors.SharedTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
@@ -51,7 +53,7 @@ import javax.inject.Inject
 
 const val ARG_TRACK_ID = "SharingFragment.ARG_TRACK_ID"
 
-class FtpSharingFragment : BaseDialogFragment(R.layout.fragment_sharing) {
+class FtpSharingFragment : BaseDialogFragment(R.layout.fragment_sharing), RxSubscriptionsDelegate by RxSubscriptionDelegateImpl() {
     private val ui by viewBinding(FragmentSharingBinding::bind)
 
     private val viewModel by viewModels<FtpSharingViewModel> { viewModelFactory }
@@ -89,25 +91,32 @@ class FtpSharingFragment : BaseDialogFragment(R.layout.fragment_sharing) {
             })
     }
 
-    override fun setupClicks() {
-        if (BuildConfig.DEBUG) {
-            ui.serverInputEt.setText(BuildConfig.TEST_FTP_SERVER_ADDRESS)
-            ui.loginInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_LOGIN)
-            ui.passwordInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_PASSWORD)
-            ui.remotePathEt.setText(BuildConfig.TEST_FTP_SERVER_REMOTE_PATH)
-        }
+    override fun onDestroyView() {
+        disposeSubscriptions()
+        super.onDestroyView()
+    }
 
-        subscriptions += ui.sendButton.clicks()
+    override fun setupClicks() {
+        ui.serverInputEt.setText(BuildConfig.TEST_FTP_SERVER_ADDRESS)
+        ui.loginInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_LOGIN)
+        ui.passwordInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_PASSWORD)
+        ui.remotePathEt.setText(BuildConfig.TEST_FTP_SERVER_REMOTE_PATH)
+
+        ui.sendButton.clicks()
             .throttleFirst()
-            .subscribe {
+            .addToDisposable {
                 val trackId = arguments?.getLong(ARG_TRACK_ID, -1L)!!
                 viewModel.createSharedJsonFileForTrackFotFtpSharing(trackId)
                 infoToast(R.string.toast_upload_started)
             }
-        subscriptions += Observable
-            .combineLatest(ui.serverInputEt.textChanges().map { it.toString() }, ui.loginInputEt.textChanges().map { it.toString() }, ui.passwordInputEt.textChanges().map { it.toString() }, ui.remotePathEt.textChanges().map { it.toString() }
-            ) { t1: String, t2: String, t3: String, t4: String -> t1.isNotBlank() && t2.isNotBlank() && t3.isNotBlank() && t4.isNotBlank() }
-            .subscribe {
+
+        Observable.combineLatest(
+            ui.serverInputEt.textChanges().map { it.toString() },
+            ui.loginInputEt.textChanges().map { it.toString() },
+            ui.passwordInputEt.textChanges().map { it.toString() },
+            ui.remotePathEt.textChanges().map { it.toString() }
+        ) { t1: String, t2: String, t3: String, t4: String -> t1.isNotBlank() && t2.isNotBlank() && t3.isNotBlank() && t4.isNotBlank() }
+            .addToDisposable {
                 ui.sendButton.isEnabled = it
             }
     }

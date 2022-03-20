@@ -16,56 +16,53 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.screens.track_list
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
+import com.hannesdorfmann.adapterdelegates4.AdapterDelegate
+import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateViewBinding
 import com.jakewharton.rxbinding4.view.clicks
 import com.jakewharton.rxbinding4.view.longClicks
-import dev.liinahamari.follower.R
+import dev.liinahamari.follower.databinding.ItemTrackBinding
 import dev.liinahamari.follower.ext.adaptToNightModeState
 import dev.liinahamari.follower.ext.throttleFirst
+import dev.liinahamari.follower.helper.delegates.DifferDelegateAdapter
+import dev.liinahamari.follower.helper.delegates.Entity
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.kotlin.addTo
 
-class TrackListAdapter(
-    private val longClickCallback: (id: Long) -> Unit,
-    private val clickCallback: (id: Long) -> Unit
-) : RecyclerView.Adapter<TrackListAdapter.ViewHolder>() {
-    private val clicks = CompositeDisposable()
-    var tracks: MutableList<TrackUi> = mutableListOf()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+fun trackListAdapter(
+    longClickCallback: (id: Long) -> Unit,
+    clickCallback: (id: Long) -> Unit,
+    disposable: CompositeDisposable
+): AdapterDelegate<List<Entity<*>>> = adapterDelegateViewBinding<TrackUi, Entity<*>, ItemTrackBinding>(
+    viewBinding = { layoutInflater, root -> ItemTrackBinding.inflate(layoutInflater, root, false) },
+    block = {
+        bind {
+            with(binding) {
+                trackDescriptionTv.text = item.title
 
-    fun removeTask(id: Long) = tracks.remove(tracks.first { it.id == id }).also { notifyDataSetChanged() }
+                if (item.isImported) {
+                    context.adaptToNightModeState(importedIv.drawable)
+                }
 
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) = clicks.clear()
-    override fun getItemCount() = tracks.size
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_track, parent, false))
+                itemView.longClicks()
+                    .throttleFirst()
+                    .map { item.id }
+                    .subscribe(longClickCallback::invoke)
+                    .addTo(disposable)
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.trackDescription.text = tracks[position].title
-        if (tracks[position].isImported) {
-            with(holder.importedIv) {
-                context.adaptToNightModeState(drawable)
+                itemView.clicks()
+                    .throttleFirst()
+                    .map { item.id }
+                    .subscribe(clickCallback::invoke)
+                    .addTo(disposable)
             }
         }
-        clicks += holder.itemView.longClicks()
-            .throttleFirst()
-            .map { tracks[position].id }
-            .subscribe { longClickCallback.invoke(it) }
-        clicks += holder.itemView.clicks()
-            .throttleFirst()
-            .map { tracks[position].id }
-            .subscribe { clickCallback.invoke(it) }
     }
+)
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val trackDescription: TextView = view.findViewById(R.id.trackDescriptionTv)
-        val importedIv: ImageView = view.findViewById(R.id.importedIv)
-    }
-}
+internal class TracksDelegateAdapter(
+    longClickCallback: (id: Long) -> Unit,
+    clickCallback: (id: Long) -> Unit,
+    disposable: CompositeDisposable
+) : DifferDelegateAdapter<Entity<*>>(
+    trackListAdapter(longClickCallback, clickCallback, disposable)
+)

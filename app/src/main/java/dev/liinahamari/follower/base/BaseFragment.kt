@@ -24,16 +24,10 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import dev.liinahamari.follower.ext.appComponent
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import javax.inject.Inject
 
 open class BaseFragment(@LayoutRes layout: Int): Fragment(layout) {
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    val subscriptions = CompositeDisposable()
-
-    @CallSuper
-    override fun onDestroyView() = super.onDestroyView().also { subscriptions.clear() }
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -22,14 +22,11 @@ import android.os.IBinder
 import androidx.annotation.CallSuper
 import dev.liinahamari.follower.ext.appComponent
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 const val FOREGROUND_ID_AUTO_TRACKING_SCHEDULING = 111
 const val FOREGROUND_ID_LOCATION_TRACKING = 112
 
 abstract class BaseService: Service() {
-    protected val subscriptions = CompositeDisposable()
-
     @CallSuper
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         FlightRecorder.lifecycle { "${this.javaClass.simpleName} onStartCommand()" }
@@ -45,7 +42,6 @@ abstract class BaseService: Service() {
     @CallSuper
     override fun onDestroy() {
         FlightRecorder.lifecycle { "${this.javaClass.simpleName} destroyed" }
-        subscriptions.clear()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

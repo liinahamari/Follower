@@ -34,6 +34,8 @@ import dev.liinahamari.follower.ext.appComponent
 import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionDelegateImpl
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
 import dev.liinahamari.follower.interactors.SaveTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
 import dev.liinahamari.follower.model.TrackMode
@@ -53,7 +55,7 @@ const val ACTION_RENAME_TRACK_AND_STOP_TRACKING = "BackgroundTracker.action_rena
 const val ARG_AUTO_SAVE = "BackgroundTracker.arg_auto_save"
 const val ARG_TRACK_MODE = "BackgroundTracker.arg_track_mode"
 
-class LocationTrackingService : BaseService() {
+class LocationTrackingService : BaseService(), RxSubscriptionsDelegate by RxSubscriptionDelegateImpl() {
     companion object {
         const val CHANNEL_ID = "GPS_CHANNEL"
     }
@@ -84,14 +86,16 @@ class LocationTrackingService : BaseService() {
     inner class LocationListener : android.location.LocationListener {
         override fun onLocationChanged(location: Location) {
             FlightRecorder.i { "Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
-            subscriptions += trackInteractor.saveWayPoint(location.toWayPoint(trackBeginningTime!!)).subscribe {
-                val wp = wayPointsCounter.value!!.inc()
-                wayPointsCounter.onNext(wp)
-                if (isTrackEmpty && wp > 1) {
-                    isTrackEmpty = false
+            trackInteractor.saveWayPoint(location.toWayPoint(trackBeginningTime!!))
+                .doOnComplete {
+                    val wp = wayPointsCounter.value!!.inc()
+                    wayPointsCounter.onNext(wp)
+                    if (isTrackEmpty && wp > 1) {
+                        isTrackEmpty = false
+                    }
+                    notificationManager.notify(FOREGROUND_ID_LOCATION_TRACKING, createNotification(wp).build())
                 }
-                notificationManager.notify(FOREGROUND_ID_LOCATION_TRACKING, createNotification(wp).build())
-            }
+                .subscribeUi()
         }
 
         override fun onProviderDisabled(provider: String) = FlightRecorder.w { "onProviderDisabled: $provider" } /*todo: handle user's geolocation permission revoking*/
@@ -114,10 +118,9 @@ class LocationTrackingService : BaseService() {
         return START_STICKY
     }
 
-    private fun discardTrack() {
-        subscriptions += trackInteractor.deleteTrack(trackBeginningTime!!)/*todo delete on server*/
-            .subscribe({ stopTracking() }, { stopTracking() })
-    }
+    private fun discardTrack() = trackInteractor.deleteTrack(trackBeginningTime!!)/*todo delete on server*/
+        .doOnError { stopTracking() }
+        .subscribeUi { stopTracking() }
 
     override fun onCreate() {
         appComponent.inject(this)
@@ -126,6 +129,7 @@ class LocationTrackingService : BaseService() {
 
     /*TODO handle deleting or save unsaved track when system kills service*/
     override fun onDestroy() {
+        disposeSubscriptions()
         super.onDestroy()
 
         /* to prevent leaks dispose all the subscriptions here (in case system kills service to free the resources)*/
@@ -153,8 +157,8 @@ class LocationTrackingService : BaseService() {
 
     private fun renameTrackAndStopTracking(title: CharSequence?) {
         if (title != null) {
-            subscriptions += trackInteractor.renameTrack(trackBeginningTime!!, title.toString())
-                .subscribe { saveResult ->
+            trackInteractor.renameTrack(trackBeginningTime!!, title.toString())
+                .subscribeUi { saveResult ->
                     when (saveResult) {
                         is SaveTrackResult.Success -> successToast(R.string.toast_track_saved) /*todo check availability of toasts from service in latest versions*/
                         is SaveTrackResult.DatabaseCorruptionError -> errorToast(R.string.error_couldnt_save_track)
@@ -164,8 +168,8 @@ class LocationTrackingService : BaseService() {
         uploadTrackInteractor.uploadTrack(trackBeginningTime!!) /*process needed to be reflected in UI -?- */
 
         /** for integrity testing purposes */
-        subscriptions += trackInteractor.getWayPointsById(trackBeginningTime!!)
-            .subscribe { wpAmountInDb ->
+        trackInteractor.getWayPointsById(trackBeginningTime!!)
+            .subscribeUi { wpAmountInDb ->
                 if (wayPointsCounter.value != wpAmountInDb) {
                     with("!WayPoints mismatch! actual (${wayPointsCounter.value}), database ($wpAmountInDb)") {
                         FlightRecorder.e(this, RuntimeException())
@@ -189,15 +193,15 @@ class LocationTrackingService : BaseService() {
             isTrackEmpty = true
             trackBeginningTime = System.currentTimeMillis()
 
-            subscriptions += trackInteractor.saveTrack(
+            trackInteractor.saveTrack(
                 Track(
                     time = trackBeginningTime!!,
                     title = trackBeginningTime!!.toReadableDate(),
                     trackMode = trackMode
                 )
-            ).subscribe({}, {
-                FlightRecorder.e("failed to initially save track!", error = it)
-            })
+            )
+                .doOnError { FlightRecorder.e("failed to initially save track!", error = it) }
+                .subscribeUi()
 
             syncDisposable += (
                     if (BuildConfig.DEBUG)

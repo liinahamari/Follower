@@ -56,10 +56,8 @@ class TrackInteractor @Inject constructor(
     fun deleteTrack(trackId: Long): Single<DeleteTrackResult> = trackDao.delete(trackId)
         .toSingleDefault<DeleteTrackResult>(DeleteTrackResult.Success)
         .onErrorReturn { DeleteTrackResult.DatabaseCorruptionError }
-        .compose(baseComposers.applySingleSchedulers("track|wayPoints deleting"))
 
     fun saveWayPoint(wp: WayPoint): Completable = wayPointDao.insert(wp)
-        .compose(baseComposers.applyCompletableSchedulers())
 
     private fun saveWayPoints(wp: List<WayPoint>): Completable = wayPointDao.insertAll(wp)
         .compose(baseComposers.applyCompletableSchedulers())
@@ -67,7 +65,6 @@ class TrackInteractor @Inject constructor(
     /** To validate equity of waypoints put in database and in the field of LocationTrackingService (issue with database) */
     fun getWayPointsById(trackId: Long): Single<Int> = wayPointDao.validateWpAmount(trackId)
         .map { it.size }
-        .compose(baseComposers.applySingleSchedulers())
 
     fun renameTrack(trackId: Long, title: String): Single<SaveTrackResult> =
         trackDao.findByTrackId(trackId)
@@ -77,12 +74,10 @@ class TrackInteractor @Inject constructor(
                     .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
             }
             .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
-            .compose(baseComposers.applySingleSchedulers())
 
     fun saveTrack(track: Track): Single<SaveTrackResult> = trackDao.insert(track)
         .map<SaveTrackResult> { SaveTrackResult.Success }
         .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
-        .compose(baseComposers.applySingleSchedulers())
 
     fun getAddressesList(id: Long): Observable<GetAddressesResult> = trackDao.getTrackWithWayPoints(id)
         .flattenAsObservable {

@@ -22,14 +22,22 @@ import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseService
 import dev.liinahamari.follower.base.FOREGROUND_ID_AUTO_TRACKING_SCHEDULING
 import dev.liinahamari.follower.ext.appComponent
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionDelegateImpl
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
 import dev.liinahamari.follower.screens.settings.AutoTrackingSchedulingUseCase
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
-import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 
-class AutoTrackingSchedulingService : BaseService() {
+class AutoTrackingSchedulingService
+    : BaseService(),
+    RxSubscriptionsDelegate by RxSubscriptionDelegateImpl() {
     companion object {
         const val CHANNEL_ID = "AUTO_TRACKING_SCHEDULING_CHANNEL"
+    }
+
+    override fun onDestroy() {
+        disposeSubscriptions()
+        super.onDestroy()
     }
 
     @Inject lateinit var autoTrackingSchedulingUseCase: AutoTrackingSchedulingUseCase
@@ -46,17 +54,18 @@ class AutoTrackingSchedulingService : BaseService() {
         .setSmallIcon(R.drawable.ic_launcher_foreground)
         .setAutoCancel(false)
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int = START_STICKY.also {
         super.onStartCommand(intent, flags, startId)
-        subscriptions += autoTrackingSchedulingUseCase.setupStartAndStop().subscribe({
-            FlightRecorder.i { "${this.javaClass.name} scheduling successful" }
-            stopForeground(true) /*todo check it's working*/
-            stopSelf()
-        }, {
-            FlightRecorder.e("Auto-tracking scheduling", it)
-            stopForeground(true)
-            stopSelf()
-        })
-        return START_STICKY
+        autoTrackingSchedulingUseCase.setupStartAndStop()//todo think about threads
+            .doOnError {
+                FlightRecorder.e("Auto-tracking scheduling", it)
+                stopForeground(true)
+                stopSelf()
+            }
+            .addToDisposable {
+                FlightRecorder.i { "${this.javaClass.name} scheduling successful" }
+                stopForeground(true) /*todo check it's working*/
+                stopSelf()
+            }
     }
 }

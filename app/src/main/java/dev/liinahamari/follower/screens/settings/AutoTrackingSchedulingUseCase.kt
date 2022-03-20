@@ -72,7 +72,6 @@ class AutoTrackingSchedulingUseCase constructor(
         Single.just(sharedPreferences.getInt(context.getString(R.string.pref_tracking_start_time), -1) to sharedPreferences.getInt(context.getString(R.string.pref_tracking_stop_time), -1))
             .doOnSuccess { require(it.first >= 0 && it.second >= 0) }
             .map { minutesFromMidnightToHourlyTime(it.first) to minutesFromMidnightToHourlyTime(it.second) }
-            .compose(baseComposers.applySingleSchedulers())
             .doOnSuccess {
                 if (isTimeBetweenTwoTimes(it.first, it.second, nowHoursAndMinutesOnly())) {
                     if (context.isServiceRunning(LocationTrackingService::class.java).not()) {

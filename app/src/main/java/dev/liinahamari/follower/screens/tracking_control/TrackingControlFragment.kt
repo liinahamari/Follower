@@ -42,6 +42,8 @@ import dev.liinahamari.follower.di.modules.DIALOG_PERMISSION_EXPLANATION
 import dev.liinahamari.follower.di.modules.DIALOG_RATE_MY_APP
 import dev.liinahamari.follower.di.modules.TrackingControlModule
 import dev.liinahamari.follower.ext.*
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionDelegateImpl
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
 import dev.liinahamari.follower.model.TrackMode
 import dev.liinahamari.follower.services.location_tracking.*
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
@@ -56,7 +58,10 @@ const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
 /*todo, add distance, points*/
 
 @TrackingControlScope
-class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control) {
+class TrackingControlFragment :
+    BoundFragment(R.layout.fragment_tracking_control),
+    RxSubscriptionsDelegate by RxSubscriptionDelegateImpl()
+{
     private val ui by viewBinding(FragmentTrackingControlBinding::bind)
 
     private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
@@ -79,6 +84,11 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
         } else {
             locationPermissionExplanationDialog.show()
         }
+    }
+
+    override fun onDestroy() {
+        disposeSubscriptions()
+        super.onDestroy()
     }
 
     override fun getBindingTarget(): Class<out Service> = LocationTrackingService::class.java
@@ -120,14 +130,14 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
     }
 
     override fun setupViewModelSubscriptions() {
-        viewModel.showRateMyAppEvent.observe(this, { rateMyAppDialog.show(childFragmentManager, RateMyAppDialog::class.java.simpleName) })
+        viewModel.showRateMyAppEvent.observe(this) { rateMyAppDialog.show(childFragmentManager, RateMyAppDialog::class.java.simpleName) }
     }
 
     override fun setupClicks() {
         setupTrackMode()
-        subscriptions += ui.btnStartTracking.clicks()
+        ui.btnStartTracking.clicks()
             .throttleFirst()
-            .subscribe {
+            .addToDisposable {
                 val permissions = mutableListOf(PERMISSION_LOCATION)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     permissions.add(PERMISSION_BACKGROUND_LOCATION)
@@ -148,9 +158,9 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
                 }
             }
 
-        subscriptions += ui.btnStopTracking.clicks()
+        ui.btnStopTracking.clicks()
             .throttleFirst()
-            .subscribe {
+            .addToDisposable {
                 if (isServiceBound && gpsService != null) {
                     if (gpsService!!.isTrackEmpty) {
                         emptyWayPointsDialog.show()
@@ -182,25 +192,25 @@ class TrackingControlFragment : BoundFragment(R.layout.fragment_tracking_control
     private fun setupTrackMode() {
         ui.trackModeCarIv.isSelected = true
 
-        subscriptions += ui.trackModeCarIv.clicks()
+        ui.trackModeCarIv.clicks()
             .throttleFirst()
-            .subscribe {
+            .addToDisposable {
                 ui.trackModeCarIv.isSelected = true
                 ui.trackModeBikeIv.isSelected = false
                 ui.trackModeWalkIv.isSelected = false
             }
 
-        subscriptions += ui.trackModeWalkIv.clicks()
+        ui.trackModeWalkIv.clicks()
             .throttleFirst()
-            .subscribe {
+            .addToDisposable {
                 ui.trackModeCarIv.isSelected = false
                 ui.trackModeBikeIv.isSelected = false
                 ui.trackModeWalkIv.isSelected = true
             }
 
-        subscriptions += ui.trackModeBikeIv.clicks()
+        ui.trackModeBikeIv.clicks()
             .throttleFirst()
-            .subscribe {
+            .addToDisposable {
                 ui.trackModeCarIv.isSelected = false
                 ui.trackModeBikeIv.isSelected = true
                 ui.trackModeWalkIv.isSelected = false

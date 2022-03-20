@@ -47,8 +47,10 @@ import dev.liinahamari.follower.ext.adaptToNightModeState
 import dev.liinahamari.follower.ext.appComponent
 import dev.liinahamari.follower.ext.throttleFirst
 import dev.liinahamari.follower.helper.CustomToast.errorToast
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionDelegateImpl
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
-import io.reactivex.rxjava3.kotlin.plusAssign
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import me.saket.cascade.CascadePopupMenu
 import javax.inject.Inject
 
@@ -57,7 +59,10 @@ private const val EXT_TXT = ".txt"
 private const val FTP = "ftp"
 
 @BiometricScope
-class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPreferences.OnSharedPreferenceChangeListener {
+class TrackListFragment :
+    BoundFragment(R.layout.fragment_track_list),
+    SharedPreferences.OnSharedPreferenceChangeListener,
+    RxSubscriptionsDelegate by RxSubscriptionDelegateImpl() {
     private val ui by viewBinding(FragmentTrackListBinding::bind)
 
     @Inject lateinit var sharedPreferences: SharedPreferences
@@ -65,11 +70,17 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
 
     private var gpsService: LocationTrackingService? = null
 
+    private val adapterDisposable = CompositeDisposable()
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
     private val tracksAdapter = TrackListAdapter(::showMenu, ::getTrackDisplayMode)
 
     private val pickFiles = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
         viewModel.importTracks(it!!, gpsService!!.isTracking.value!!)
+    }
+
+    override fun onDestroyView() = super.onDestroyView().also {
+        adapterDisposable.clear()
+        disposeSubscriptions()
     }
 
     private fun getTrackDisplayMode(trackId: Long) = viewModel.getTrackDisplayMode(trackId)
@@ -138,16 +149,16 @@ class TrackListFragment : BoundFragment(R.layout.fragment_track_list), SharedPre
     }
 
     override fun setupClicks() {
-        subscriptions += ui.importFab.clicks()
+        ui.importFab.clicks()
             .throttleFirst()
-            .subscribe {
+            .addToDisposable {
                 pickFiles.launch(arrayOf("*/*")) //todo investigate how to filter by extension
             }
 
         if (sharedPreferences.getBoolean(getString(R.string.pref_enable_biometric_protection), false)) {
-            subscriptions += ui.ivLock.clicks()
+            ui.ivLock.clicks()
                 .throttleFirst()
-                .subscribe { authenticator.get().authenticate() }
+                .addToDisposable { authenticator.get().authenticate() }
         }
     }
 

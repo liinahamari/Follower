@@ -24,24 +24,31 @@ import androidx.core.app.NotificationCompat
 import dev.liinahamari.follower.CHANNEL_BATTERY_LOW_ID
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.ForegroundService
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionDelegateImpl
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
 import dev.liinahamari.follower.screens.low_battery.LowBatteryNotifierActivity
 
 const val ID_LOW_BATTERY_NOTIFICATIONS_SERVICE = 1001
 
-class LowBatteryNotificationService : ForegroundService() {
+class LowBatteryNotificationService : ForegroundService(), RxSubscriptionsDelegate by RxSubscriptionDelegateImpl() {
     override fun getIcon(): Int = R.drawable.ic_baseline_battery_alert_24
     override fun getActivity(): Class<out Activity> = LowBatteryNotifierActivity::class.java
     override fun getTitle(intent: Intent?): String = getString(R.string.title_battery_low)
     override fun getServiceId(): Int = ID_LOW_BATTERY_NOTIFICATIONS_SERVICE
     override fun getActionsRequestCode(): Int = 100500
 
+    override fun onDestroy() {
+        disposeSubscriptions()
+        super.onDestroy()
+    }
+
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         when (intent.action) {
             ACTION_SHOW_NOTIFICATION -> {
-                subscriptions.add(timer.subscribe {
+                timer.addToDisposable {
                     stopSelf()
-                })
+                }
 
                 val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_BATTERY_LOW_ID)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))

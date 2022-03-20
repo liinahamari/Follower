@@ -21,6 +21,8 @@ import androidx.lifecycle.LiveData
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionDelegateImpl
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
 import dev.liinahamari.follower.interactors.*
 import dev.liinahamari.follower.model.PreferencesRepository
 import io.reactivex.rxjava3.functions.Consumer
@@ -29,7 +31,9 @@ import javax.inject.Inject
 
 typealias TrackTitle = String
 
-class TrackListViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val preferencesRepository: PreferencesRepository) : BaseViewModel() {
+class TrackListViewModel @Inject constructor(private val trackInteractor: TrackInteractor, private val preferencesRepository: PreferencesRepository) :
+    BaseViewModel(),
+    RxSubscriptionsDelegate by RxSubscriptionDelegateImpl() {
     private val _nonEmptyTrackListEvent = SingleLiveEvent<List<TrackUi>>()
     val nonEmptyTrackListEvent: LiveData<List<TrackUi>> get() = _nonEmptyTrackListEvent
 
@@ -55,14 +59,20 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
         })
     }
 
+    override fun onCleared() {
+        disposeSubscriptions()
+        super.onCleared()
+    }
+
     fun fetchTracks(isTracking: Boolean) {
-        disposable += trackInteractor.fetchTracks(isTracking).subscribe(Consumer {
-            when (it) {
-                is FetchTracksResult.Success -> _nonEmptyTrackListEvent.value = it.tracks
-                is FetchTracksResult.SuccessEmpty -> _emptyTrackListEvent.call()
-                is FetchTracksResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
+        disposable += trackInteractor.fetchTracks(isTracking)
+            .subscribeUi {
+                when (it) {
+                    is FetchTracksResult.Success -> _nonEmptyTrackListEvent.value = it.tracks
+                    is FetchTracksResult.SuccessEmpty -> _emptyTrackListEvent.call()
+                    is FetchTracksResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
+                }
             }
-        })
     }
 
     fun saveDisplayType(displayMode: String) {
