@@ -23,7 +23,10 @@ import dev.liinahamari.follower.base.BaseViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
 import dev.liinahamari.follower.helper.delegates.RxSubscriptionDelegateImpl
 import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
-import dev.liinahamari.follower.interactors.*
+import dev.liinahamari.follower.interactors.FetchTracksResult
+import dev.liinahamari.follower.interactors.ImportTrackResult
+import dev.liinahamari.follower.interactors.SharedTrackResult
+import dev.liinahamari.follower.interactors.TrackInteractor
 import dev.liinahamari.follower.model.PreferencesRepository
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -46,17 +49,12 @@ class TrackListViewModel @Inject constructor(private val trackInteractor: TrackI
     private val _shareJsonEvent = SingleLiveEvent<Pair<Uri, TrackTitle>>()
     val shareJsonEvent: LiveData<Pair<Uri, TrackTitle>> get() = _shareJsonEvent
 
-    private val _removeTrackEvent = SingleLiveEvent<Long>()
-    val removeTrackEvent: LiveData<Long> get() = _removeTrackEvent
-
     /*todo: test cascade*/
-    fun removeTrack(trackId: Long) {
-        disposable += trackInteractor.removeTrack(trackId).subscribe(Consumer {
-            when (it) {
-                is RemoveTrackResult.Success -> _removeTrackEvent.value = trackId
-                is RemoveTrackResult.DatabaseCorruptionError -> _errorEvent.value = R.string.db_error
-            }
-        })
+    fun removeTrack(trackId: Long, isTracking: Boolean) {
+        disposable += trackInteractor.removeTrack(trackId)
+            .doOnError { _errorEvent.value = R.string.db_error }
+            .doOnSuccess { fetchTracks(isTracking) }
+            .subscribe()
     }
 
     override fun onCleared() {

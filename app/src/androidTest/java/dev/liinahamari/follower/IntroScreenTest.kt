@@ -103,5 +103,3 @@ open class IntroScreen : Screen<IntroScreen>() {
     val skipButton: KButton = KButton { withId(R.id.skip) }
     val doneButton: KButton = KButton { withId(R.id.done) }
 }
-
-

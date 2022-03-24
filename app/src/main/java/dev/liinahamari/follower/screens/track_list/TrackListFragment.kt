@@ -72,7 +72,7 @@ class TrackListFragment :
 
     private val adapterDisposable = CompositeDisposable()
     private val viewModel by activityViewModels<TrackListViewModel> { viewModelFactory }
-    private val tracksAdapter = TrackListAdapter(::showMenu, ::getTrackDisplayMode)
+    private val tracksAdapter = TracksDelegateAdapter(::showMenu, ::getTrackDisplayMode, adapterDisposable)
 
     private val pickFiles = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
         viewModel.importTracks(it!!, gpsService!!.isTracking.value!!)
@@ -181,14 +181,7 @@ class TrackListFragment :
             ui.ivLock.isVisible = false
             ui.trackList.isVisible = true
 
-            tracksAdapter.tracks = it.toMutableList()
-        }
-        viewModel.removeTrackEvent.observe(viewLifecycleOwner) { id ->
-            tracksAdapter.removeTask(id)
-            if (tracksAdapter.tracks.isEmpty()) {
-                ui.emptyListTv.isVisible = true
-                ui.trackList.isVisible = false
-            }
+            tracksAdapter.items = it
         }
         viewModel.trackDisplayModeEvent.observe(viewLifecycleOwner) { trackAndDisplayMode ->
             when (trackAndDisplayMode.first) {
@@ -279,7 +272,7 @@ class TrackListFragment :
                 it.add(R.string.yes)
                     .setIcon(requireContext().adaptToNightModeState(ResourcesCompat.getDrawable(resources, R.drawable.ic_toast_success, null)))
                     .setOnMenuItemClickListener {
-                        viewModel.removeTrack(trackId)
+                        viewModel.removeTrack(trackId, isServiceBound && gpsService?.isTracking?.value == true)
                         true
                     }
 
