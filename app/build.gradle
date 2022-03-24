@@ -155,6 +155,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.ext:truth:1.4.0'
 
+    androidTestImplementation 'io.github.kakaocup:kakao:3.0.2'
+
     androidTestImplementation 'com.google.truth:truth:1.0.1'
 
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
