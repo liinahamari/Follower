@@ -22,12 +22,10 @@ import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
 import androidx.test.platform.app.InstrumentationRegistry
 import dev.liinahamari.follower.ext.getDefaultSharedPreferences
 import dev.liinahamari.follower.rules.ImmediateSchedulersRule
-import dev.liinahamari.follower.screens.RouteActivity
 import dev.liinahamari.follower.screens.intro.IntroActivity
 import io.github.kakaocup.kakao.screen.Screen
 import io.github.kakaocup.kakao.screen.Screen.Companion.onScreen
 import io.github.kakaocup.kakao.text.KButton
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,13 +42,9 @@ class IntroScreenTest {
 
     @Rule
     @JvmField
-    val activityRule2 = ActivityScenarioRule(RouteActivity::class.java)
-
-    @Rule
-    @JvmField
     val immediateSchedulersRule = ImmediateSchedulersRule()
 
-    @After
+    @Before
     fun after() {
         InstrumentationRegistry.getInstrumentation().targetContext.apply {
             getDefaultSharedPreferences().edit().also {

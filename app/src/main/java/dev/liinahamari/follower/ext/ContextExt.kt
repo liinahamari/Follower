@@ -94,3 +94,10 @@ fun Context.scheduleLowBatteryChecker(initialDelayInMinutes: Long = 3L) = (getSy
 
 fun Context.cancelLowBatteryChecker() = (this.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
     .cancel(PendingIntent.getBroadcast(this, BATTERY_CHECKER_ID, Intent(this, LowBatteryReceiver::class.java), 0))
+
+@Suppress("DEPRECATION")
+fun Context.getVersionCode(): String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    packageManager.getPackageInfo(packageName, 0).longVersionCode.toString()
+} else {
+    packageManager.getPackageInfo(packageName, 0).versionCode.toString()
+}

@@ -19,7 +19,6 @@ package dev.liinahamari.follower.screens.crash_screen
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.*
-import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
@@ -27,18 +26,18 @@ import androidx.core.content.ContextCompat
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.databinding.ActivityCrashStackTraceBinding
+import dev.liinahamari.follower.ext.getVersionCode
 
-/*TODO: how to test?*/
 class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_trace) {
     private val ui by viewBinding(ActivityCrashStackTraceBinding::bind)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupWindow()
+        setupUi()
+    }
 
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.statusBarColor = ContextCompat.getColor(this, R.color.stacktrace_activity_background)
-        window.navigationBarColor = ContextCompat.getColor(this, R.color.stacktrace_activity_background)
-
+    private fun setupUi() {
         ui.stackTraceTitleTv.apply {
             text = String.format(getString(R.string.title_app_crashed), intent.getStringExtra(EXTRA_THREAD_NAME)!!, getVersionCode())
             setOnClickListener { finishAndRemoveTask() }
@@ -46,16 +45,17 @@ class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_
         ui.stacktraceTv.text = (intent.getSerializableExtra(EXTRA_ERROR) as Throwable).stackTraceToString()
     }
 
-    @Suppress("DEPRECATION")
-    fun getVersionCode(): String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        packageManager.getPackageInfo(packageName, 0).longVersionCode.toString()
-    } else {
-        packageManager.getPackageInfo(packageName, 0).versionCode.toString()
+    private fun setupWindow() {
+        with(window) {
+            addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            statusBarColor = ContextCompat.getColor(this@CrashStackTraceActivity, R.color.stacktrace_activity_background)
+            navigationBarColor = ContextCompat.getColor(this@CrashStackTraceActivity, R.color.stacktrace_activity_background)
+        }
     }
 
     companion object {
-        private const val EXTRA_THREAD_NAME = "dev.liinahamari.follower.screens.crash_screen.CrashStackTraceActivity.EXTRA_THREAD_NAME"
-        private const val EXTRA_ERROR = "dev.liinahamari.follower.screens.crash_screen.CrashStackTraceActivity.EXTRA_ERROR"
+        private const val EXTRA_THREAD_NAME = "CrashStackTraceActivity.EXTRA_THREAD_NAME"
+        private const val EXTRA_ERROR = "CrashStackTraceActivity.EXTRA_ERROR"
 
         fun newIntent(
             context: Context,
