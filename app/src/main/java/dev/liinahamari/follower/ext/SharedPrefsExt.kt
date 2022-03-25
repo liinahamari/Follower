@@ -30,4 +30,19 @@ fun SharedPreferences.writeBooleanOf(keyToValue: String, value: Boolean) = edit(
 fun SharedPreferences.writeStringOf(keyToValue: String, value: String) = edit().also { it.putString(keyToValue, value) }.apply()
 fun SharedPreferences.writeIntOf(keyToValue: String, value: Int) = edit().also { it.putInt(keyToValue, value) }.apply()
 
-fun SharedPreferences.incrementAppLaunchCounter(context: Context) = edit().also { it.putInt(context.getString(R.string.pref_app_launch_counter), getInt(context.getString(R.string.pref_app_launch_counter), 0).inc()) }.apply()
+fun SharedPreferences.incrementAppLaunchCounter(context: Context) = edit().also {
+    it.putInt(
+        context.getString(R.string.pref_app_launcher_counter),
+        getInt(context.getString(R.string.pref_app_launcher_counter), 0).inc()
+    )
+}.apply()
+
+fun Context.trackFistLaunch() = getDefaultSharedPreferences().edit().also {
+    it.putBoolean(
+        getString(R.string.pref_is_app_first_launched),
+        true
+    )
+}.apply()
+
+/** If nothing stored by key pref_is_app_first_launched, then function returns TRUE */
+fun Context.isAppFirstLaunched(): Boolean = getDefaultSharedPreferences().getBoolean(getString(R.string.pref_is_app_first_launched), false).not()

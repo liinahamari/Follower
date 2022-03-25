@@ -9,7 +9,8 @@
 
     <!--prefs-->
     <string name="pref_low_battery_dnd_time" translatable="false">PREF_LOW_BATTERY_DND_AT_NIGHT</string>
-    <string name="pref_app_launch_counter" translatable="false">pref_app_launch_counter</string>
+    <string name="pref_is_app_first_launched" translatable="false">pref_is_app_first_launched</string>
+    <string name="pref_app_launcher_counter" translatable="false">pref_app_launcher_counter</string>
     <string name="pref_never_show_rate_app" translatable="false">pref_never_show_rate_app</string>
     <string name="pref_report_bug" translatable="false">pref_report_bug</string>
     <string name="pref_acra_enable" translatable="false">pref_acra_enable</string>

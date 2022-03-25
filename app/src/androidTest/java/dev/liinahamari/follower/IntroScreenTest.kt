@@ -19,7 +19,7 @@ package dev.liinahamari.follower
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import dev.liinahamari.follower.ext.getDefaultSharedPreferences
 import dev.liinahamari.follower.rules.ImmediateSchedulersRule
 import dev.liinahamari.follower.screens.intro.IntroActivity
@@ -31,9 +31,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/*FIXME : problem with run test methods in sequence, @After function seems to be not invoked at all
-* Every single @Test function in isolation works well.
-* */
 @RunWith(AndroidJUnit4ClassRunner::class)
 class IntroScreenTest {
     @Rule
@@ -45,10 +42,10 @@ class IntroScreenTest {
     val immediateSchedulersRule = ImmediateSchedulersRule()
 
     @Before
-    fun after() {
-        InstrumentationRegistry.getInstrumentation().targetContext.apply {
+    fun setup() {
+        getInstrumentation().targetContext.apply {
             getDefaultSharedPreferences().edit().also {
-                it.putInt(getString(R.string.pref_app_launch_counter), 0)
+                it.putBoolean(getString(R.string.pref_is_app_first_launched), false)
             }.commit()
         }
     }
@@ -58,6 +55,9 @@ class IntroScreenTest {
         onScreen<IntroScreen> {
             doneButton.isInvisible()
 
+            /**
+             * First slide is current, and then 3 times navigating through rest of slides
+             * */
             repeat(3) {
                 nextButton.click()
             }

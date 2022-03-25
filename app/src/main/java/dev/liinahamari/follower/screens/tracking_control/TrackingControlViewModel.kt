@@ -43,7 +43,7 @@ class TrackingControlViewModel @Inject constructor(private val baseComposers: Ba
     private val launchCounter = if (BuildConfig.DEBUG) DEBUG_LAUNCH_COUNTER_THRESHOLD else LAUNCH_COUNTER_THRESHOLD
 
     fun checkShowRateMyApp() {
-        disposable += Single.fromCallable { sharedPreferences.getBooleanOf(context.getString(R.string.pref_never_show_rate_app)).not() && sharedPreferences.getInt(context.getString(R.string.pref_app_launch_counter), 0) % launchCounter == 0 }
+        disposable += Single.fromCallable { sharedPreferences.getBooleanOf(context.getString(R.string.pref_never_show_rate_app)).not() && sharedPreferences.getInt(context.getString(R.string.pref_is_app_first_launched), 0) % launchCounter == 0 }
             .compose(baseComposers.applySingleSchedulers())
             .subscribe({
                 if (it) {

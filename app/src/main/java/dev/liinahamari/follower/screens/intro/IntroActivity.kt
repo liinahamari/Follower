@@ -24,9 +24,9 @@ import com.github.appintro.AppIntro2
 import com.github.appintro.AppIntroFragment
 import com.github.appintro.AppIntroPageTransformerType
 import dev.liinahamari.follower.R
-import dev.liinahamari.follower.ext.getDefaultSharedPreferences
-import dev.liinahamari.follower.ext.getIntOf
+import dev.liinahamari.follower.ext.isAppFirstLaunched
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
+import dev.liinahamari.follower.ext.trackFistLaunch
 import dev.liinahamari.follower.screens.RouteActivity
 
 class IntroActivity : AppIntro2() {
@@ -70,12 +70,13 @@ class IntroActivity : AppIntro2() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (getDefaultSharedPreferences().getIntOf(getString(R.string.pref_app_launch_counter)) != 1) {
-            finish()
-            startActivity(Intent(this, RouteActivity::class.java))
-        } else {
+        if (isAppFirstLaunched()) {
+            trackFistLaunch()
             setupIntroScreenConfig()
             slideFragments.forEach(::addSlide)
+        } else {
+            finish()
+            startActivity(Intent(this, RouteActivity::class.java))
         }
     }
 
