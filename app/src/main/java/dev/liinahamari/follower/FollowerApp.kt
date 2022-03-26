@@ -36,6 +36,7 @@ import com.github.anrwatchdog.ANRWatchDog
 import dev.liinahamari.follower.di.components.AppComponent
 import dev.liinahamari.follower.di.components.DaggerAppComponent
 import dev.liinahamari.follower.ext.cancelLowBatteryChecker
+import dev.liinahamari.follower.ext.getVersionCode
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import dev.liinahamari.follower.ext.scheduleLowBatteryChecker
 import dev.liinahamari.follower.model.PreferencesRepository
@@ -111,7 +112,13 @@ class FollowerApp : Application() {
 
         if (BuildConfig.DEBUG) {
             try {
-                startActivity(CrashStackTraceActivity.newIntent(this, thread.name, error))
+                startActivity(
+                    CrashStackTraceActivity.newIntent(
+                        this,
+                        String.format(getString(R.string.title_app_crashed), thread.name, getVersionCode()),
+                        error.stackTraceToString()
+                    )
+                )
             } catch (e: Exception) {
                 FlightRecorder.e("UncaughtExceptionHandler", e)
             } finally {

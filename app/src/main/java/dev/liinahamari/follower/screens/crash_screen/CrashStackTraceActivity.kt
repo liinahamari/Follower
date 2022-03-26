@@ -24,11 +24,18 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.jakewharton.rxbinding4.view.clicks
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.databinding.ActivityCrashStackTraceBinding
-import dev.liinahamari.follower.ext.getVersionCode
+import dev.liinahamari.follower.ext.argString
+import dev.liinahamari.follower.ext.throttleFirst
+import dev.liinahamari.follower.ext.withArguments
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionDelegateImpl
+import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
 
-class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_trace) {
+class CrashStackTraceActivity :
+    AppCompatActivity(R.layout.activity_crash_stack_trace),
+    RxSubscriptionsDelegate by RxSubscriptionDelegateImpl() {
     private val ui by viewBinding(ActivityCrashStackTraceBinding::bind)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,12 +44,19 @@ class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_
         setupUi()
     }
 
+    override fun onDestroy() {
+        disposeSubscriptions()
+        super.onDestroy()
+    }
+
     private fun setupUi() {
         ui.stackTraceTitleTv.apply {
-            text = String.format(getString(R.string.title_app_crashed), intent.getStringExtra(EXTRA_THREAD_NAME)!!, getVersionCode())
-            setOnClickListener { finishAndRemoveTask() }
+            text = argString(EXTRA_TITLE)
+            clicks()
+                .throttleFirst()
+                .addToDisposable { finishAndRemoveTask() }
         }
-        ui.stacktraceTv.text = (intent.getSerializableExtra(EXTRA_ERROR) as Throwable).stackTraceToString()
+        ui.stacktraceTv.text = argString(EXTRA_ERROR_STACKTRACE_STRING)
     }
 
     private fun setupWindow() {
@@ -54,18 +68,15 @@ class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_
     }
 
     companion object {
-        private const val EXTRA_THREAD_NAME = "CrashStackTraceActivity.EXTRA_THREAD_NAME"
-        private const val EXTRA_ERROR = "CrashStackTraceActivity.EXTRA_ERROR"
+        private const val EXTRA_TITLE = "CrashStackTraceActivity.EXTRA_TITLE"
+        private const val EXTRA_ERROR_STACKTRACE_STRING = "CrashStackTraceActivity.EXTRA_ERROR_STACKTRACE_STRING"
 
         fun newIntent(
             context: Context,
-            threadName: String,
-            throwable: Throwable
+            title: String,
+            errorStackTrace: String
         ) = Intent(context, CrashStackTraceActivity::class.java)
-            .apply {
-                putExtra(EXTRA_THREAD_NAME, threadName)
-                putExtra(EXTRA_ERROR, throwable)
-                flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NO_ANIMATION
-            }
+            .withArguments(EXTRA_TITLE to title, EXTRA_ERROR_STACKTRACE_STRING to errorStackTrace)
+            .apply { flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NO_ANIMATION }
     }
 }
