@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4ClassRunner::class)
 class IntroScreenTest {
-    @Rule
-    @JvmField
+    @get:Rule
     val activityRule = ActivityScenarioRule(IntroActivity::class.java)
 
     @Rule
