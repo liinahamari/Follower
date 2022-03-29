@@ -30,7 +30,19 @@ import dev.liinahamari.follower.ext.trackFistLaunch
 import dev.liinahamari.follower.screens.RouteActivity
 
 class IntroActivity : AppIntro2() {
-    private val slideFragments: List<AppIntroFragment> by lazy {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (isAppFirstLaunched()) {
+            trackFistLaunch()
+            setupIntroScreenConfig()
+            getSlideFragments().forEach(::addSlide)
+        } else {
+            finish()
+            startActivity(Intent(this, RouteActivity::class.java))
+        }
+    }
+
+    private fun getSlideFragments(): List<AppIntroFragment> =
         listOf(
             AppIntroFragment.createInstance(
                 title = getString(R.string.title_welcome_to_follower),
@@ -64,21 +76,8 @@ class IntroActivity : AppIntro2() {
                 descriptionColorRes = R.color.white,
                 backgroundColorRes = R.color.purple_200
             )
+            //TODO fingerprint/pin feature
         )
-        //TODO fingerprint/pin feature
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (isAppFirstLaunched()) {
-            trackFistLaunch()
-            setupIntroScreenConfig()
-            slideFragments.forEach(::addSlide)
-        } else {
-            finish()
-            startActivity(Intent(this, RouteActivity::class.java))
-        }
-    }
 
     private fun setupIntroScreenConfig() {
         setImmersiveMode()
