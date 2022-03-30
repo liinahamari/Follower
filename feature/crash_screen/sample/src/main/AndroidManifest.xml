@@ -19,11 +19,13 @@
     package="dev.liinahamari.feature.crash_screen.sample">
 
     <application
+        android:icon="@drawable/abc_vector_test"
         android:allowBackup="true"
         android:name=".CrashScreenSampleApp"
         android:label="CrashScreenSample"
         android:supportsRtl="true">
         <activity
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:name=".CrashingActivity"
             android:exported="true">
             <intent-filter>
