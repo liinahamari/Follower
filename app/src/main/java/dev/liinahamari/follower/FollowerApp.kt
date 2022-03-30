@@ -33,14 +33,13 @@ import androidx.lifecycle.OnLifecycleEvent
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import com.github.anrwatchdog.ANRWatchDog
+import dev.liinahamari.crash_screen.screens.crash_screen.CrashInterceptor
 import dev.liinahamari.follower.di.components.AppComponent
 import dev.liinahamari.follower.di.components.DaggerAppComponent
 import dev.liinahamari.follower.ext.cancelLowBatteryChecker
-import dev.liinahamari.follower.ext.getVersionCode
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
 import dev.liinahamari.follower.ext.scheduleLowBatteryChecker
 import dev.liinahamari.follower.model.PreferencesRepository
-import dev.liinahamari.follower.screens.crash_screen.CrashStackTraceActivity
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
 import dev.liinahamari.loggy_sdk.Loggy
@@ -57,7 +56,6 @@ import org.acra.data.StringFormat
 import java.util.*
 import java.util.concurrent.Executors
 import javax.inject.Inject
-import kotlin.system.exitProcess
 
 const val CHANNEL_BATTERY_LOW_ID = "CHANNEL_BATTERY_LOW_ID"
 private const val USER_ID = "dummy_id"
@@ -100,31 +98,13 @@ class FollowerApp : Application() {
         setupNotificationChannels()
         setupFtpUploadingService()
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
-        setupCrashStackTraceScreen()
-
-        cancelLowBatteryChecker().also {
-            scheduleLowBatteryChecker()
-        }
-    }
-
-    private fun setupCrashStackTraceScreen() = Thread.setDefaultUncaughtExceptionHandler { thread, error ->
-        FlightRecorder.e("App Crash catch", error, true)
 
         if (BuildConfig.DEBUG) {
-            try {
-                startActivity(
-                    CrashStackTraceActivity.newIntent(
-                        this,
-                        String.format(getString(R.string.title_app_crashed), thread.name, getVersionCode()),
-                        error.stackTraceToString()
-                    )
-                )
-            } catch (e: Exception) {
-                FlightRecorder.e("UncaughtExceptionHandler", e)
-            } finally {
-                exitProcess(1)
-            }
+            CrashInterceptor.init(this)
         }
+
+        cancelLowBatteryChecker()
+        scheduleLowBatteryChecker()
     }
 
     private fun setupFtpUploadingService() = UploadServiceConfig.initialize(

@@ -54,22 +54,19 @@
             android:name=".screens.RouteActivity"
             android:exported="false" />
 
-        <activity android:name=".screens.low_battery.LowBatteryNotifierActivity"
+        <activity
+            android:name=".screens.low_battery.LowBatteryNotifierActivity"
             android:exported="false" />
 
         <activity
-            android:theme="@style/SplashTheme"
             android:name=".screens.intro.IntroActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".screens.crash_screen.CrashStackTraceActivity"
-            android:exported="false" />
 
         <service
             android:name=".services.location_tracking.LocationTrackingService"

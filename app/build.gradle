@@ -80,7 +80,6 @@ dependencies {
 
     /* JETPACK */
     implementation "androidx.activity:activity-ktx:1.4.0"
-    implementation "androidx.appcompat:appcompat:1.4.1"
     implementation "androidx.appcompat:appcompat-resources:1.4.1"
     implementation "androidx.fragment:fragment-ktx:1.4.1"
     implementation files('libs/loggy_sdk-debug.aar')
@@ -194,6 +193,8 @@ dependencies {
     implementation "ch.acra:acra-mail:$acraVersion"
     implementation "ch.acra:acra-core:$acraVersion"
     implementation "ch.acra:acra-advanced-scheduler:$acraVersion"
+
+    implementation project(":feature:crash_screen")
 }
 
 kapt {

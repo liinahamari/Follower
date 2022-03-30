@@ -1,3 +1,9 @@
+rootProject.name = "Follower"
+
 include ':fakegps'
 include ':app'
-rootProject.name = "Follower"
+
+include ':feature:crash_screen',
+        ':feature:crash_screen:api',
+        ':feature:crash_screen:impl',
+        ':feature:crash_screen:sample'
