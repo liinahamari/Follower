@@ -25,3 +25,39 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+project.ext {
+    minSdkVersion = 26
+    compileSdkVersion = 31
+    targetSdkVersion = 31
+    versionCode = 1
+    versionName = '1.0'
+    buildToolsVersion = '30.0.3'
+}
+
+def setupAndroidDefaults(android) {
+    android.compileSdkVersion rootProject.ext.compileSdkVersion
+    android.buildToolsVersion rootProject.ext.buildToolsVersion
+
+    android.defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+
+        buildConfigField "int", "VERSION_CODE", "${rootProject.ext.versionCode}"
+        buildConfigField "String", "VERSION_NAME", "\"${rootProject.ext.versionName}\""
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        resConfigs 'en', 'ru'
+    }
+
+    android.compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    android.kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+}

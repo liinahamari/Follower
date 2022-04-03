@@ -10,6 +10,8 @@ androidExtensions {
     experimental = true
 }
 
+setupAndroidDefaults(android)
+
 android {
     kotlinOptions {
         freeCompilerArgs = ['-Xjvm-default=enable']
@@ -23,17 +25,8 @@ android {
         }
     }
 
-    compileSdkVersion 31
-    buildToolsVersion "30.0.3"
-
     defaultConfig {
         applicationId "dev.liinahamari.follower"
-        minSdkVersion 26
-        targetSdkVersion 31
-        versionCode 1
-        versionName "1.0"
-        resConfigs 'en', 'ru'
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -57,13 +50,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             testProguardFile 'test-proguard-rules.pro'
         }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = '11'
     }
 }
 
