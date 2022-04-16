@@ -22,7 +22,7 @@ plugins {
 setupAndroidDefaults(android)
 
 dependencies {
-    api project(':feature:crash_screen:api')
+    implementation project(':feature:crash_screen:api')
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "androidx.activity:activity-ktx:1.4.0"

@@ -4,5 +4,6 @@ apply plugin: 'kotlin-android'
 setupAndroidDefaults(android)
 
 dependencies {
+    api project(":feature:crash_screen:api")
     implementation project(":feature:crash_screen:impl")
 }
