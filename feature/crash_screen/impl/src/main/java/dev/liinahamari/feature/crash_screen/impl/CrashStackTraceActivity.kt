@@ -16,6 +16,7 @@
 
 package dev.liinahamari.feature.crash_screen.impl
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.*
@@ -26,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
 class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_trace) {
+    @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupWindow()
@@ -66,9 +68,10 @@ class CrashStackTraceActivity : AppCompatActivity(R.layout.activity_crash_stack_
             errorStackTrace: String
         ) = Intent(context, CrashStackTraceActivity::class.java)
             .also {
+                it.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NO_ANIMATION
+
                 it.putExtra(EXTRA_TITLE, title)
                 it.putExtra(EXTRA_ERROR_STACKTRACE_STRING, errorStackTrace)
             }
-            .apply { flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NO_ANIMATION }
     }
 }

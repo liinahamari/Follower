@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 liinahamari
+ * Copyright 2020-2022 liinahamari
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -14,20 +14,27 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.liinahamari.feature.crash_screen.sample
+package dev.liinahamari.feature.crash_screen.impl
 
-import android.app.Application
-import android.content.Context
-import dev.liinahamari.crash_screen.screens.crash_screen.CrashInterceptor
 import dev.liinahamari.feature.crash_screen.api.CrashScreenDependencies
+import dev.liinahamari.feature.crash_screen.api.UncaughtExceptionHandlerProvider
+import javax.inject.Inject
+import kotlin.system.exitProcess
 
-class CrashScreenSampleApp : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        CrashInterceptor.init(object : CrashScreenDependencies{
-            override val context: Context = this@CrashScreenSampleApp
-            override val doOnCrash: (Throwable) -> Unit = {}
-            override val doWhileImpossibleToStartCrashScreen: (Throwable) -> Unit = {}
-        })
+internal class UncaughtExceptionHandlerProviderImpl @Inject constructor(private val dependencies: CrashScreenDependencies) : UncaughtExceptionHandlerProvider {
+    override fun provide(): Thread.UncaughtExceptionHandler = Thread.UncaughtExceptionHandler { thread, exception ->
+        try {
+            dependencies.doOnCrash.invoke(exception)
+
+            dependencies.context.startActivity(
+                CrashStackTraceActivity.newIntent(
+                    dependencies.context, thread.name, exception.stackTraceToString()
+                )
+            )
+        } catch (e: Exception) {
+            dependencies.doWhileImpossibleToStartCrashScreen.invoke(e)
+        } finally {
+            exitProcess(1)
+        }
     }
 }

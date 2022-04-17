@@ -17,9 +17,13 @@
 package dev.liinahamari.feature.crash_screen.api
 
 import android.content.Context
-import java.util.logging.Logger
 
 interface CrashScreenDependencies {
-    val logger: Logger
     val context: Context
+    /**
+     * doWhileImpossibleToStartCrashScreen - function handling impossibility to start [CrashStackTraceActivity]
+     * Using 'local' logging is pointless. Consider rather usage of data storing based loggers to persist that kind of messages.
+     * */
+    val doWhileImpossibleToStartCrashScreen: (Throwable) -> Unit
+    val doOnCrash: (Throwable) -> Unit
 }

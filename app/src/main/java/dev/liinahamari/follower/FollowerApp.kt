@@ -34,6 +34,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import com.github.anrwatchdog.ANRWatchDog
 import dev.liinahamari.crash_screen.screens.crash_screen.CrashInterceptor
+import dev.liinahamari.feature.crash_screen.api.CrashScreenDependencies
 import dev.liinahamari.follower.di.components.AppComponent
 import dev.liinahamari.follower.di.components.DaggerAppComponent
 import dev.liinahamari.follower.ext.cancelLowBatteryChecker
@@ -100,7 +101,15 @@ class FollowerApp : Application() {
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer())
 
         if (BuildConfig.DEBUG) {
-            CrashInterceptor.init(this)
+            CrashInterceptor.init(
+                object : CrashScreenDependencies {
+                    override val context: Context = this@FollowerApp
+                    override val doWhileImpossibleToStartCrashScreen: (Throwable) -> Unit = { FlightRecorder.e("Crash error", it) }
+                    override val doOnCrash: (Throwable) -> Unit = {
+                        FlightRecorder.e("Unable to start Crash screen", it)
+                        Thread.sleep(500)
+                    }
+                })
         }
 
         cancelLowBatteryChecker()

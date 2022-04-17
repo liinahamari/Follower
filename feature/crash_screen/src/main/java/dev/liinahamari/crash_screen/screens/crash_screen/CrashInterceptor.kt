@@ -16,37 +16,14 @@
 
 package dev.liinahamari.crash_screen.screens.crash_screen
 
-import android.app.Application
-import android.content.Context
 import dev.liinahamari.feature.crash_screen.api.CrashScreenApi
 import dev.liinahamari.feature.crash_screen.api.CrashScreenDependencies
-import dev.liinahamari.feature.crash_screen.impl.CrashStackTraceActivity
-import java.util.logging.Logger
-import kotlin.system.exitProcess
-
-object CrashScreenFactory {
-    fun createCrashScreenApi(dependencies: CrashScreenDependencies): CrashScreenApi = CrashScreenApi.create(dependencies)
-}
+import dev.liinahamari.feature.crash_screen.impl.di.create
 
 object CrashInterceptor {
-    @JvmStatic
-    fun init(application: Application, logger: Logger = Logger.getGlobal()) {
-        Thread.setDefaultUncaughtExceptionHandler(CrashScreenFactory.createCrashScreenApi(object : CrashScreenDependencies {
-            override val logger: Logger = logger
-            override val context: Context = application
-        }).uncaughtExceptionHandler)
-    }
-}
-
-private fun CrashScreenApi.Companion.create(dependencies: CrashScreenDependencies) = object : CrashScreenApi {
-    override val uncaughtExceptionHandler: Thread.UncaughtExceptionHandler = Thread.UncaughtExceptionHandler { t, e ->
-        try {
-//            logger.log("a")
-            dependencies.context.startActivity(CrashStackTraceActivity.newIntent(dependencies.context, t.name, e.stackTraceToString()))
-        } catch (e: Exception) {
-//            FlightRecorder.e("UncaughtExceptionHandler", e)
-        } finally {
-            exitProcess(1)
-        }
+    @JvmStatic fun init(dependencies: CrashScreenDependencies) {
+        Thread.setDefaultUncaughtExceptionHandler(
+            CrashScreenApi.create(dependencies).uncaughtExceptionHandlerProvider.provide()
+        )
     }
 }

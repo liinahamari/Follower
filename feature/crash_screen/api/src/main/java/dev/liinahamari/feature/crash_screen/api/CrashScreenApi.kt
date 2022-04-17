@@ -17,7 +17,11 @@
 package dev.liinahamari.feature.crash_screen.api
 
 interface CrashScreenApi {
-    val uncaughtExceptionHandler: Thread.UncaughtExceptionHandler
+    val uncaughtExceptionHandlerProvider: UncaughtExceptionHandlerProvider
 
     companion object
+}
+
+interface UncaughtExceptionHandlerProvider {
+    fun provide(): Thread.UncaughtExceptionHandler
 }

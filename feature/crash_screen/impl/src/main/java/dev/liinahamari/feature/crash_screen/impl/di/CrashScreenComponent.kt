@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 liinahamari
+ * Copyright 2020-2022 liinahamari
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
  * (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge,
@@ -14,20 +14,23 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package dev.liinahamari.feature.crash_screen.sample
+package dev.liinahamari.feature.crash_screen.impl.di
 
-import android.app.Application
-import android.content.Context
-import dev.liinahamari.crash_screen.screens.crash_screen.CrashInterceptor
+import dagger.Component
+import dev.liinahamari.feature.crash_screen.api.CrashScreenApi
 import dev.liinahamari.feature.crash_screen.api.CrashScreenDependencies
+import javax.inject.Singleton
 
-class CrashScreenSampleApp : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        CrashInterceptor.init(object : CrashScreenDependencies{
-            override val context: Context = this@CrashScreenSampleApp
-            override val doOnCrash: (Throwable) -> Unit = {}
-            override val doWhileImpossibleToStartCrashScreen: (Throwable) -> Unit = {}
-        })
+@Component(
+    dependencies = [CrashScreenDependencies::class],
+    modules = [CrashScreenModule::class]
+)
+@Singleton
+internal interface CrashScreenComponent: CrashScreenApi {
+    @Component.Factory
+    interface Factory {
+        fun create(dependencies: CrashScreenDependencies): CrashScreenComponent
     }
 }
+
+fun CrashScreenApi.Companion.create(dependencies: CrashScreenDependencies): CrashScreenApi = DaggerCrashScreenComponent.factory().create(dependencies)
