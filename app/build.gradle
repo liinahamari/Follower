@@ -61,7 +61,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat-resources:1.4.1"
     implementation "androidx.fragment:fragment-ktx:1.4.1"
     implementation files('libs/loggy_sdk-debug.aar')
-    debugImplementation "androidx.fragment:fragment-testing:1.4.1"
+    debugImplementation "androidx.fragment:fragment-testing:1.5.4"
 
     /* RX-COMMON */
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
