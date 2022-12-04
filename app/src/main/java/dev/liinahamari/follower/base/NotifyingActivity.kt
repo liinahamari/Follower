@@ -31,6 +31,7 @@ import javax.inject.Inject
 open class NotifyingActivity(@LayoutRes layout: Int) : AppCompatActivity(layout) {
     @Inject lateinit var wakeLock: PowerManager.WakeLock
     @Inject lateinit var keyguardManager: KeyguardManager
+
     override fun onDestroy() = super.onDestroy().also { dimScreen() }
 
     @CallSuper

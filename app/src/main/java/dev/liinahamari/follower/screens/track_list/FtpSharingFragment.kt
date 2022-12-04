@@ -97,11 +97,6 @@ class FtpSharingFragment : BaseDialogFragment(R.layout.fragment_sharing), RxSubs
     }
 
     override fun setupClicks() {
-        ui.serverInputEt.setText(BuildConfig.TEST_FTP_SERVER_ADDRESS)
-        ui.loginInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_LOGIN)
-        ui.passwordInputEt.setText(BuildConfig.TEST_FTP_SERVER_USER_PASSWORD)
-        ui.remotePathEt.setText(BuildConfig.TEST_FTP_SERVER_REMOTE_PATH)
-
         ui.sendButton.clicks()
             .throttleFirst()
             .addToDisposable {
