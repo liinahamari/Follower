@@ -34,4 +34,4 @@ data class WayPoint(
     @PrimaryKey val time: Long
 )
 
-fun Location.toWayPoint(trackId: Long): WayPoint = WayPoint(trackId = trackId, provider = provider, longitude = longitude.round(6), latitude = latitude.round(6), time = System.currentTimeMillis())
+fun Location.toWayPoint(trackId: Long): WayPoint = WayPoint(trackId = trackId, provider = provider!!, longitude = longitude.round(6), latitude = latitude.round(6), time = System.currentTimeMillis())

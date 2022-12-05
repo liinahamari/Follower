@@ -40,14 +40,14 @@ open class MapFragment : BaseFragment(R.layout.fragment_map) {
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(view.findViewById(R.id.map) as MapView) {
+        with(ui.map) {
             mapController = controller
             isTilesScaledToDpi = true
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true)
             zoomController.setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT)
 
-            ui.map.overlays.add(CompassOverlay(context, InternalCompassOrientationProvider(context), this).apply {
+            overlays.add(CompassOverlay(context, InternalCompassOrientationProvider(context), this).apply {
                 enableCompass()
                 setCompassCenter(36f, 36f + (0 / requireContext().resources.displayMetrics.density))
             })
