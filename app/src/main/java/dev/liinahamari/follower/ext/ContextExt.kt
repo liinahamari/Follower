@@ -20,6 +20,7 @@ import android.app.*
 import android.app.AlarmManager.INTERVAL_FIFTEEN_MINUTES
 import android.app.AlarmManager.INTERVAL_HOUR
 import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -93,7 +94,7 @@ fun Context.scheduleLowBatteryChecker(initialDelayInMinutes: Long = 3L) = (getSy
 )
 
 fun Context.cancelLowBatteryChecker() = (this.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
-    .cancel(PendingIntent.getBroadcast(this, BATTERY_CHECKER_ID, Intent(this, LowBatteryReceiver::class.java), 0))
+    .cancel(PendingIntent.getBroadcast(this, BATTERY_CHECKER_ID, Intent(this, LowBatteryReceiver::class.java), FLAG_MUTABLE))
 
 @Suppress("DEPRECATION")
 fun Context.getVersionCode(): String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
