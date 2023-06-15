@@ -77,7 +77,7 @@ private const val MY_EMAIL = "me@liinahamari.dev"
 class FollowerApp : Application() {
     var isAppInForeground = true
     @Inject lateinit var preferencesRepository: PreferencesRepository
-    @Inject lateinit var workerFactory: WorkerFactory
+//    @Inject lateinit var workerFactory: WorkerFactory
     @Inject lateinit var notificationManager: NotificationManager
 
     lateinit var appComponent: AppComponent
@@ -92,7 +92,7 @@ class FollowerApp : Application() {
             userId = USER_ID
         )
         preferencesRepository.incrementAppLaunchCounter()
-        setupWorkManager()
+//        setupWorkManager()
         setupAnrWatchDog()
         preferencesRepository.applyDefaultPreferences()
         setupOsmdroid()
@@ -131,6 +131,7 @@ class FollowerApp : Application() {
         notificationManager.createNotificationChannel(NotificationChannel(CHANNEL_BATTERY_LOW_ID, getString(R.string.title_channel_low_battery), NotificationManager.IMPORTANCE_MAX))
     }
 
+/*
     private fun setupWorkManager() = WorkManager.initialize(
         applicationContext,
         androidx.work.Configuration.Builder()
@@ -139,6 +140,7 @@ class FollowerApp : Application() {
             .setExecutor(Executors.newSingleThreadExecutor())
             .build()
     )
+*/
 
     private fun setupAnrWatchDog() = anrWatchDog
         .setANRListener { error ->

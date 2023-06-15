@@ -19,8 +19,18 @@ package dev.liinahamari.follower.di.components
 import dagger.BindsInstance
 import dagger.Component
 import dev.liinahamari.follower.FollowerApp
-import dev.liinahamari.follower.base.*
-import dev.liinahamari.follower.di.modules.*
+import dev.liinahamari.follower.base.BaseDialogFragment
+import dev.liinahamari.follower.base.BaseFragment
+import dev.liinahamari.follower.base.BaseService
+import dev.liinahamari.follower.base.NotifyingActivity
+import dev.liinahamari.follower.di.modules.AppModule
+import dev.liinahamari.follower.di.modules.BiometricModule
+import dev.liinahamari.follower.di.modules.DatabaseModule
+import dev.liinahamari.follower.di.modules.LoggerModule
+import dev.liinahamari.follower.di.modules.NetworkModule
+import dev.liinahamari.follower.di.modules.ServiceModule
+import dev.liinahamari.follower.di.modules.TrackingControlModule
+import dev.liinahamari.follower.di.modules.ViewModelBuilderModule
 import dev.liinahamari.follower.receivers.BootReceiver
 import dev.liinahamari.follower.receivers.LowBatteryReceiver
 import dev.liinahamari.follower.screens.RouteActivity
@@ -29,7 +39,7 @@ import dev.liinahamari.follower.services.location_tracking.LocationTrackingServi
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class, LoggerModule::class, ViewModelBuilderModule::class, DatabaseModule::class, ServiceModule::class, NetworkModule::class, WorkersBindingModule::class])
+@Component(modules = [AppModule::class, LoggerModule::class, ViewModelBuilderModule::class, DatabaseModule::class, ServiceModule::class, NetworkModule::class])
 interface AppComponent {
     @Component.Builder
     interface Builder {

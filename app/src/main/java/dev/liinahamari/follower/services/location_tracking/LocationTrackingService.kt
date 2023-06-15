@@ -67,7 +67,6 @@ class LocationTrackingService : BaseService(), RxSubscriptionsDelegate by RxSubs
     @Inject lateinit var prefInteractor: LocationPreferenceInteractor
     @Inject lateinit var locationManager: LocationManager
     @Inject lateinit var trackInteractor: TrackInteractor
-    @Inject lateinit var uploadTrackInteractor: UploadTrackInteractor
     @Inject lateinit var notificationManager: NotificationManager
 
     private val locationListener = LocationListener()
@@ -165,7 +164,6 @@ class LocationTrackingService : BaseService(), RxSubscriptionsDelegate by RxSubs
                     }
                 }
         }
-        uploadTrackInteractor.uploadTrack(trackBeginningTime!!) /*process needed to be reflected in UI -?- */
 
         /** for integrity testing purposes */
         trackInteractor.getWayPointsById(trackBeginningTime!!)
@@ -208,7 +206,6 @@ class LocationTrackingService : BaseService(), RxSubscriptionsDelegate by RxSubs
                         Observable.interval(15, TimeUnit.SECONDS) else Observable.interval(10, TimeUnit.MINUTES)
                     )
                 .observeOn(Schedulers.newThread())
-                .doOnNext { uploadTrackInteractor.uploadTrack(trackBeginningTime!!) }
                 .subscribe()
 
         } catch (ex: SecurityException) {

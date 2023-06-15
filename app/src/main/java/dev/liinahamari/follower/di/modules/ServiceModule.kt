@@ -67,7 +67,7 @@ open class ServiceModule {
     @Singleton
     fun provideAlarmManager(@Named(APP_CONTEXT) context: Context): AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    @Provides
-    @Reusable
-    fun provideWorkManager(@Named(APP_CONTEXT) context: Context): WorkManager = WorkManager.getInstance(context)
+//    @Provides
+//    @Reusable
+//    fun provideWorkManager(@Named(APP_CONTEXT) context: Context): WorkManager = WorkManager.getInstance(context)
 }
