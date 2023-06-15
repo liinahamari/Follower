@@ -85,8 +85,8 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.40'
 
     /* MISC */
-    implementation 'org.osmdroid:osmdroid-android:6.1.10'
-    implementation 'com.github.MKergall:osmbonuspack:6.6.0'
+    implementation 'org.osmdroid:osmdroid-android:6.1.13'
+    implementation 'com.github.MKergall:osmbonuspack:6.9.0'
     implementation 'com.afollestad.material-dialogs:input:3.3.0'
     implementation 'com.squareup:seismic:1.0.2'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.11'

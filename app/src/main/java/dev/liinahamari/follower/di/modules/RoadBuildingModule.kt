@@ -36,5 +36,5 @@ class RoadBuildingModule {
 
     @Provides
     @RoadBuildingScope
-    fun provideOsmRoadManager(@Named(APP_CONTEXT) ctx: Context) = OSRMRoadManager(ctx)
+    fun provideOsmRoadManager(@Named(APP_CONTEXT) ctx: Context) = OSRMRoadManager(ctx, "")
 }
