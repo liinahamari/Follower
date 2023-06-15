@@ -24,8 +24,12 @@ import dev.liinahamari.follower.helper.rx.BaseComposers
 import dev.liinahamari.follower.model.PersistedTrackResult
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.model.TrackDao
+import dev.liinahamari.follower.model.TrackMode
 import io.reactivex.rxjava3.core.Single
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
+import org.osmdroid.bonuspack.routing.OSRMRoadManager.MEAN_BY_BIKE
+import org.osmdroid.bonuspack.routing.OSRMRoadManager.MEAN_BY_CAR
+import org.osmdroid.bonuspack.routing.OSRMRoadManager.MEAN_BY_FOOT
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
@@ -45,21 +49,25 @@ class RoadBuildingInteractor constructor(
                 when (lineOrMarkerSet.value) {
                     context.getString(R.string.pref_line) -> {
                         trackDao.getTrackWithWayPoints(trackId)
-                            .flattenAsObservable { it.wayPoints }
-                            .toList()
                             .map<GetRoadResult> {
-                                val geoPoints = ArrayList(it.map { wp -> GeoPoint(wp.latitude, wp.longitude) })
+                                val mean = when (it.track.trackMode) {
+                                    TrackMode.BIKE -> MEAN_BY_BIKE
+                                    TrackMode.WALK -> MEAN_BY_FOOT
+                                    TrackMode.CAR -> MEAN_BY_CAR
+                                }
+                                val geoPoints = ArrayList(it.wayPoints.map { wp -> GeoPoint(wp.latitude, wp.longitude) })
                                 GetRoadResult.SuccessfulLine(
                                     TrackUi.Road(
-                                        road = RoadManager.buildRoadOverlay(osmRoadManager.getRoad(geoPoints)),
-                                        startPoint = WayPointUi(it.first().latitude, it.first().longitude, it.first().time.toReadableDate()),
-                                        finishPoint = WayPointUi(it.last().latitude, it.last().longitude, it.last().time.toReadableDate()),
+                                        road = RoadManager.buildRoadOverlay(osmRoadManager.apply { setMean(mean) }.getRoad(geoPoints)),
+                                        startPoint = WayPointUi(it.wayPoints.first().latitude, it.wayPoints.first().longitude, it.wayPoints.first().time.toReadableDate()),
+                                        finishPoint = WayPointUi(it.wayPoints.last().latitude, it.wayPoints.last().longitude, it.wayPoints.last().time.toReadableDate()),
                                         boundingBox = BoundingBox.fromGeoPointsSafe(geoPoints)
                                     )
                                 )
                             }
                             .onErrorReturn { GetRoadResult.SharedPrefsError }
                     }
+
                     context.getString(R.string.pref_marker_set) -> {
                         trackDao.getTrackWithWayPoints(trackId)
                             .map { it.wayPoints.map { wayPoint -> WayPointUi(wayPoint.latitude, wayPoint.longitude, wayPoint.time.toReadableDate()) } }
@@ -75,6 +83,7 @@ class RoadBuildingInteractor constructor(
                             }
                             .onErrorReturn { GetRoadResult.DatabaseCorruptionError }
                     }
+
                     else -> throw IllegalStateException()
                 }
             } else return@flatMap Single.just(GetRoadResult.SharedPrefsError)
