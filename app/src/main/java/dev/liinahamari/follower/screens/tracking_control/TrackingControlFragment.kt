@@ -170,9 +170,7 @@ class TrackingControlFragment :
                             negativeButton(res = R.string.discard) {
                                 startForegroundService(LocationTrackingService::class.java, action = ACTION_DISCARD_TRACK)
                             }
-
                             input(prefill = gpsService!!.trackBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_track) { _, text ->
-
                                 startForegroundService(
                                     LocationTrackingService::class.java,
                                     action = ACTION_RENAME_TRACK_AND_STOP_TRACKING,

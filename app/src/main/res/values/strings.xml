@@ -160,4 +160,8 @@
     <string name="title_channel_low_battery">Low Battery Notifications</string>
     <string name="title_got_it">Got it!</string>
     <string name="description_low_battery">Battery low! Please charge.</string>
+    <string name="distance_x_km">Distance: %1$.2f km</string>
+    <string name="car">Car</string>
+    <string name="bicycle">Bicycle</string>
+    <string name="foot">Foot</string>
 </resources>

@@ -25,6 +25,7 @@ import dev.liinahamari.follower.ext.MarkerType
 import dev.liinahamari.follower.ext.appComponent
 import dev.liinahamari.follower.ext.createMarker
 import dev.liinahamari.follower.ext.getScreenHeightPx
+import dev.liinahamari.follower.ext.round
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import org.osmdroid.util.BoundingBox
 import javax.inject.Inject
@@ -52,6 +53,7 @@ class TraceFragment : MapFragment() {
         viewModel.errorEvent.observe(viewLifecycleOwner) { errorToast(it) }
 
         viewModel.getTrackAsLineEvent.observe(viewLifecycleOwner) {
+            ui.distanceTv.text = String.format(getString(R.string.distance_x_km), it.length.round(2))
             ui.map.overlays.add(it.road)
 
             if (it.startPoint != it.finishPoint) {

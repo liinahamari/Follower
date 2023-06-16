@@ -9,6 +9,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="map_legend_background">#40000000</color>
     <color name="errorColor">#D50000</color>
     <color name="successColor">#388111</color>
 </resources>

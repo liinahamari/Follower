@@ -17,6 +17,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.screens.trace_map
 
 import android.content.Context
+import android.graphics.Color
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.di.modules.APP_CONTEXT
 import dev.liinahamari.follower.ext.toReadableDate
@@ -55,10 +56,21 @@ class RoadBuildingInteractor constructor(
                                     TrackMode.WALK -> MEAN_BY_FOOT
                                     TrackMode.CAR -> MEAN_BY_CAR
                                 }
+                                val color = when (it.track.trackMode) {
+                                    TrackMode.BIKE -> Color.WHITE
+                                    TrackMode.WALK -> Color.GREEN
+                                    TrackMode.CAR -> Color.BLUE
+                                }
                                 val geoPoints = ArrayList(it.wayPoints.map { wp -> GeoPoint(wp.latitude, wp.longitude) })
+                                val road = osmRoadManager.apply { setMean(mean) }.getRoad(geoPoints)
                                 GetRoadResult.SuccessfulLine(
                                     TrackUi.Road(
-                                        road = RoadManager.buildRoadOverlay(osmRoadManager.apply { setMean(mean) }.getRoad(geoPoints)),
+                                        road = RoadManager.buildRoadOverlay(
+                                            road,
+                                            color,
+                                            5f
+                                        ),
+                                        length = road.mLength,
                                         startPoint = WayPointUi(it.wayPoints.first().latitude, it.wayPoints.first().longitude, it.wayPoints.first().time.toReadableDate()),
                                         finishPoint = WayPointUi(it.wayPoints.last().latitude, it.wayPoints.last().longitude, it.wayPoints.last().time.toReadableDate()),
                                         boundingBox = BoundingBox.fromGeoPointsSafe(geoPoints)
