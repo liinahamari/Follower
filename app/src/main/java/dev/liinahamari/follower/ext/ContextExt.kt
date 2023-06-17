@@ -36,7 +36,6 @@ import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.base.ForegroundService.Companion.ACTION_SHOW_NOTIFICATION
 import dev.liinahamari.follower.base.ForegroundService.Companion.ACTION_STOP_FOREGROUND
 import dev.liinahamari.follower.receivers.BATTERY_CHECKER_ID
-import dev.liinahamari.follower.receivers.LowBatteryReceiver
 
 @Suppress(
     "DEPRECATION"
@@ -79,22 +78,6 @@ fun Context.activityImplicitLaunch(service: Class<out Service>, activity: Class<
         })
     }
 }
-
-/** Runs once-an-hour checker of battery state */
-fun Context.scheduleLowBatteryChecker(initialDelayInMinutes: Long = 3L) = (getSystemService(Context.ALARM_SERVICE) as AlarmManager).setRepeating(
-    AlarmManager.RTC_WAKEUP,
-    System.currentTimeMillis() + minutesToMilliseconds(initialDelayInMinutes),
-    if (BuildConfig.DEBUG) INTERVAL_FIFTEEN_MINUTES else INTERVAL_HOUR,
-    PendingIntent.getBroadcast(
-        this,
-        BATTERY_CHECKER_ID,
-        Intent(this, LowBatteryReceiver::class.java),
-        FLAG_IMMUTABLE
-    )
-)
-
-fun Context.cancelLowBatteryChecker() = (this.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
-    .cancel(PendingIntent.getBroadcast(this, BATTERY_CHECKER_ID, Intent(this, LowBatteryReceiver::class.java), FLAG_MUTABLE))
 
 @Suppress("DEPRECATION")
 fun Context.getVersionCode(): String = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

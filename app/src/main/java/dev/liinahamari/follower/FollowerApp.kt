@@ -25,21 +25,16 @@ import android.app.NotificationManager
 import android.app.job.JobInfo
 import android.content.Context
 import android.content.res.Configuration
-import android.util.Log.INFO
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.OnLifecycleEvent
-import androidx.work.WorkManager
-import androidx.work.WorkerFactory
 import com.github.anrwatchdog.ANRWatchDog
 import dev.liinahamari.crash_screen.screens.crash_screen.CrashInterceptor
 import dev.liinahamari.feature.crash_screen.api.CrashScreenDependencies
 import dev.liinahamari.follower.di.components.AppComponent
 import dev.liinahamari.follower.di.components.DaggerAppComponent
-import dev.liinahamari.follower.ext.cancelLowBatteryChecker
 import dev.liinahamari.follower.ext.provideUpdatedContextWithNewLocale
-import dev.liinahamari.follower.ext.scheduleLowBatteryChecker
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
@@ -55,10 +50,8 @@ import org.acra.annotation.AcraScheduler
 import org.acra.annotation.AcraToast
 import org.acra.data.StringFormat
 import java.util.*
-import java.util.concurrent.Executors
 import javax.inject.Inject
 
-const val CHANNEL_BATTERY_LOW_ID = "CHANNEL_BATTERY_LOW_ID"
 private const val USER_ID = "dummy_id"
 private const val FTP_FILE_UPLOAD_SERVICE_ID = "FTP_FILE_UPLOAD_SERVICE_ID"
 private const val MY_EMAIL = "me@liinahamari.dev"
@@ -77,7 +70,8 @@ private const val MY_EMAIL = "me@liinahamari.dev"
 class FollowerApp : Application() {
     var isAppInForeground = true
     @Inject lateinit var preferencesRepository: PreferencesRepository
-//    @Inject lateinit var workerFactory: WorkerFactory
+
+    //    @Inject lateinit var workerFactory: WorkerFactory
     @Inject lateinit var notificationManager: NotificationManager
 
     lateinit var appComponent: AppComponent
@@ -111,9 +105,6 @@ class FollowerApp : Application() {
                     }
                 })
         }
-
-        cancelLowBatteryChecker()
-        scheduleLowBatteryChecker()
     }
 
     private fun setupFtpUploadingService() = UploadServiceConfig.initialize(
@@ -128,19 +119,18 @@ class FollowerApp : Application() {
         notificationManager.createNotificationChannel(NotificationChannel(AutoTrackingSchedulingService.CHANNEL_ID, "Auto tracking scheduling", NotificationManager.IMPORTANCE_DEFAULT))
         notificationManager.createNotificationChannel(NotificationChannel(LocationTrackingService.CHANNEL_ID, "GPS tracker", NotificationManager.IMPORTANCE_LOW))
         notificationManager.createNotificationChannel(NotificationChannel(FTP_FILE_UPLOAD_SERVICE_ID, "FTP file uploading", NotificationManager.IMPORTANCE_LOW))
-        notificationManager.createNotificationChannel(NotificationChannel(CHANNEL_BATTERY_LOW_ID, getString(R.string.title_channel_low_battery), NotificationManager.IMPORTANCE_MAX))
     }
 
-/*
-    private fun setupWorkManager() = WorkManager.initialize(
-        applicationContext,
-        androidx.work.Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .setMinimumLoggingLevel(INFO)
-            .setExecutor(Executors.newSingleThreadExecutor())
-            .build()
-    )
-*/
+    /*
+        private fun setupWorkManager() = WorkManager.initialize(
+            applicationContext,
+            androidx.work.Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .setMinimumLoggingLevel(INFO)
+                .setExecutor(Executors.newSingleThreadExecutor())
+                .build()
+        )
+    */
 
     private fun setupAnrWatchDog() = anrWatchDog
         .setANRListener { error ->

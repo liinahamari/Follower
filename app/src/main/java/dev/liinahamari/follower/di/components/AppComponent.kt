@@ -32,7 +32,6 @@ import dev.liinahamari.follower.di.modules.ServiceModule
 import dev.liinahamari.follower.di.modules.TrackingControlModule
 import dev.liinahamari.follower.di.modules.ViewModelBuilderModule
 import dev.liinahamari.follower.receivers.BootReceiver
-import dev.liinahamari.follower.receivers.LowBatteryReceiver
 import dev.liinahamari.follower.screens.RouteActivity
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.follower.services.location_tracking.LocationTrackingService
@@ -70,7 +69,5 @@ interface AppComponent {
     fun inject(service: BaseService)
     fun inject(service: AutoTrackingSchedulingService)
     fun inject(service: LocationTrackingService)
-
-    fun inject(receiver: LowBatteryReceiver)
     fun inject(receiver: BootReceiver)
 }

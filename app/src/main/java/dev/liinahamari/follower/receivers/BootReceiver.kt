@@ -17,8 +17,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.receivers
 
 import android.app.AlarmManager
-import android.app.AlarmManager.INTERVAL_HOUR
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -27,8 +25,6 @@ import android.content.SharedPreferences
 import dev.liinahamari.follower.FollowerApp
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.ext.getBooleanOf
-import dev.liinahamari.follower.ext.minutesToMilliseconds
-import dev.liinahamari.follower.ext.scheduleLowBatteryChecker
 import dev.liinahamari.follower.services.AutoTrackingSchedulingService
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import javax.inject.Inject
@@ -60,7 +56,6 @@ class BootReceiver : BroadcastReceiver() {
                 if (sharedPreferences.getBooleanOf(getString(R.string.pref_enable_auto_tracking))) {
                     startForegroundService(Intent(applicationContext, AutoTrackingSchedulingService::class.java))
                 }
-                scheduleLowBatteryChecker()
             }
         }
     }

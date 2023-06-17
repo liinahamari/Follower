@@ -14,8 +14,6 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-@file:Suppress("USELESS_CAST")
-
 package dev.liinahamari.follower.interactors
 
 import android.content.Context
