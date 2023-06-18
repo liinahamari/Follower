@@ -16,15 +16,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.screens.tracking_control
 
-import android.Manifest
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.app.Service
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -52,16 +51,12 @@ import io.reactivex.rxjava3.kotlin.plusAssign
 import javax.inject.Inject
 import javax.inject.Named
 
-const val PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION
-@RequiresApi(Build.VERSION_CODES.Q) const val PERMISSION_BACKGROUND_LOCATION = Manifest.permission.ACCESS_BACKGROUND_LOCATION
-
 /*todo, add distance, points*/
 
 @TrackingControlScope
 class TrackingControlFragment :
     BoundFragment(R.layout.fragment_tracking_control),
-    RxSubscriptionsDelegate by RxSubscriptionDelegateImpl()
-{
+    RxSubscriptionsDelegate by RxSubscriptionDelegateImpl() {
     private val ui by viewBinding(FragmentTrackingControlBinding::bind)
 
     private val viewModel by viewModels<TrackingControlViewModel> { viewModelFactory }
@@ -79,8 +74,12 @@ class TrackingControlFragment :
     private var gpsService: LocationTrackingService? = null
 
     private val geoPermission = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        if (it.values.all { accepted -> accepted }) {
-            startForegroundService(LocationTrackingService::class.java, action = ACTION_START_TRACKING)
+        if (it.getOrDefault(ACCESS_FINE_LOCATION, false)) {
+            startForegroundService(
+                LocationTrackingService::class.java,
+                action = ACTION_START_TRACKING,
+                bundle = bundleOf(ARG_TRACK_MODE to getTrackModeSelected())
+            )
         } else {
             locationPermissionExplanationDialog.show()
         }
@@ -138,23 +137,14 @@ class TrackingControlFragment :
         ui.btnStartTracking.clicks()
             .throttleFirst()
             .addToDisposable {
-                val permissions = mutableListOf(PERMISSION_LOCATION)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    permissions.add(PERMISSION_BACKGROUND_LOCATION)
-                }
-                if (hasAllPermissions(permissions)) {
-                    val trackMode: TrackMode =
-                        ui.trackModeCarIv.takeIf { it.isSelected }?.let { TrackMode.CAR }
-                            ?: ui.trackModeBikeIv.takeIf { it.isSelected }?.let { TrackMode.BIKE }
-                            ?: ui.trackModeWalkIv.takeIf { it.isSelected }!!.let { TrackMode.WALK }
-
+                if (hasAllPermissions(listOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))) {
                     startForegroundService(
                         LocationTrackingService::class.java,
                         action = ACTION_START_TRACKING,
-                        bundle = bundleOf(ARG_TRACK_MODE to trackMode)
+                        bundle = bundleOf(ARG_TRACK_MODE to getTrackModeSelected())
                     )
                 } else {
-                    geoPermission.launch(permissions.toTypedArray())
+                    geoPermission.launch(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
                 }
             }
 
@@ -165,12 +155,12 @@ class TrackingControlFragment :
                     if (gpsService!!.isTrackEmpty) {
                         emptyWayPointsDialog.show()
                     } else {
-                        MaterialDialog(requireContext()).show {
-                            cancelable(false)
-                            negativeButton(res = R.string.discard) {
+                        MaterialDialog(requireContext())
+                            .negativeButton(res = R.string.discard) {
                                 startForegroundService(LocationTrackingService::class.java, action = ACTION_DISCARD_TRACK)
                             }
-                            input(prefill = gpsService!!.trackBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_track) { _, text ->
+                            .cancelable(false)
+                            .input(prefill = gpsService!!.trackBeginningTime!!.toReadableDate(), hintRes = R.string.hint_name_your_track) { _, text ->
                                 startForegroundService(
                                     LocationTrackingService::class.java,
                                     action = ACTION_RENAME_TRACK_AND_STOP_TRACKING,
@@ -178,7 +168,7 @@ class TrackingControlFragment :
                                         putCharSequence(ARG_AUTO_SAVE, text)
                                     })
                             }
-                        }
+                            .show()
                     }
                 } else {
                     FlightRecorder.w { "problem with service binding... gpsService == null (${gpsService == null})" }
@@ -214,6 +204,10 @@ class TrackingControlFragment :
                 ui.trackModeWalkIv.isSelected = false
             }
     }
+
+    private fun getTrackModeSelected(): TrackMode = ui.trackModeCarIv.takeIf { it.isSelected }?.let { TrackMode.CAR }
+        ?: ui.trackModeBikeIv.takeIf { it.isSelected }?.let { TrackMode.BIKE }
+        ?: ui.trackModeWalkIv.takeIf { it.isSelected }!!.let { TrackMode.WALK }
 
     /*todo investigate why NPE happens here and why lifecycle fires twice*/
     private fun toggleButtons(isTracking: Boolean) {

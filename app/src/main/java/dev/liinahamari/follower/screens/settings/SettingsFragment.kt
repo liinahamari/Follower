@@ -16,6 +16,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package dev.liinahamari.follower.screens.settings
 
+import android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
@@ -43,8 +45,6 @@ import dev.liinahamari.follower.ext.*
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.helper.CustomToast.infoToast
 import dev.liinahamari.follower.helper.CustomToast.successToast
-import dev.liinahamari.follower.screens.tracking_control.PERMISSION_BACKGROUND_LOCATION
-import dev.liinahamari.follower.screens.tracking_control.PERMISSION_LOCATION
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -265,9 +265,9 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             /*FIXME inconsistency with permissions*/
             getString(R.string.pref_enable_auto_tracking) -> {
                 if (sharedPreferences.getBooleanOf(key)) {
-                    val permissions = mutableListOf(PERMISSION_LOCATION)
+                    val permissions = mutableListOf(ACCESS_FINE_LOCATION)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        permissions.add(PERMISSION_BACKGROUND_LOCATION)
+                        permissions.add(ACCESS_BACKGROUND_LOCATION)
                     }
                     if (hasAllPermissions(permissions)) {
                         viewModel.scheduleAutoTracking()
