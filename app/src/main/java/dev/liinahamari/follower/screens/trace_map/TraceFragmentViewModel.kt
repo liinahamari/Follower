@@ -31,6 +31,9 @@ typealias Latitude = Double
 
 @RoadBuildingScope
 class TraceFragmentViewModel @Inject constructor(private val roadBuildingInteractor: RoadBuildingInteractor) : BaseViewModel() {
+    private val _getAllTracksAsLineEvent = SingleLiveEvent<List<TrackUi.Road>>()
+    val getAllTrackAsLineEvent: LiveData<List<TrackUi.Road>> get() = _getAllTracksAsLineEvent
+
     private val _getTrackAsLineEvent = SingleLiveEvent<TrackUi.Road>()
     val getTrackAsLineEvent: LiveData<TrackUi.Road> get() = _getTrackAsLineEvent
 
@@ -43,6 +46,15 @@ class TraceFragmentViewModel @Inject constructor(private val roadBuildingInterac
                 when (it) {
                     is GetRoadResult.SuccessfulLine -> _getTrackAsLineEvent.value = it.road
                     is GetRoadResult.SuccessfulMarkerSet -> _getTrackAsMarkerSet.value = it.markerSet
+                    else -> _errorEvent.value = R.string.db_error
+                }
+            })
+    }
+    fun getAllTracks() {
+        disposable += roadBuildingInteractor.getAllRoads()
+            .subscribe(Consumer {
+                when (it) {
+                    is GetAllRoadsResult.SuccessfulLine -> _getAllTracksAsLineEvent.value = it.roads
                     else -> _errorEvent.value = R.string.db_error
                 }
             })

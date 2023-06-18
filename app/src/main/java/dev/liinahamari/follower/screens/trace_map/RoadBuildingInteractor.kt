@@ -26,6 +26,7 @@ import dev.liinahamari.follower.model.PersistedTrackResult
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.model.TrackDao
 import dev.liinahamari.follower.model.TrackMode
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.OSRMRoadManager.MEAN_BY_BIKE
@@ -44,6 +45,37 @@ class RoadBuildingInteractor constructor(
     private val prefRepo: PreferencesRepository,
     private val osmRoadManager: OSRMRoadManager
 ) {
+    fun getAllRoads(): Single<GetAllRoadsResult> = trackDao.getAllTracksWithWayPoints()
+        .toObservable()
+        .flatMap { Observable.fromIterable(it) }
+        .map {
+            val mean = when (it.track.trackMode) {
+                TrackMode.BIKE -> MEAN_BY_BIKE
+                TrackMode.WALK -> MEAN_BY_FOOT
+                TrackMode.CAR -> MEAN_BY_CAR
+            }
+            val color = when (it.track.trackMode) {
+                TrackMode.BIKE -> Color.WHITE
+                TrackMode.WALK -> Color.GREEN
+                TrackMode.CAR -> Color.BLUE
+            }
+            val geoPoints = ArrayList(it.wayPoints.map { wp -> GeoPoint(wp.latitude, wp.longitude) })
+            val road = osmRoadManager.apply { setMean(mean) }.getRoad(geoPoints)
+            TrackUi.Road(
+                road = RoadManager.buildRoadOverlay(
+                    road,
+                    color,
+                    5f
+                ),
+                length = road.mLength,
+                startPoint = WayPointUi(it.wayPoints.first().latitude, it.wayPoints.first().longitude, it.wayPoints.first().time.toReadableDate()),
+                finishPoint = WayPointUi(it.wayPoints.last().latitude, it.wayPoints.last().longitude, it.wayPoints.last().time.toReadableDate()),
+                boundingBox = BoundingBox.fromGeoPointsSafe(geoPoints)
+            )
+        }.toList()
+        .flatMap { Single.just(GetAllRoadsResult.SuccessfulLine(it)) }
+        .compose(baseComposers.applySingleSchedulers())
+
     fun getRoad(trackId: Long): Single<GetRoadResult> = prefRepo.getPersistedTrackRepresentation()
         .flatMap { lineOrMarkerSet ->
             if (lineOrMarkerSet is PersistedTrackResult.Success) {
@@ -108,4 +140,10 @@ sealed class GetRoadResult {
     data class SuccessfulMarkerSet(val markerSet: TrackUi.Markers) : GetRoadResult()
     object DatabaseCorruptionError : GetRoadResult()
     object SharedPrefsError : GetRoadResult()
+}
+
+sealed class GetAllRoadsResult {
+    data class SuccessfulLine(val roads: List<TrackUi.Road>) : GetAllRoadsResult()
+    object DatabaseCorruptionError : GetAllRoadsResult()
+    object SharedPrefsError : GetAllRoadsResult()
 }

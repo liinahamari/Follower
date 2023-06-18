@@ -129,7 +129,13 @@ class TrackListFragment :
             else -> throw IllegalStateException()
         }
         NavHostFragment.findNavController(this@TrackListFragment)
-            .navigate(action, bundleOf(getString(R.string.arg_addressFragment_trackId) to trackId))
+            .navigate(
+                action,
+                bundleOf(
+                    getString(R.string.arg_addressFragment_trackId) to trackId,
+                    getString(R.string.arg_traceQuantityMode) to ShowTraceQuantityMode.SINGLE_TRACE.toString()
+                )
+            )
     }
 
     override fun getBindingTarget(): Class<out Service> = LocationTrackingService::class.java
@@ -149,6 +155,16 @@ class TrackListFragment :
     }
 
     override fun setupClicks() {
+        ui.showAllTracksBtn.setOnClickListener {
+            NavHostFragment.findNavController(this@TrackListFragment)
+                .navigate(
+                    R.id.action_to_map,
+                    bundleOf(
+                        getString(R.string.arg_addressFragment_trackId) to -1L,
+                        getString(R.string.arg_traceQuantityMode) to ShowTraceQuantityMode.ALL_TRACES.toString()
+                    )
+                )
+        }
         ui.importFab.clicks()
             .throttleFirst()
             .addToDisposable {
@@ -188,6 +204,7 @@ class TrackListFragment :
                 getString(R.string.pref_value_track_display_mode_addresses_list), getString(R.string.pref_value_track_display_mode_map) -> {
                     displayTrackWith(trackAndDisplayMode.first, trackAndDisplayMode.second)
                 }
+
                 getString(R.string.pref_value_track_display_mode_none) -> showDialogMapOrAddresses(trackAndDisplayMode.second)
             }
         }
@@ -291,5 +308,9 @@ class TrackListFragment :
         if (key == getString(R.string.pref_theme)) {
             tracksAdapter.notifyDataSetChanged()
         }
+    }
+
+    enum class ShowTraceQuantityMode {
+        SINGLE_TRACE, ALL_TRACES
     }
 }

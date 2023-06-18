@@ -114,4 +114,9 @@
     <string name="title_channel_low_battery">Уведомления о низком заряде батаери</string>
     <string name="title_got_it">Понятно!</string>
     <string name="description_low_battery">Заряд батареи низок! Пожалуйста, подключите зарядное устройство.</string>
+    <string name="distance_x_km">Расстояние: %1$.2f км</string>
+    <string name="car">Авто</string>
+    <string name="bicycle">Велосипед</string>
+    <string name="foot">Пешком</string>
+    <string name="show_all_tracks">Показать все маршруты</string>
 </resources>

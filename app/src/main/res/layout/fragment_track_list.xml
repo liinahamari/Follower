@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/emptyListTv"
@@ -14,32 +14,45 @@
         android:visibility="gone"
         tools:visibility="gone" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/trackList"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:listitem="@layout/item_track"
-        tools:visibility="visible" />
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/showAllTracksBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="@string/show_all_tracks" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trackList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:listitem="@layout/item_track"
+            tools:visibility="visible" />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/ivLock"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_gravity="center"
-        android:src="@drawable/ic_baseline_lock"
         android:contentDescription="LOCK_ICON"
+        android:src="@drawable/ic_baseline_lock"
         tools:ignore="HardcodedText" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/importFab"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        app:tint="@color/white"
+        android:contentDescription="trackListFab"
         app:backgroundTint="@color/purple_500"
         app:srcCompat="@drawable/ic_download"
-        android:layout_height="wrap_content"
-        android:contentDescription="trackListFab"
-        android:layout_gravity="bottom|end"
+        app:tint="@color/white"
         tools:ignore="HardcodedText" />
 </FrameLayout>

@@ -2,6 +2,7 @@
     <string name="app_name" translatable="false">Follower</string>
 
     <!--arguments-->
+    <string name="arg_traceQuantityMode" translatable="false">com.example.follower.TraceFragment.EXTRA_TRACE_QUANTITY_MODE</string>
     <string name="arg_addressFragment_trackId" translatable="false">com.example.follower.AddressTraceFragment.EXTRA_TRACK_ID</string>
     <string name="arg_toSinglePointerMap_Time" translatable="false">com.example.follower.SinglePointerMapFragment.TIME</string>
     <string name="arg_toSinglePointerMap_Longitude" translatable="false">com.example.follower.SinglePointerMapFragment.LONGITUDE</string>
@@ -164,4 +165,5 @@
     <string name="car">Car</string>
     <string name="bicycle">Bicycle</string>
     <string name="foot">Foot</string>
+    <string name="show_all_tracks">Show all tracks</string>
 </resources>

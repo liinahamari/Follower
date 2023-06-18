@@ -27,6 +27,7 @@ import dev.liinahamari.follower.ext.createMarker
 import dev.liinahamari.follower.ext.getScreenHeightPx
 import dev.liinahamari.follower.ext.round
 import dev.liinahamari.follower.helper.CustomToast.errorToast
+import dev.liinahamari.follower.screens.track_list.TrackListFragment
 import org.osmdroid.util.BoundingBox
 import javax.inject.Inject
 
@@ -43,9 +44,18 @@ class TraceFragment : MapFragment() {
     }
 
     override fun onResume() = super.onResume().also {
-        with(arguments?.getLong(getString(R.string.arg_addressFragment_trackId), -9999L)!!) {
-            require(this != -9999L)
-            viewModel.getTrack(this)
+        with(requireArguments().getString(getString(R.string.arg_traceQuantityMode), null)!!) {
+            when (this) {
+                TrackListFragment.ShowTraceQuantityMode.SINGLE_TRACE.toString() -> {
+                    with(arguments?.getLong(getString(R.string.arg_addressFragment_trackId), -9999L)!!) {
+                        require(this != -9999L)
+                        viewModel.getTrack(this)
+                    }
+                }
+
+                TrackListFragment.ShowTraceQuantityMode.ALL_TRACES.toString() -> viewModel.getAllTracks()
+                else -> throw IllegalStateException()
+            }
         }
     }
 
@@ -59,6 +69,12 @@ class TraceFragment : MapFragment() {
             if (it.startPoint != it.finishPoint) {
                 markTrackStartAndFinishAndZoom(it.boundingBox, it.startPoint, it.finishPoint)
             }
+        }
+        viewModel.getAllTrackAsLineEvent.observe(viewLifecycleOwner) {
+            val totalDistance = it.sumOf { road -> road.length }.round(2)
+            ui.distanceTv.text = String.format(getString(R.string.distance_x_km), totalDistance)
+            ui.map.overlays.addAll(it.map { it.road })
+            ui.map.invalidate()
         }
 
         viewModel.getTrackAsMarkerSet.observe(viewLifecycleOwner) {
