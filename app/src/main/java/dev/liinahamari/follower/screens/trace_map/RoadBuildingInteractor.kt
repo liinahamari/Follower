@@ -26,7 +26,6 @@ import dev.liinahamari.follower.model.PersistedTrackResult
 import dev.liinahamari.follower.model.PreferencesRepository
 import dev.liinahamari.follower.model.TrackDao
 import dev.liinahamari.follower.model.TrackMode
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.OSRMRoadManager.MEAN_BY_BIKE
@@ -35,6 +34,7 @@ import org.osmdroid.bonuspack.routing.OSRMRoadManager.MEAN_BY_FOOT
 import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.overlay.Polyline
 import javax.inject.Named
 
 @RoadBuildingScope
@@ -46,34 +46,35 @@ class RoadBuildingInteractor constructor(
     private val osmRoadManager: OSRMRoadManager
 ) {
     fun getAllRoads(): Single<GetAllRoadsResult> = trackDao.getAllTracksWithWayPoints()
-        .toObservable()
-        .flatMap { Observable.fromIterable(it) }
         .map {
-            val mean = when (it.track.trackMode) {
-                TrackMode.BIKE -> MEAN_BY_BIKE
-                TrackMode.WALK -> MEAN_BY_FOOT
-                TrackMode.CAR -> MEAN_BY_CAR
-            }
-            val color = when (it.track.trackMode) {
-                TrackMode.BIKE -> Color.WHITE
-                TrackMode.WALK -> Color.GREEN
-                TrackMode.CAR -> Color.BLUE
-            }
-            val geoPoints = ArrayList(it.wayPoints.map { wp -> GeoPoint(wp.latitude, wp.longitude) })
-            val road = osmRoadManager.apply { setMean(mean) }.getRoad(geoPoints)
-            TrackUi.Road(
-                road = RoadManager.buildRoadOverlay(
+            var totalLength = .0
+            val allGeoPoints = mutableListOf<GeoPoint>()
+            val listOfLines: List<Polyline> = it.map {
+                val mean = when (it.track.trackMode) {
+                    TrackMode.BIKE -> MEAN_BY_BIKE
+                    TrackMode.WALK -> MEAN_BY_FOOT
+                    TrackMode.CAR -> MEAN_BY_CAR
+                }
+                val color = when (it.track.trackMode) {
+                    TrackMode.BIKE -> Color.WHITE
+                    TrackMode.WALK -> Color.GREEN
+                    TrackMode.CAR -> Color.BLUE
+                }
+                val geoPoints = ArrayList(it.wayPoints.map { wp -> GeoPoint(wp.latitude, wp.longitude) })
+                    .also { allGeoPoints.addAll(it) }
+                val road = osmRoadManager.apply { setMean(mean) }.getRoad(geoPoints)
+                totalLength += road.mLength
+
+                RoadManager.buildRoadOverlay(
                     road,
                     color,
                     5f
-                ),
-                length = road.mLength,
-                startPoint = WayPointUi(it.wayPoints.first().latitude, it.wayPoints.first().longitude, it.wayPoints.first().time.toReadableDate()),
-                finishPoint = WayPointUi(it.wayPoints.last().latitude, it.wayPoints.last().longitude, it.wayPoints.last().time.toReadableDate()),
-                boundingBox = BoundingBox.fromGeoPointsSafe(geoPoints)
+                )
+            }
+            GetAllRoadsResult.SuccessfulLine(
+                TracksUi(roads = listOfLines, length = totalLength, boundingBox = BoundingBox.fromGeoPointsSafe(allGeoPoints))
             )
-        }.toList()
-        .flatMap { Single.just(GetAllRoadsResult.SuccessfulLine(it)) }
+        }
         .compose(baseComposers.applySingleSchedulers())
 
     fun getRoad(trackId: Long): Single<GetRoadResult> = prefRepo.getPersistedTrackRepresentation()
@@ -143,7 +144,7 @@ sealed class GetRoadResult {
 }
 
 sealed class GetAllRoadsResult {
-    data class SuccessfulLine(val roads: List<TrackUi.Road>) : GetAllRoadsResult()
+    data class SuccessfulLine(val roads: TracksUi) : GetAllRoadsResult()
     object DatabaseCorruptionError : GetAllRoadsResult()
     object SharedPrefsError : GetAllRoadsResult()
 }

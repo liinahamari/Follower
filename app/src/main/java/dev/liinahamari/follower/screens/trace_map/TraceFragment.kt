@@ -71,10 +71,10 @@ class TraceFragment : MapFragment() {
             }
         }
         viewModel.getAllTrackAsLineEvent.observe(viewLifecycleOwner) {
-            val totalDistance = it.sumOf { road -> road.length }.round(2)
-            ui.distanceTv.text = String.format(getString(R.string.distance_x_km), totalDistance)
-            ui.map.overlays.addAll(it.map { it.road })
+            ui.distanceTv.text = String.format(getString(R.string.distance_x_km), it.length)
+            ui.map.overlays.addAll(it.roads)
             ui.map.invalidate()
+            ui.map.zoomToBoundingBox(it.boundingBox, true, getScreenHeightPx() / 10)
         }
 
         viewModel.getTrackAsMarkerSet.observe(viewLifecycleOwner) {

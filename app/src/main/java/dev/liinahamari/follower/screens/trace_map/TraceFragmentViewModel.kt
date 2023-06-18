@@ -31,8 +31,8 @@ typealias Latitude = Double
 
 @RoadBuildingScope
 class TraceFragmentViewModel @Inject constructor(private val roadBuildingInteractor: RoadBuildingInteractor) : BaseViewModel() {
-    private val _getAllTracksAsLineEvent = SingleLiveEvent<List<TrackUi.Road>>()
-    val getAllTrackAsLineEvent: LiveData<List<TrackUi.Road>> get() = _getAllTracksAsLineEvent
+    private val _getAllTracksAsLineEvent = SingleLiveEvent<TracksUi>()
+    val getAllTrackAsLineEvent: LiveData<TracksUi> get() = _getAllTracksAsLineEvent
 
     private val _getTrackAsLineEvent = SingleLiveEvent<TrackUi.Road>()
     val getTrackAsLineEvent: LiveData<TrackUi.Road> get() = _getTrackAsLineEvent
@@ -50,6 +50,7 @@ class TraceFragmentViewModel @Inject constructor(private val roadBuildingInterac
                 }
             })
     }
+
     fun getAllTracks() {
         disposable += roadBuildingInteractor.getAllRoads()
             .subscribe(Consumer {
@@ -69,5 +70,7 @@ sealed class TrackUi {
     data class Markers(val wayPoints: List<WayPointUi>, override val startPoint: WayPointUi, override val finishPoint: WayPointUi, override val boundingBox: BoundingBox) : TrackUi()
     data class Road(val road: Polyline, override val startPoint: WayPointUi, override val finishPoint: WayPointUi, override val boundingBox: BoundingBox, val length: Double) : TrackUi()
 }
+
+data class TracksUi(val boundingBox: BoundingBox, val roads: List<Polyline>, val length: Double)
 
 data class WayPointUi(val lat: Latitude, val lon: Longitude, val readableTimeStamp: String)
