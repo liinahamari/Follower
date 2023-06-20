@@ -22,7 +22,6 @@ import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
 import android.os.Binder
-import android.os.Bundle
 import android.os.IBinder
 import dev.liinahamari.follower.BuildConfig
 import dev.liinahamari.follower.R
@@ -39,8 +38,8 @@ import dev.liinahamari.follower.helper.delegates.RxSubscriptionsDelegate
 import dev.liinahamari.follower.interactors.SaveTrackResult
 import dev.liinahamari.follower.interactors.TrackInteractor
 import dev.liinahamari.follower.model.TrackMode
-import dev.liinahamari.follower.screens.tracking_control.UploadTrackInteractor
 import dev.liinahamari.loggy_sdk.helper.FlightRecorder
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.plusAssign
@@ -86,6 +85,7 @@ class LocationTrackingService : BaseService(), RxSubscriptionsDelegate by RxSubs
         override fun onLocationChanged(location: Location) {
             FlightRecorder.i { "Location Changed. lat:${location.latitude}, lon:${location.longitude}" }
             trackInteractor.saveWayPoint(location.toWayPoint(trackBeginningTime!!))
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete {
                     val wp = wayPointsCounter.value!!.inc()
                     wayPointsCounter.onNext(wp)
@@ -99,7 +99,6 @@ class LocationTrackingService : BaseService(), RxSubscriptionsDelegate by RxSubs
 
         override fun onProviderDisabled(provider: String) = FlightRecorder.w { "onProviderDisabled: $provider" } /*todo: handle user's geolocation permission revoking*/
         override fun onProviderEnabled(provider: String) = FlightRecorder.w { "onProviderEnabled: $provider" }
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) = Unit /* Cause DEPRECATED */
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
