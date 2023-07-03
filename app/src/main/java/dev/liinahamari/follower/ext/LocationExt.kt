@@ -17,6 +17,17 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.ext
 
 import android.location.LocationManager
+import dev.liinahamari.follower.db.entities.WayPoint
+import org.osmdroid.bonuspack.routing.OSRMRoadManager
+import org.osmdroid.util.GeoPoint
 
-fun LocationManager.isGpsEnabled(): Boolean = allProviders.contains(LocationManager.GPS_PROVIDER) && isProviderEnabled(LocationManager.GPS_PROVIDER)
-fun LocationManager.isNetworkLocationEnabled(): Boolean = allProviders.contains(LocationManager.NETWORK_PROVIDER) && isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+fun LocationManager.isGpsEnabled(): Boolean =
+    allProviders.contains(LocationManager.GPS_PROVIDER) && isProviderEnabled(LocationManager.GPS_PROVIDER)
+
+fun LocationManager.isNetworkLocationEnabled(): Boolean =
+    allProviders.contains(LocationManager.NETWORK_PROVIDER) && isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
+fun OSRMRoadManager.getTrackLength(wayPoints: List<WayPoint>, mean: String): Double =
+    this
+        .apply { setMean(mean) }
+        .getRoad(ArrayList(wayPoints.map { GeoPoint(it.latitude, it.longitude) })).mLength

@@ -194,7 +194,8 @@ class LocationTrackingService : BaseService(), RxSubscriptionsDelegate by RxSubs
                 Track(
                     time = trackBeginningTime!!,
                     title = trackBeginningTime!!.toReadableDate(),
-                    trackMode = trackMode
+                    trackMode = trackMode,
+                    length = .0
                 )
             )
                 .doOnError { FlightRecorder.e("failed to initially save track!", error = it) }

@@ -26,6 +26,7 @@ import dev.liinahamari.follower.db.entities.TrackWithWayPoints
 import dev.liinahamari.follower.db.entities.WayPoint
 import dev.liinahamari.follower.di.modules.APP_CONTEXT
 import dev.liinahamari.follower.ext.createFileIfNotExist
+import dev.liinahamari.follower.ext.getTrackLength
 import dev.liinahamari.follower.ext.getUriForInternalFile
 import dev.liinahamari.follower.ext.toReadableDate
 import dev.liinahamari.follower.helper.rx.BaseComposers
@@ -33,6 +34,7 @@ import dev.liinahamari.follower.model.TrackDao
 import dev.liinahamari.follower.model.TrackJson
 import dev.liinahamari.follower.model.WayPointDao
 import dev.liinahamari.follower.model.WayPointJson
+import dev.liinahamari.follower.model.toMean
 import dev.liinahamari.follower.screens.address_trace.MapPointer
 import dev.liinahamari.follower.screens.track_list.TrackTitle
 import dev.liinahamari.follower.screens.track_list.TrackUi
@@ -40,6 +42,7 @@ import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -49,7 +52,8 @@ class TrackInteractor @Inject constructor(
     private val trackDao: TrackDao,
     private val wayPointDao: WayPointDao,
     private val baseComposers: BaseComposers,
-    private val gson: Gson
+    private val gson: Gson,
+    private val osmRoadManager: OSRMRoadManager
 ) {
     fun deleteTrack(trackId: Long): Single<DeleteTrackResult> = trackDao.delete(trackId)
         .toSingleDefault<DeleteTrackResult>(DeleteTrackResult.Success)
@@ -65,9 +69,10 @@ class TrackInteractor @Inject constructor(
         .map { it.size }
 
     fun renameTrack(trackId: Long, title: String): Single<SaveTrackResult> =
-        trackDao.findByTrackId(trackId)
+        trackDao.getTrackWithWayPoints(trackId)
             .flatMap {
-                trackDao.update(it.copy(title = title))
+                val length = osmRoadManager.getTrackLength(it.wayPoints, it.track.trackMode.toMean())
+                trackDao.update(it.track.copy(title = title, length = length))
                     .toSingleDefault<SaveTrackResult>(SaveTrackResult.Success)
                     .onErrorReturn { SaveTrackResult.DatabaseCorruptionError }
             }
@@ -128,7 +133,8 @@ class TrackInteractor @Inject constructor(
                         time = wp.time
                     )
                 }.toTypedArray(),
-                trackMode = it.track.trackMode
+                trackMode = it.track.trackMode,
+                trackLength = it.track.length
             )
         }
         .map {
@@ -168,7 +174,7 @@ class TrackInteractor @Inject constructor(
                     if (ids.none { it == trackJson.time }) Single.just(trackJson) else throw EntityAlreadyPresentedError() //TODO. future feature: update dialog
                 }
         }.map {
-            TrackWithWayPoints(Track(it.time, it.title, true, it.trackMode), it.wayPoints.map { wp -> WayPoint(trackId = wp.trackId, provider = wp.provider, longitude = wp.longitude, latitude = wp.latitude, time = wp.time) })
+            TrackWithWayPoints(Track(it.time, it.title, true, it.trackMode, it.trackLength), it.wayPoints.map { wp -> WayPoint(trackId = wp.trackId, provider = wp.provider, longitude = wp.longitude, latitude = wp.latitude, time = wp.time) })
         }.flatMap { track ->
             saveTrack(track.track).flatMapCompletable { saveWayPoints(track.wayPoints) }.andThen(fetchTracks(isTracking))
         }.map {

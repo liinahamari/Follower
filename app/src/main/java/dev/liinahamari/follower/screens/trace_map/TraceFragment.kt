@@ -17,7 +17,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package dev.liinahamari.follower.screens.trace_map
 
 import android.content.Context
+import android.text.InputType.TYPE_CLASS_NUMBER
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.input.input
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.MapFragment
 import dev.liinahamari.follower.databinding.FragmentMapBinding
@@ -62,12 +65,23 @@ class TraceFragment : MapFragment() {
     override fun setupViewModelSubscriptions() {
         viewModel.errorEvent.observe(viewLifecycleOwner) { errorToast(it) }
 
+        viewModel.updateTrackLengthEvent.observe(viewLifecycleOwner) { ui.distanceTv.text = String.format(getString(R.string.distance_x_km), it) }
+
         viewModel.getTrackAsLineEvent.observe(viewLifecycleOwner) {
             ui.distanceTv.text = String.format(getString(R.string.distance_x_km), it.length.round(2))
             ui.map.overlays.add(it.road)
 
             if (it.startPoint != it.finishPoint) {
                 markTrackStartAndFinishAndZoom(it.boundingBox, it.startPoint, it.finishPoint)
+            }
+            if (it.length == 0.0) {
+                MaterialDialog(requireContext()) //todo double validator
+                    .negativeButton(res = android.R.string.cancel)
+                    .cancelable(false)
+                    .input(inputType = TYPE_CLASS_NUMBER, hintRes = R.string.hint_name_your_track) { _, text ->
+                        viewModel.updateTrackLength(text, it.trackId)
+                    }
+                    .show()
             }
         }
         viewModel.getAllTrackAsLineEvent.observe(viewLifecycleOwner) {

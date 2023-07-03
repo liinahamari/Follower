@@ -62,6 +62,7 @@
     <string name="title_dark_theme">Dark theme</string>
     <string name="title_themes">Themes</string>
     <string name="title_language">Language</string>
+    <string name="enter_estimated_track_length">Road length calculation engine can\'t process the value. Please enter estimated track length</string>
     <string name="hint_name_your_track">Name your track</string>
     <string name="message_you_have_no_waypoints">You have no waypoints in your trace yet</string>
     <string name="title_stop_tracking">Stop tracking</string>
@@ -166,4 +167,5 @@
     <string name="bicycle">Bicycle</string>
     <string name="foot">Foot</string>
     <string name="show_all_tracks">Show all tracks</string>
+    <string name="error_updating_track_length">Error while update track length</string>
 </resources>

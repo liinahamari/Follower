@@ -16,9 +16,11 @@
 
 package dev.liinahamari.follower.model
 
+import android.graphics.Color
 import android.os.Parcelable
 import androidx.room.TypeConverter
 import kotlinx.android.parcel.Parcelize
+import org.osmdroid.bonuspack.routing.OSRMRoadManager
 
 /** Remove alongside with
  * plugins {
@@ -27,6 +29,17 @@ id 'kotlin-android-extensions'
  * */
 @Parcelize
 enum class TrackMode: Parcelable { CAR, BIKE, WALK }
+
+fun TrackMode.toMean(): String = when (this) {
+    TrackMode.BIKE -> OSRMRoadManager.MEAN_BY_BIKE
+    TrackMode.WALK -> OSRMRoadManager.MEAN_BY_FOOT
+    TrackMode.CAR -> OSRMRoadManager.MEAN_BY_CAR
+}
+fun TrackMode.getTrackColor(): Int = when (this) {
+    TrackMode.BIKE -> Color.parseColor("#FF018786")//todo: tie to map legend
+    TrackMode.WALK -> Color.GREEN
+    TrackMode.CAR -> Color.BLUE
+}
 
 class TrackModeConverter {
     @TypeConverter

@@ -33,8 +33,4 @@ class RoadBuildingModule {
     @RoadBuildingScope
     fun provideRoadBuildingInteractor(@Named(APP_CONTEXT) ctx: Context, trackDao: TrackDao, baseComposers: BaseComposers, prefRepo: PreferencesRepository, osmRoadManager: OSRMRoadManager): RoadBuildingInteractor
         = RoadBuildingInteractor(ctx, trackDao, baseComposers, prefRepo, osmRoadManager)
-
-    @Provides
-    @RoadBuildingScope
-    fun provideOsmRoadManager(@Named(APP_CONTEXT) ctx: Context) = OSRMRoadManager(ctx, "")
 }

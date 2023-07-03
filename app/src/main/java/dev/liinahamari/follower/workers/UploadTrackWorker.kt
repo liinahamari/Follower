@@ -36,7 +36,8 @@ class UploadTrackWorker(private val trackDao: TrackDao, private val serverServic
                 time = it.track.time,
                 title = it.track.title,
                 wayPoints = it.wayPoints.map { wp -> wp.longitude to wp.latitude }.toTypedArray(),
-                it.track.trackMode
+                it.track.trackMode,
+                it.track.length
             )
         }
         .flatMap { serverService.put(it).map { Result.success() } }

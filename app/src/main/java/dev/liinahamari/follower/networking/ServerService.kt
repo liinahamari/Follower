@@ -37,7 +37,7 @@ interface ServerService {
     fun put(@Body request: ServerTrack): Single<Response<Unit>>
 }
 
-data class ServerTrack(var time: Long, var title: String, var wayPoints: Array<Pair<Longitude, Latitude>>, val trackMode: TrackMode) {
+data class ServerTrack(var time: Long, var title: String, var wayPoints: Array<Pair<Longitude, Latitude>>, val trackMode: TrackMode, val length: Double) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

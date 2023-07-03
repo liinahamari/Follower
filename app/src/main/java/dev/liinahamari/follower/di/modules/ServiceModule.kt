@@ -28,15 +28,18 @@ import android.location.LocationManager
 import android.os.BatteryManager
 import android.os.PowerManager
 import android.view.WindowManager
-import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
+import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 open class ServiceModule {
+    @Provides
+    @Singleton
+    fun provideOsmRoadManager(@Named(APP_CONTEXT) ctx: Context) = OSRMRoadManager(ctx, "")
+
     @SuppressLint("InlinedApi")
     @Provides
     @Singleton

@@ -119,4 +119,6 @@
     <string name="bicycle">Велосипед</string>
     <string name="foot">Пешком</string>
     <string name="show_all_tracks">Показать все маршруты</string>
+    <string name="enter_estimated_track_length">Невозможно вычислить длину трека. Введите ориентировочное значение</string>
+    <string name="error_updating_track_length">Ошибка при обновлении длины трека</string>
 </resources>

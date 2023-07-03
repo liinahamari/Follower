@@ -37,6 +37,9 @@ class TraceFragmentViewModel @Inject constructor(private val roadBuildingInterac
     private val _getTrackAsLineEvent = SingleLiveEvent<TrackUi.Road>()
     val getTrackAsLineEvent: LiveData<TrackUi.Road> get() = _getTrackAsLineEvent
 
+    private val _updateTrackLengthEvent = SingleLiveEvent<Double>()
+    val updateTrackLengthEvent: LiveData<Double> get() = _updateTrackLengthEvent
+
     private val _getTrackAsMarkerSet = SingleLiveEvent<TrackUi.Markers>()
     val getTrackAsMarkerSet: LiveData<TrackUi.Markers> get() = _getTrackAsMarkerSet
 
@@ -60,6 +63,17 @@ class TraceFragmentViewModel @Inject constructor(private val roadBuildingInterac
                 }
             })
     }
+
+    fun updateTrackLength(length: CharSequence, trackId: Long) {
+        disposable += roadBuildingInteractor.updateLength(length.toString().toDouble(), trackId)
+            .subscribe(Consumer {
+                when (it) {
+                    is UpdateTrackLengthResult.Success -> _updateTrackLengthEvent.value = length.toString().toDouble()
+                    is UpdateTrackLengthResult.Error -> _errorEvent.value = R.string.error_updating_track_length
+                    else -> _errorEvent.value = R.string.db_error
+                }
+            })
+    }
 }
 
 sealed class TrackUi {
@@ -68,7 +82,10 @@ sealed class TrackUi {
     abstract val boundingBox: BoundingBox
 
     data class Markers(val wayPoints: List<WayPointUi>, override val startPoint: WayPointUi, override val finishPoint: WayPointUi, override val boundingBox: BoundingBox) : TrackUi()
-    data class Road(val road: Polyline, override val startPoint: WayPointUi, override val finishPoint: WayPointUi, override val boundingBox: BoundingBox, val length: Double) : TrackUi()
+    data class Road(
+        val trackId: Long,
+        val road: Polyline, override val startPoint: WayPointUi, override val finishPoint: WayPointUi, override val boundingBox: BoundingBox, val length: Double
+    ) : TrackUi()
 }
 
 data class TracksUi(val boundingBox: BoundingBox, val roads: List<Polyline>, val length: Double)

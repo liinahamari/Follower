@@ -25,5 +25,6 @@ data class Track(
     @PrimaryKey val time: Long,
     val title: String,
     val isImported: Boolean = false,
-    val trackMode: TrackMode
+    val trackMode: TrackMode,
+    val length: Double
 )
