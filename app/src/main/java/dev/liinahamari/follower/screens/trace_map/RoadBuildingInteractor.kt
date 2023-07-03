@@ -56,7 +56,7 @@ class RoadBuildingInteractor constructor(
                     TrackMode.CAR -> MEAN_BY_CAR
                 }
                 val color = when (it.track.trackMode) {
-                    TrackMode.BIKE -> Color.WHITE
+                    TrackMode.BIKE -> Color.parseColor("#FF018786")
                     TrackMode.WALK -> Color.GREEN
                     TrackMode.CAR -> Color.BLUE
                 }
@@ -90,7 +90,7 @@ class RoadBuildingInteractor constructor(
                                     TrackMode.CAR -> MEAN_BY_CAR
                                 }
                                 val color = when (it.track.trackMode) {
-                                    TrackMode.BIKE -> Color.WHITE
+                                    TrackMode.BIKE -> Color.parseColor("#FF018786")
                                     TrackMode.WALK -> Color.GREEN
                                     TrackMode.CAR -> Color.BLUE
                                 }
