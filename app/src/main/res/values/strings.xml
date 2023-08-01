@@ -168,4 +168,5 @@
     <string name="foot">Foot</string>
     <string name="show_all_tracks">Show all tracks</string>
     <string name="error_updating_track_length">Error while update track length</string>
+    <string name="title_extend_track">Extend track to this point?</string>
 </resources>

@@ -42,7 +42,9 @@ import dev.liinahamari.loggy_sdk.helper.FlightRecorder
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
+import org.osmdroid.util.GeoPoint
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
@@ -191,6 +193,10 @@ class TrackInteractor @Inject constructor(
             }
 
         }.compose(baseComposers.applySingleSchedulers("Track import"))
+
+    fun extendTrack(trackId: Long, newLastPoint: GeoPoint): Completable = wayPointDao.insert(
+        WayPoint(trackId = trackId, provider = "", latitude = newLastPoint.latitude, longitude = newLastPoint.longitude, time = System.currentTimeMillis())
+    ).subscribeOn(Schedulers.io())
 }
 
 sealed class SaveTrackResult {

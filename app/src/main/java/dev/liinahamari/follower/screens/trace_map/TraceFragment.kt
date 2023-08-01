@@ -18,6 +18,7 @@ package dev.liinahamari.follower.screens.trace_map
 
 import android.content.Context
 import android.text.InputType.TYPE_CLASS_NUMBER
+import android.view.MotionEvent
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
@@ -32,6 +33,9 @@ import dev.liinahamari.follower.ext.round
 import dev.liinahamari.follower.helper.CustomToast.errorToast
 import dev.liinahamari.follower.screens.track_list.TrackListFragment
 import org.osmdroid.util.BoundingBox
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Overlay
 import javax.inject.Inject
 
 class TraceFragment : MapFragment() {
@@ -69,11 +73,15 @@ class TraceFragment : MapFragment() {
 
         viewModel.getTrackAsLineEvent.observe(viewLifecycleOwner) {
             ui.distanceTv.text = String.format(getString(R.string.distance_x_km), it.length.round(2))
+            ui.map.overlays.clear()
             ui.map.overlays.add(it.road)
 
             if (it.startPoint != it.finishPoint) {
                 markTrackStartAndFinishAndZoom(it.boundingBox, it.startPoint, it.finishPoint)
             }
+
+            ui.map.overlays.add(createTrackExtensionOverlay())
+
             if (it.length == 0.0) {
                 MaterialDialog(requireContext()) //todo double validator
                     .negativeButton(res = android.R.string.cancel)
@@ -86,12 +94,14 @@ class TraceFragment : MapFragment() {
         }
         viewModel.getAllTrackAsLineEvent.observe(viewLifecycleOwner) {
             ui.distanceTv.text = String.format(getString(R.string.distance_x_km), it.length)
+            ui.map.overlays.clear()
             ui.map.overlays.addAll(it.roads)
             ui.map.invalidate()
             ui.map.zoomToBoundingBox(it.boundingBox, true, getScreenHeightPx() / 10)
         }
 
         viewModel.getTrackAsMarkerSet.observe(viewLifecycleOwner) {
+            ui.map.overlays.clear()
             it.wayPoints.map { wp -> ui.map.createMarker(wp.lon, wp.lat, MarkerType.WAYPOINT, wp.readableTimeStamp) }
                 .apply { ui.map.overlays.addAll(this) }
 
@@ -101,11 +111,37 @@ class TraceFragment : MapFragment() {
         }
     }
 
-    private fun markTrackStartAndFinishAndZoom(boundingBox: BoundingBox, startPoint: WayPointUi, finishPointUi: WayPointUi) {
+    private fun createTrackExtensionOverlay(): Overlay = object : Overlay() {
+        override fun onLongPress(e: MotionEvent?, mapView: MapView?): Boolean {
+            MaterialDialog(requireContext())
+                .message(R.string.title_extend_track)
+                .negativeButton()
+                .positiveButton {
+                    with(mapView!!.projection.fromPixels(e!!.x.toInt(), e.y.toInt())) {
+                        viewModel.extendTrack(GeoPoint(latitude, longitude), arguments?.getLong(getString(R.string.arg_addressFragment_trackId), -9999L)!!)
+                    }
+                }
+                .show()
+            return true
+        }
+    }
+
+    private fun markTrackStartAndFinishAndZoom(
+        boundingBox: BoundingBox,
+        startPoint: WayPointUi,
+        finishPointUi: WayPointUi
+    ) {
         with(ui.map) {
             overlays.add(createMarker(startPoint.lon, startPoint.lat, MarkerType.START, startPoint.readableTimeStamp))
 
-            overlays.add(createMarker(finishPointUi.lon, finishPointUi.lat, MarkerType.END, finishPointUi.readableTimeStamp))
+            overlays.add(
+                createMarker(
+                    finishPointUi.lon,
+                    finishPointUi.lat,
+                    MarkerType.END,
+                    finishPointUi.readableTimeStamp
+                )
+            )
 
             invalidate()
             zoomToBoundingBox(boundingBox, true, getScreenHeightPx() / 10)

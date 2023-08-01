@@ -20,9 +20,11 @@ import androidx.lifecycle.LiveData
 import dev.liinahamari.follower.R
 import dev.liinahamari.follower.base.BaseViewModel
 import dev.liinahamari.follower.helper.SingleLiveEvent
+import dev.liinahamari.follower.interactors.TrackInteractor
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.kotlin.plusAssign
 import org.osmdroid.util.BoundingBox
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Polyline
 import javax.inject.Inject
 
@@ -30,7 +32,10 @@ typealias Longitude = Double
 typealias Latitude = Double
 
 @RoadBuildingScope
-class TraceFragmentViewModel @Inject constructor(private val roadBuildingInteractor: RoadBuildingInteractor) : BaseViewModel() {
+class TraceFragmentViewModel @Inject constructor(
+    private val roadBuildingInteractor: RoadBuildingInteractor,
+    private val trackInteractor: TrackInteractor
+) : BaseViewModel() {
     private val _getAllTracksAsLineEvent = SingleLiveEvent<TracksUi>()
     val getAllTrackAsLineEvent: LiveData<TracksUi> get() = _getAllTracksAsLineEvent
 
@@ -74,6 +79,18 @@ class TraceFragmentViewModel @Inject constructor(private val roadBuildingInterac
                 }
             })
     }
+
+    fun extendTrack(geoPoint: GeoPoint, trackId: Long) {
+        disposable += trackInteractor.extendTrack(trackId, geoPoint)
+            .andThen(roadBuildingInteractor.getRoad(trackId))
+            .subscribe { it ->
+                when (it) {
+                    is GetRoadResult.SuccessfulLine -> _getTrackAsLineEvent.value = it.road
+                    is GetRoadResult.SuccessfulMarkerSet -> _getTrackAsMarkerSet.value = it.markerSet
+                    else -> _errorEvent.value = R.string.db_error
+                }
+            }
+    }
 }
 
 sealed class TrackUi {
@@ -81,10 +98,20 @@ sealed class TrackUi {
     abstract val finishPoint: WayPointUi
     abstract val boundingBox: BoundingBox
 
-    data class Markers(val wayPoints: List<WayPointUi>, override val startPoint: WayPointUi, override val finishPoint: WayPointUi, override val boundingBox: BoundingBox) : TrackUi()
+    data class Markers(
+        val wayPoints: List<WayPointUi>,
+        override val startPoint: WayPointUi,
+        override val finishPoint: WayPointUi,
+        override val boundingBox: BoundingBox
+    ) : TrackUi()
+
     data class Road(
         val trackId: Long,
-        val road: Polyline, override val startPoint: WayPointUi, override val finishPoint: WayPointUi, override val boundingBox: BoundingBox, val length: Double
+        val road: Polyline,
+        override val startPoint: WayPointUi,
+        override val finishPoint: WayPointUi,
+        override val boundingBox: BoundingBox,
+        val length: Double
     ) : TrackUi()
 }
 
